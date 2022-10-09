@@ -15,7 +15,7 @@ tcalc: Terminal calculator.
  -u : Utility mode
  If no option is provided, the calculator launches in interactive mode
 .SH COPYRIGHT
-Terminal calculator is Copyright (C) 2021 Ahmad H. Ismail <a.h.ismail.dev@gmail.com>
+Terminal calculator is Copyright (C) 2021-2022 Ahmad Ismail
 .SH LICENSE
 This project is licensed under the GNU General Public License version 3 or later.
 .SH BUGS
