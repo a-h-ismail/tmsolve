@@ -1,4 +1,4 @@
-./"Manual of tcalc, copyright 2021 (C) Ahmad H. Ismail <a.h.ismail.dev@gmail.com>
+./"Manual of tcalc, copyright 2021-2022 (C) Ahmad Ismail
 ./"Licensed under the GNU General Public License version 3 or later
 .TH TCALC 1 "7 October 2021"
 .SH NAME
