@@ -229,7 +229,7 @@ void function_calculator()
     double start, end, step, x;
     int i, length;
     char *exp, step_op, *function;
-    s_expression **compiled_func;
+    s_expression *compiled_func;
     system(CLEAR_CONSOLE);
     puts("Current mode: Function");
     while (1)
@@ -328,7 +328,7 @@ void function_calculator()
         x = start;
         double prevx, result;
         variable_data *variables;
-        compiled_func = scientific_compiler(function);
+        compiled_func = scientific_compiler(function,true);
         variables = variable_nodes(compiled_func);
         while (x <= end)
         {
@@ -368,7 +368,6 @@ void function_calculator()
             }
         }
         printf("\n");
-        free(exp);
         free(function);
     }
 }
