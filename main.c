@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 double complex ans = 0;
 int main(int argc, char **argv)
 {
-    char *exp;
+    char *exp=NULL;
     //Accessing modes using command parameters
     if (argc > 1 && argv[1][0] == '-')
     {

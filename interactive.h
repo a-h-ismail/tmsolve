@@ -20,6 +20,7 @@ char *readline(char *prompt);
 #include <stdlib.h>
 void s_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
+void scientific_calculator(char *exp, bool calledbydefault);
 void complex_mode();
 void function_calculator();
 void equation_mode();
