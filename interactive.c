@@ -76,6 +76,7 @@ double get_value(char *prompt)
     {
         s_input(&exp, prompt, -1);
         exp = realloc(exp, EXP_SIZE(strlen(exp)) * sizeof(char));
+        g_exp = exp;
         if (parenthesis_check(exp) == false)
         {
             error_handler(NULL, 2);
@@ -87,7 +88,7 @@ double get_value(char *prompt)
             continue;
         }
         variable_matcher(exp);
-        value = scientific_interpreter(exp, false);
+        value = scientific_interpreter(exp);
         free(exp);
         if (isnan(value))
             error_handler(NULL, 2);
@@ -122,7 +123,7 @@ void scientific_calculator(char *exp, bool calledbydefault)
 //Function that chooses complex or scientific interpreter based on expression and solves it
 void scientific_complex_picker(char *exp)
 {
-    char *exp_copy, *real_characteristics[] = {"int", "d/dx", "%", "!"};
+    char *real_characteristics[] = {"int", "d/dx", "%", "!"};
     int i, is_complex;
     i = strlen(exp);
     if (i == 0)
@@ -131,10 +132,9 @@ void scientific_complex_picker(char *exp)
         free(exp);
         return;
     }
-    exp_copy = (char *)malloc((i + 1) * sizeof(char));
-    strcpy(exp_copy, exp);
     exp = realloc(exp, EXP_SIZE(i) * sizeof(char));
-    //Support for implicit use of previous answer by placing a point '.' at the first position
+    g_exp = exp;
+    // Support for implicit use of previous answer by placing a point '.' at the first position
     if (*exp == '.')
     {
         string_resizer(exp, 0, 2);
@@ -171,13 +171,12 @@ void scientific_complex_picker(char *exp)
         complex_interpreter(exp);
         error_handler(NULL, 2, 1);
         free(exp);
-        free(exp_copy);
         return;
     }
     //Case where the expression seems real, but may yield imaginary numbers
     else
     {
-        ans = pre_scientific_interpreter(exp);
+        ans = scientific_interpreter(exp);
         if (!isnan(creal(ans)))
         {
             printf("= %.12g\n", creal(ans));
@@ -187,8 +186,6 @@ void scientific_complex_picker(char *exp)
         //Case where the error handler collected errors from the scientific interpreter, try the complex interpreter
         else if (is_complex == 0 && error_handler(NULL, 5, 0) != 0)
         {
-            //Restore the original exp
-            strcpy(exp, exp_copy);
             //Backup scientific mode errors
             error_handler(NULL, 6);
             complex_interpreter(exp);
@@ -202,7 +199,6 @@ void scientific_complex_picker(char *exp)
     }
     error_handler(NULL, 2, 1);
     free(exp);
-    free(exp_copy);
 }
 void complex_mode()
 {
@@ -306,7 +302,7 @@ void function_calculator()
             else
                 step_op = '+';
             variable_matcher(exp);
-            step = pre_scientific_interpreter(exp);
+            step = scientific_interpreter(exp);
             if (isnan(step))
             {
                 printf("\n");
