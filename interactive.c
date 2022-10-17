@@ -330,7 +330,7 @@ void function_calculator()
         {
             prevx = x;
             //Set the value of x in the subexps
-            replace_unknowns(variables, x);
+            replace_variable(variables, x);
             //solving the function then printing
             result = solve_s_exp(compiled_func);
             if (isnan(result))
