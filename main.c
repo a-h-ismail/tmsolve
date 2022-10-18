@@ -94,7 +94,7 @@ int main(int argc, char **argv)
         }
         system(CLEAR_CONSOLE);
         free(exp);
-        puts("S for scientific, F for function, M for matrix, E for equation, C for complex, U for utility.");
+        puts("Interactive mode:");
     }
     /*
     No point in freeing readline history (Linux), your OS will reclaim all memory at the process end

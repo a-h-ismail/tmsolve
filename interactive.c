@@ -96,12 +96,12 @@ double get_value(char *prompt)
             return value;
     }
 }
-void scientific_calculator(char *exp, bool calledbydefault)
+void scientific_calculator(char *exp, bool called_by_default)
 {
     //clear the console
     system(CLEAR_CONSOLE);
     puts("Current mode: Scientific");
-    if (calledbydefault == false)
+    if (called_by_default == false)
     {
         free(exp);
         s_input(&exp, NULL, -1);
@@ -134,12 +134,6 @@ void scientific_complex_picker(char *exp)
     }
     exp = realloc(exp, EXP_SIZE(i) * sizeof(char));
     g_exp = exp;
-    // Support for implicit use of previous answer by placing a point '.' at the first position
-    if (*exp == '.')
-    {
-        string_resizer(exp, 0, 2);
-        strncpy(exp, "ans", 3);
-    }
     //Seeking for integration,derivation,modulo,factorial operators (implying real operations)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
