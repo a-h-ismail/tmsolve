@@ -88,7 +88,7 @@ double get_value(char *prompt)
             continue;
         }
         variable_matcher(exp);
-        value = scientific_interpreter(exp);
+        value = calculate_expr(exp);
         free(exp);
         if (isnan(value))
             error_handler(NULL, 2);
@@ -170,7 +170,7 @@ void scientific_complex_picker(char *exp)
     //Case where the expression seems real, but may yield imaginary numbers
     else
     {
-        ans = scientific_interpreter(exp);
+        ans = calculate_expr(exp);
         if (!isnan(creal(ans)))
         {
             printf("= %.12g\n", creal(ans));
@@ -296,7 +296,7 @@ void function_calculator()
             else
                 step_op = '+';
             variable_matcher(exp);
-            step = scientific_interpreter(exp);
+            step = calculate_expr(exp);
             if (isnan(step))
             {
                 printf("\n");
@@ -318,7 +318,7 @@ void function_calculator()
         x = start;
         double prevx, result;
         variable_data *variables;
-        compiled_func = scientific_compiler(function,true);
+        compiled_func = parse_expr(function,true);
         variables = variable_nodes(compiled_func);
         while (x <= end)
         {
@@ -326,7 +326,7 @@ void function_calculator()
             //Set the value of x in the subexps
             replace_variable(variables, x);
             //solving the function then printing
-            result = solve_s_exp(compiled_func);
+            result = evaluate(compiled_func);
             if (isnan(result))
             {
                 error_handler(NULL, 3, 0);
@@ -630,7 +630,7 @@ double get_value(char *prompt)
             continue;
         }
         variable_matcher(exp);
-        value = scientific_interpreter(exp, false);
+        value = calculate_expr(exp, false);
         free(exp);
         if (isnan(value))
             error_handler(NULL, 2);
