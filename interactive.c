@@ -29,9 +29,9 @@ char *readline(char *prompt)
     return buffer;
 }
 #endif
-//Reads n characters to *buffer (if n=-1 , no character limit), print prompt
-//Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
-//a char array allocated with malloc, beware of leaks
+// Reads n characters to *buffer (if n=-1 , no character limit), print prompt
+// Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
+// a char array allocated with malloc, beware of leaks
 void s_input(char **buffer, char *prompt, size_t n)
 {
     char *temp;
@@ -44,8 +44,7 @@ void s_input(char **buffer, char *prompt, size_t n)
 #if defined(__linux)
             add_history(temp);
 #endif
-            //string cleaner removes spaces used to improve visibility while entering an expression
-            string_cleaner(*buffer);
+            remove_whitespace(*buffer);
             return;
         }
         else if (strlen(temp) > n)
@@ -61,7 +60,7 @@ void s_input(char **buffer, char *prompt, size_t n)
         }
     }
 }
-//Simple function to flush stdin, do not use with fgets or it will get blocked due to possible lack of \n
+// Simple function to flush stdin, do not use with fgets or it will get blocked due to possible lack of \n
 void flush_stdin()
 {
     while (fgetc(stdin) != '\n')
@@ -75,19 +74,17 @@ double get_value(char *prompt)
     while (1)
     {
         s_input(&exp, prompt, -1);
-        exp = realloc(exp, EXP_SIZE(strlen(exp)) * sizeof(char));
         g_exp = exp;
         if (parenthesis_check(exp) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        if (implicit_multiplication(exp) == false)
+        if (implicit_multiplication(&exp) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        variable_matcher(exp);
         value = calculate_expr(exp);
         free(exp);
         if (isnan(value))
@@ -98,7 +95,7 @@ double get_value(char *prompt)
 }
 void scientific_calculator(char *exp, bool called_by_default)
 {
-    //clear the console
+    // clear the console
     system(CLEAR_CONSOLE);
     puts("Current mode: Scientific");
     if (called_by_default == false)
@@ -116,11 +113,11 @@ void scientific_calculator(char *exp, bool called_by_default)
             return;
         }
         scientific_complex_picker(exp);
-        //Expression input is at last because the first expression is entered by main
+        // Expression input is at last because the first expression is entered by main
         s_input(&exp, NULL, -1);
     }
 }
-//Function that chooses complex or scientific interpreter based on expression and solves it
+// Function that chooses complex or scientific interpreter based on expression and solves it
 void scientific_complex_picker(char *exp)
 {
     char *real_characteristics[] = {"int", "d/dx", "%", "!"};
@@ -132,9 +129,8 @@ void scientific_complex_picker(char *exp)
         free(exp);
         return;
     }
-    exp = realloc(exp, EXP_SIZE(i) * sizeof(char));
     g_exp = exp;
-    //Seeking for integration,derivation,modulo,factorial operators (implying real operations)
+    // Seeking for integration,derivation,modulo,factorial operators (implying real operations)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
     {
@@ -149,7 +145,7 @@ void scientific_complex_picker(char *exp)
         i = s_search(exp, "i", 0);
         while (i != -1)
         {
-            //Seeking for the complex number "i"
+            // Seeking for the complex number "i"
             if (part_of_keyword(exp, "i", "sin", i) || part_of_keyword(exp, "i", "pi", i) || part_of_keyword(exp, "i", "ceil", i))
                 i = s_search(exp, "i", i + 1);
             else
@@ -159,7 +155,7 @@ void scientific_complex_picker(char *exp)
             }
         }
     }
-    //Case where a complex number was found
+    // Case where a complex number was found
     if (is_complex == 1)
     {
         complex_interpreter(exp);
@@ -167,7 +163,7 @@ void scientific_complex_picker(char *exp)
         free(exp);
         return;
     }
-    //Case where the expression seems real, but may yield imaginary numbers
+    // Case where the expression seems real, but may yield imaginary numbers
     else
     {
         ans = calculate_expr(exp);
@@ -177,13 +173,13 @@ void scientific_complex_picker(char *exp)
             if (decimal_to_fraction(exp, false) == true)
                 printf("\n");
         }
-        //Case where the error handler collected errors from the scientific interpreter, try the complex interpreter
+        // Case where the error handler collected errors from the scientific interpreter, try the complex interpreter
         else if (is_complex == 0 && error_handler(NULL, 5, 0) != 0)
         {
-            //Backup scientific mode errors
+            // Backup scientific mode errors
             error_handler(NULL, 6);
             complex_interpreter(exp);
-            //If complex mode also returned errors, print the errors of scientific mode
+            // If complex mode also returned errors, print the errors of scientific mode
             if (error_handler(NULL, 5, 0) != 0)
             {
                 error_handler(NULL, 7);
@@ -207,7 +203,6 @@ void complex_mode()
             free(exp);
             return;
         }
-        exp = realloc(exp, EXP_SIZE(strlen(exp)));
         complex_interpreter(exp);
         free(exp);
         error_handler(NULL, 2, 1);
@@ -217,57 +212,40 @@ void complex_mode()
 void function_calculator()
 {
     double start, end, step, x;
-    int i, length;
-    char *exp, step_op, *function;
-    s_expression *compiled_func;
+    int i;
+    char *expr, step_op, *function;
+    math_expr *math_struct;
     system(CLEAR_CONSOLE);
     puts("Current mode: Function");
     while (1)
     {
-        s_input(&exp, "f(x) = ", -1);
-        if (strcmp(exp, "exit") == 0)
+        s_input(&function, "f(x) = ", -1);
+        if (strcmp(function, "exit") == 0)
         {
-            free(exp);
+            free(function);
             return;
         }
-        length = strlen(exp);
-        exp = realloc(exp, EXP_SIZE(length) * sizeof(char));
-        if (*exp == '\0')
+        // Anticipating the extra space caused by implied multiplication
+        expr = realloc(function, strlen(function) * 4 * sizeof(char));
+        if (*expr == '\0')
         {
             puts("Empty input.\n");
             continue;
         }
-        if (s_search(exp, "int", 0) != -1)
-        {
-            puts("Error: integration is not allowed in function mode.\n");
-            continue;
-        }
-        if (s_search(exp, "d/dx", 0) != -1)
-        {
-            puts("Error: derivation is not allowed in function mode.\n");
-            continue;
-        }
-        if (implicit_multiplication(exp) == false)
+        if (implicit_multiplication(&function) == false)
         {
             error_handler(NULL, 2, 1);
             continue;
         }
-        if (parenthesis_check(exp) == false)
+        if (parenthesis_check(function) == false)
         {
             printf("\n");
             continue;
         }
-        variable_matcher(exp);
-        //Copy the entered funtion to a separate array
-        length = strlen(exp);
-        function = (char *)malloc((length + 1) * sizeof(char));
-        strcpy(function, exp);
-        free(exp);
-        //Use exp to calculate any possible expression entered in start, end
-        //Entering start
+
         start = get_value("Start: ");
         printf("%.12g\n", start);
-        //Entering end
+        // Read end value
         while (1)
         {
             end = get_value("End: ");
@@ -282,31 +260,29 @@ void function_calculator()
                 break;
             }
         }
-        //Entering step and identifing step operator
+        // Read step and identify stepping operator
         while (1)
         {
-            s_input(&exp, "Step: ", -1);
-            i = strlen(exp);
-            exp = realloc(exp, EXP_SIZE(i) * sizeof(char));
-            if (*(exp + i - 1) == '+' || *(exp + i - 1) == '*' || *(exp + i - 1) == '^')
+            s_input(&expr, "Step: ", -1);
+            i = strlen(expr);
+            if (*(expr + i - 1) == '+' || *(expr + i - 1) == '*' || *(expr + i - 1) == '^')
             {
-                step_op = *(exp + i - 1);
-                *(exp + i - 1) = '\0';
+                step_op = *(expr + i - 1);
+                *(expr + i - 1) = '\0';
             }
             else
                 step_op = '+';
-            variable_matcher(exp);
-            step = calculate_expr(exp);
+            step = calculate_expr(expr);
             if (isnan(step))
             {
                 printf("\n");
-                free(exp);
+                free(expr);
                 continue;
             }
             else
             {
-                puts(exp);
-                free(exp);
+                puts(expr);
+                free(expr);
                 break;
             }
             if (step == 0)
@@ -317,28 +293,22 @@ void function_calculator()
         }
         x = start;
         double prevx, result;
-        variable_data *variables;
-        compiled_func = parse_expr(function,true);
-        variables = variable_nodes(compiled_func);
+        math_struct = parse_expr(function, true, false);
         while (x <= end)
         {
             prevx = x;
-            //Set the value of x in the subexps
-            replace_variable(variables, x);
-            //solving the function then printing
-            result = evaluate(compiled_func);
+            // Set the value of x in the subexpr_ptr
+            set_variable(math_struct, x);
+            // Solving the function then printing
+            result = evaluate(math_struct);
             if (isnan(result))
             {
                 error_handler(NULL, 3, 0);
                 printf("f(%g)=Error\n", x);
             }
             else
-            {
                 printf("f(%g) = %.14g\n", x, result);
-                if (decimal_to_fraction(exp, false) == true)
-                    printf("\n");
-            }
-            //calculating the next value of x according to the specified method
+            // Calculating the next value of x according to the specified method
             switch (step_op)
             {
             case '+':
