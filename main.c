@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     //A 1 calculation pass from the terminal.
     else if (argc == 2)
     {
-        exp = (char *)malloc(EXP_SIZE(strlen(argv[1])) * sizeof(char));
+        exp = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
         strcpy(exp, argv[1]);
         scientific_complex_picker(exp);
         return 1;
