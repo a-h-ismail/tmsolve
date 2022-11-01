@@ -20,7 +20,7 @@ char *readline(char *prompt);
 #include <stdlib.h>
 void s_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
-void scientific_calculator(char *exp, bool calledbydefault);
+void scientific_calculator(char *expr, bool calledbydefault);
 void complex_mode();
 void function_calculator();
 void equation_mode();
@@ -29,5 +29,5 @@ double get_value(char *prompt);
 double *matrix_input(int a, int b);
 void matrix_print(double *A);
 void utility_mode();
-void utility_functions(char *exp);
+void utility_functions(char *expr);
 #endif

@@ -9,14 +9,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 double complex ans = 0;
 int main(int argc, char **argv)
 {
-    char *exp=NULL;
+    char *expr=NULL;
     //Accessing modes using command parameters
     if (argc > 1 && argv[1][0] == '-')
     {
         switch (argv[1][1])
         {
         case 's':
-            scientific_calculator(exp, false);
+            scientific_calculator(expr, false);
             break;
         case 'c':
             complex_mode();
@@ -43,26 +43,26 @@ int main(int argc, char **argv)
     //A 1 calculation pass from the terminal.
     else if (argc == 2)
     {
-        exp = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
-        strcpy(exp, argv[1]);
-        scientific_complex_picker(exp);
+        expr = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
+        strcpy(expr, argv[1]);
+        scientific_complex_picker(expr);
         return 1;
     }
     puts("Interactive mode:");
     //pick the mode or call scientific mode if no mode is specified
     while (1)
     {
-        s_input(&exp, NULL, -1);
-        if (strcmp("exit", exp) == 0)
+        s_input(&expr, NULL, -1);
+        if (strcmp("exit", expr) == 0)
         {
-            free(exp);
+            free(expr);
             return 0;
         }
-        if (strlen(exp) == 1)
-            switch (*exp)
+        if (strlen(expr) == 1)
+            switch (*expr)
             {
             case 'S':
-                scientific_calculator(exp, false);
+                scientific_calculator(expr, false);
                 break;
             case 'F':
                 function_calculator();
@@ -85,15 +85,15 @@ int main(int argc, char **argv)
                 break;
                 */
             default:
-                scientific_calculator(exp, true);
+                scientific_calculator(expr, true);
             }
         else
         {
-            scientific_calculator(exp, true);
-            exp = NULL;
+            scientific_calculator(expr, true);
+            expr = NULL;
         }
         system(CLEAR_CONSOLE);
-        free(exp);
+        free(expr);
         puts("Interactive mode:");
     }
     /*

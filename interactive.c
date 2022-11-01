@@ -70,52 +70,52 @@ void flush_stdin()
 double get_value(char *prompt)
 {
     double value = 0;
-    char *exp;
+    char *expr;
     while (1)
     {
-        s_input(&exp, prompt, -1);
-        g_exp = exp;
-        if (parenthesis_check(exp) == false)
+        s_input(&expr, prompt, -1);
+        g_exp = expr;
+        if (parenthesis_check(expr) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        if (implicit_multiplication(&exp) == false)
+        if (implicit_multiplication(&expr) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        value = calculate_expr(exp, true);
-        free(exp);
+        value = calculate_expr(expr, true);
+        free(expr);
         if (isnan(value))
             error_handler(NULL, 2);
         else
             return value;
     }
 }
-void scientific_calculator(char *exp, bool called_by_default)
+void scientific_calculator(char *expr, bool called_by_default)
 {
     // clear the console
     system(CLEAR_CONSOLE);
     puts("Current mode: Scientific");
     if (called_by_default == false)
     {
-        free(exp);
-        s_input(&exp, NULL, -1);
+        free(expr);
+        s_input(&expr, NULL, -1);
     }
     else
-        puts(exp);
+        puts(expr);
     while (1)
     {
-        if (strcmp(exp, "exit") == 0)
+        if (strcmp(expr, "exit") == 0)
         {
-            free(exp);
+            free(expr);
             return;
         }
-        scientific_complex_picker(exp);
-        free(exp);
+        scientific_complex_picker(expr);
+        free(expr);
         // Expression input is at last because the first expression is entered by main
-        s_input(&exp, NULL, -1);
+        s_input(&expr, NULL, -1);
     }
 }
 void print_result(double complex result)
@@ -125,8 +125,8 @@ void print_result(double complex result)
     if (imag != 0)
     {
         if (imag > 0)
-            printf("-");
-        printf("%14gi", imag);
+            printf("+");
+        printf("%.14gi", imag);
     }
     fraction fraction_str = decimal_to_fraction(real, false);
     if (fraction_str.c != 0)
@@ -138,22 +138,22 @@ void print_result(double complex result)
     printf("\n\n");
 }
 // Function that chooses complex or scientific interpreter based on expression and solves it
-void scientific_complex_picker(char *exp)
+void scientific_complex_picker(char *expr)
 {
-    char *real_characteristics[] = {"int", "d/dx", "%", "!"};
+    char *real_characteristics[] = {"int", "der", "%", "!"};
     int i, is_complex;
-    i = strlen(exp);
+    i = strlen(expr);
     if (i == 0)
     {
         puts("Empty input.\n");
         return;
     }
-    g_exp = exp;
+    g_exp = expr;
     // Seeking for integration,derivation,modulo,factorial operators (implying real operations)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
     {
-        if (s_search(exp, real_characteristics[i], 0) != -1)
+        if (s_search(expr, real_characteristics[i], 0) != -1)
         {
             is_complex = -1;
             break;
@@ -161,12 +161,12 @@ void scientific_complex_picker(char *exp)
     }
     if (is_complex == 0)
     {
-        i = s_search(exp, "i", 0);
+        i = s_search(expr, "i", 0);
         while (i != -1)
         {
             // Seeking for the complex number "i"
-            if (part_of_keyword(exp, "i", "sin", i) || part_of_keyword(exp, "i", "pi", i) || part_of_keyword(exp, "i", "ceil", i))
-                i = s_search(exp, "i", i + 1);
+            if (part_of_keyword(expr, "i", "sin", i) || part_of_keyword(expr, "i", "pi", i) || part_of_keyword(expr, "i", "ceil", i))
+                i = s_search(expr, "i", i + 1);
             else
             {
                 is_complex = 1;
@@ -177,14 +177,15 @@ void scientific_complex_picker(char *exp)
     // Case where a complex number was found
     if (is_complex == 1)
     {
-        calculate_expr(exp, true);
+        ans=calculate_expr(expr, true);
+        print_result(ans);
         error_handler(NULL, 2, 1);
         return;
     }
     // Case where the expression seems real, but may yield imaginary numbers
     else
     {
-        ans = calculate_expr(exp, false);
+        ans = calculate_expr(expr, false);
         if (!isnan(creal(ans)))
         {
             print_result(ans);
@@ -194,7 +195,7 @@ void scientific_complex_picker(char *exp)
         {
             // Backup scientific mode errors
             error_handler(NULL, 6);
-            ans = calculate_expr(exp, true);
+            ans = calculate_expr(expr, true);
             // If complex mode also returned errors, print the errors of scientific mode
             if (error_handler(NULL, 5, 0) != 0)
             {
@@ -207,19 +208,19 @@ void scientific_complex_picker(char *exp)
 }
 void complex_mode()
 {
-    char *exp;
+    char *expr;
     system(CLEAR_CONSOLE);
     puts("Current mode: Complex");
     while (1)
     {
-        s_input(&exp, NULL, -1);
-        if (strcmp(exp, "exit") == 0)
+        s_input(&expr, NULL, -1);
+        if (strcmp(expr, "exit") == 0)
         {
-            free(exp);
+            free(expr);
             return;
         }
-        ans = calculate_expr(exp, true);
-        free(exp);
+        ans = calculate_expr(expr, true);
+        free(expr);
         error_handler(NULL, 2, 1);
     }
 }
@@ -347,50 +348,50 @@ void function_calculator()
     }
 }
 /*
-void utility_functions(char *exp)
+void utility_functions(char *expr)
 {
     int length, i;
-    length = strlen(exp);
+    length = strlen(expr);
     for (i = 1; i < length; ++i)
     {
-        if (*(exp + i) == '|')
+        if (*(expr + i) == '|')
         {
-            nroot_solver(exp);
+            nroot_solver(expr);
             return;
         }
     }
     for (i = 1; i < length; ++i)
     {
-        if (*(exp + i) == '/')
+        if (*(expr + i) == '/')
         {
-            reduce_fraction(exp, false);
+            reduce_fraction(expr, false);
             return;
         }
     }
     for (i = 1; i < length; ++i)
     {
-        if (*(exp + i) == '.')
+        if (*(expr + i) == '.')
         {
-            if (decimal_to_fraction(exp, false) == true)
+            if (decimal_to_fraction(expr, false) == true)
                 printf("\n");
             else
                 puts("Unable to process number.");
             return;
         }
     }
-    factorize(exp);
+    factorize(expr);
 }
 void utility_mode()
 {
-    char stack_exp[25], *exp = (char *)stack_exp;
+    char stack_exp[25], *expr = (char *)stack_exp;
     system(CLEAR_CONSOLE);
     puts("Current mode: Utility");
     while (1)
     {
-        s_input(&exp, NULL, 25);
-        if (strcmp(exp, "exit") == 0)
+        s_input(&expr, NULL, 25);
+        if (strcmp(expr, "exit") == 0)
             return;
-        utility_functions(exp);
+        utility_functions(expr);
         error_handler(NULL, 2);
     }
 }
@@ -491,12 +492,12 @@ void rps()
     }
 }
 
-void factorize(char *exp)
+void factorize(char *expr)
 {
     int32_t *factors, n;
     double check;
     int i, success_count;
-    success_count = sscanf(exp, "%lf", &check);
+    success_count = sscanf(expr, "%lf", &check);
     if (success_count != 1)
     {
         puts("Syntax error.");
@@ -534,15 +535,15 @@ void factorize(char *exp)
     free(factors);
 }
 // p here must be the index of the root symbol (n)\|value
-void nroot_solver(char *exp)
+void nroot_solver(char *expr)
 {
     int32_t root = 1, root_power, remain, *factors;
     int i = 2, success_count;
     double check1, check2;
     // Taking input
-    if (*exp == '(')
+    if (*expr == '(')
     {
-        success_count = sscanf(exp, "(%lf)\\|%lf", &check1, &check2);
+        success_count = sscanf(expr, "(%lf)\\|%lf", &check1, &check2);
         if (success_count != 2)
         {
             puts("Syntax error.");
@@ -551,7 +552,7 @@ void nroot_solver(char *exp)
     }
     else
     {
-        success_count = sscanf(exp, "\\|%lf", &check2);
+        success_count = sscanf(expr, "\\|%lf", &check2);
         check1 = 2;
         if (success_count != 1)
         {
@@ -599,24 +600,24 @@ void nroot_solver(char *exp)
 double get_value(char *prompt)
 {
     double value = 0;
-    char *exp;
+    char *expr;
     while (1)
     {
-        s_input(&exp, prompt, -1);
-        exp = realloc(exp, EXP_SIZE(strlen(exp)) * sizeof(char));
-        if (parenthesis_check(exp) == false)
+        s_input(&expr, prompt, -1);
+        expr = realloc(expr, EXP_SIZE(strlen(expr)) * sizeof(char));
+        if (parenthesis_check(expr) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        if (implicit_multiplication(exp) == false)
+        if (implicit_multiplication(expr) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        variable_matcher(exp);
-        value = calculate_expr(exp, false);
-        free(exp);
+        variable_matcher(expr);
+        value = calculate_expr(expr, false);
+        free(expr);
         if (isnan(value))
             error_handler(NULL, 2);
         else
@@ -665,7 +666,7 @@ void equation_mode()
 }
 double *matrix_input(int a, int b)
 {
-    char *exp;
+    char *expr;
     double *matrix;
     int i, j, success_count;
     // We reserve 2 extra spaces at the beginning for the dimensions
@@ -684,32 +685,32 @@ double *matrix_input(int a, int b)
             {
                 success_count = 0;
                 sprintf(buffer, "(%d,%d): ", i + 1, j + 1);
-                s_input(&exp, buffer, -1);
-                if (strcmp(exp, "exit") == 0)
+                s_input(&expr, buffer, -1);
+                if (strcmp(expr, "exit") == 0)
                 {
-                    free(exp);
+                    free(expr);
                     free(matrix - 2);
                     return NULL;
                 }
-                if (strlen(exp) == 0)
+                if (strlen(expr) == 0)
                 {
                     puts("Empty input.\n");
-                    free(exp);
+                    free(expr);
                     continue;
                 }
-                exp = realloc(exp, EXP_SIZE(strlen(exp)));
-                *(matrix + (i * b) + j) = pre_scientific_interpreter(exp);
+                expr = realloc(expr, EXP_SIZE(strlen(expr)));
+                *(matrix + (i * b) + j) = pre_scientific_interpreter(expr);
                 if (isnan(*(matrix + (i * b) + j)))
                 {
                     error_handler(NULL, 2, 1);
                     success_count = 0;
-                    free(exp);
+                    free(expr);
                     continue;
                 }
-                free(exp);
+                free(expr);
             } while (success_count != 1);
-            printf("%s\n", exp);
-            free(exp);
+            printf("%s\n", expr);
+            free(expr);
         }
     // Don't forget that we previously incremented the pointer by 2
     return matrix - 2;
