@@ -85,7 +85,7 @@ double get_value(char *prompt)
             error_handler(NULL, 2);
             continue;
         }
-        value = calculate_expr(exp);
+        value = calculate_expr(exp, true);
         free(exp);
         if (isnan(value))
             error_handler(NULL, 2);
@@ -116,6 +116,25 @@ void scientific_calculator(char *exp, bool called_by_default)
         // Expression input is at last because the first expression is entered by main
         s_input(&exp, NULL, -1);
     }
+}
+void print_result(double complex result)
+{
+    double real = creal(result), imag = cimag(result);
+    printf("= %.14g", real);
+    if (imag != 0)
+    {
+        if (imag > 0)
+            printf("-");
+        printf("%14gi", imag);
+    }
+    fraction fraction_str = decimal_to_fraction(real, false);
+    if (fraction_str.c != 0)
+    {
+        if(fraction_str.a!=0)
+        printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
+        printf("\n= %g / %g", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+    }
+    printf("\n\n");
 }
 // Function that chooses complex or scientific interpreter based on expression and solves it
 void scientific_complex_picker(char *exp)
@@ -158,7 +177,7 @@ void scientific_complex_picker(char *exp)
     // Case where a complex number was found
     if (is_complex == 1)
     {
-        complex_interpreter(exp);
+        calculate_expr(exp, true);
         error_handler(NULL, 2, 1);
         free(exp);
         return;
@@ -166,19 +185,17 @@ void scientific_complex_picker(char *exp)
     // Case where the expression seems real, but may yield imaginary numbers
     else
     {
-        ans = calculate_expr(exp);
+        ans = calculate_expr(exp, false);
         if (!isnan(creal(ans)))
         {
-            printf("= %.12g\n", creal(ans));
-            if (decimal_to_fraction(exp, false) == true)
-                printf("\n");
+            print_result(ans);
         }
-        // Case where the error handler collected errors from the scientific interpreter, try the complex interpreter
+        // If evaluating without enabling complex
         else if (is_complex == 0 && error_handler(NULL, 5, 0) != 0)
         {
             // Backup scientific mode errors
             error_handler(NULL, 6);
-            complex_interpreter(exp);
+            ans = calculate_expr(exp, true);
             // If complex mode also returned errors, print the errors of scientific mode
             if (error_handler(NULL, 5, 0) != 0)
             {
@@ -203,7 +220,7 @@ void complex_mode()
             free(exp);
             return;
         }
-        complex_interpreter(exp);
+        ans = calculate_expr(exp, true);
         free(exp);
         error_handler(NULL, 2, 1);
     }
@@ -272,7 +289,7 @@ void function_calculator()
             }
             else
                 step_op = '+';
-            step = calculate_expr(expr);
+            step = calculate_expr(expr, false);
             if (isnan(step))
             {
                 printf("\n");
@@ -348,7 +365,7 @@ void utility_functions(char *exp)
     {
         if (*(exp + i) == '/')
         {
-            fraction_processor(exp, false);
+            reduce_fraction(exp, false);
             return;
         }
     }
