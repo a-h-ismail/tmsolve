@@ -113,6 +113,7 @@ void scientific_calculator(char *exp, bool called_by_default)
             return;
         }
         scientific_complex_picker(exp);
+        free(exp);
         // Expression input is at last because the first expression is entered by main
         s_input(&exp, NULL, -1);
     }
@@ -145,7 +146,6 @@ void scientific_complex_picker(char *exp)
     if (i == 0)
     {
         puts("Empty input.\n");
-        free(exp);
         return;
     }
     g_exp = exp;
@@ -179,7 +179,6 @@ void scientific_complex_picker(char *exp)
     {
         calculate_expr(exp, true);
         error_handler(NULL, 2, 1);
-        free(exp);
         return;
     }
     // Case where the expression seems real, but may yield imaginary numbers
@@ -205,7 +204,6 @@ void scientific_complex_picker(char *exp)
         }
     }
     error_handler(NULL, 2, 1);
-    free(exp);
 }
 void complex_mode()
 {
