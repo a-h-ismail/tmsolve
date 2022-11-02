@@ -74,6 +74,12 @@ double get_value(char *prompt)
     while (1)
     {
         s_input(&expr, prompt, -1);
+        if (strlen(expr) == 0)
+        {
+            puts("Empty input.");
+            free(expr);
+            continue;
+        }
         g_exp = expr;
         if (parenthesis_check(expr) == false)
         {
@@ -131,8 +137,8 @@ void print_result(double complex result)
     fraction fraction_str = decimal_to_fraction(real, false);
     if (fraction_str.c != 0)
     {
-        if(fraction_str.a!=0)
-        printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
+        if (fraction_str.a != 0)
+            printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
         printf("\n= %g / %g", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
     }
     printf("\n\n");
@@ -177,7 +183,7 @@ void scientific_complex_picker(char *expr)
     // Case where a complex number was found
     if (is_complex == 1)
     {
-        ans=calculate_expr(expr, true);
+        ans = calculate_expr(expr, true);
         print_result(ans);
         error_handler(NULL, 2, 1);
         return;
