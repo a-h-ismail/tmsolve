@@ -107,10 +107,10 @@ void scientific_calculator(char *expr, bool called_by_default)
     if (called_by_default == false)
     {
         free(expr);
-        s_input(&expr, NULL, -1);
+        s_input(&expr, "> ", -1);
     }
     else
-        puts(expr);
+        printf("> %s\n",expr);
     while (1)
     {
         if (strcmp(expr, "exit") == 0)
@@ -121,19 +121,32 @@ void scientific_calculator(char *expr, bool called_by_default)
         scientific_complex_picker(expr);
         free(expr);
         // Expression input is at last because the first expression is entered by main
-        s_input(&expr, NULL, -1);
+        s_input(&expr, "> ", -1);
     }
 }
 void print_result(double complex result)
 {
     double real = creal(result), imag = cimag(result);
-    printf("= %.14g", real);
+    if (isnan(real) || isnan(imag))
+        return;
+
+    printf("= ");
     if (imag != 0)
     {
-        if (imag > 0)
-            printf("+");
-        printf("%.14gi", imag);
+        if (real > 0)
+        {
+            printf("%.14g", real);
+            if (imag > 0)
+                printf("+");
+        }
+        if (imag == 1)
+            printf("i");
+        else if (imag == -1)
+            printf("-i");
+        else printf("%.14gi", imag);
     }
+    else
+        printf("%.14g", real);
     fraction fraction_str = decimal_to_fraction(real, false);
     if (fraction_str.c != 0)
     {
@@ -185,7 +198,7 @@ void scientific_complex_picker(char *expr)
     {
         ans = calculate_expr(expr, true);
         print_result(ans);
-        error_handler(NULL, 2, 1);
+        error_handler(NULL, 2);
         return;
     }
     // Case where the expression seems real, but may yield imaginary numbers
@@ -210,7 +223,7 @@ void scientific_complex_picker(char *expr)
             }
         }
     }
-    error_handler(NULL, 2, 1);
+    error_handler(NULL, 2);
 }
 void complex_mode()
 {
@@ -227,7 +240,7 @@ void complex_mode()
         }
         ans = calculate_expr(expr, true);
         free(expr);
-        error_handler(NULL, 2, 1);
+        error_handler(NULL, 2);
     }
 }
 
@@ -256,7 +269,7 @@ void function_calculator()
         }
         if (implicit_multiplication(&function) == false)
         {
-            error_handler(NULL, 2, 1);
+            error_handler(NULL, 2);
             continue;
         }
         if (parenthesis_check(function) == false)
