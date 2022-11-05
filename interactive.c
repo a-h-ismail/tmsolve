@@ -80,7 +80,7 @@ double get_value(char *prompt)
             free(expr);
             continue;
         }
-        g_exp = expr;
+        glob_expr = expr;
         if (parenthesis_check(expr) == false)
         {
             error_handler(NULL, 2);
@@ -167,7 +167,7 @@ void scientific_complex_picker(char *expr)
         puts("Empty input.\n");
         return;
     }
-    g_exp = expr;
+    glob_expr = expr;
     // Seeking for integration,derivation,modulo,factorial operators (implying real operations)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
@@ -402,20 +402,19 @@ void utility_functions(char *expr)
 }
 void utility_mode()
 {
-    char stack_exp[25], *expr = (char *)stack_exp;
+    char input[25];
     system(CLEAR_CONSOLE);
     puts("Current mode: Utility");
     while (1)
     {
-        s_input(&expr, NULL, 25);
-        if (strcmp(expr, "exit") == 0)
+        s_input(input, NULL, 25);
+        if (strcmp(input, "exit") == 0)
             return;
-        utility_functions(expr);
+        utility_functions(input);
         error_handler(NULL, 2);
     }
 }
 
-I will look into this section later, I should first make the scientific mode stable
 //Who said a calculator can't have some secrets?
 void rps()
 {
@@ -614,75 +613,7 @@ void nroot_solver(char *expr)
     if (root == 1 && remain > 1)
         printf("= (%" PRId32 ")\\|%" PRId32 " ~ %.10g\n", root_power, remain, pow(remain, (double)1 / root_power));
 }
-
-// Function that keeps running until a valid input is obtained, returning the result
-double get_value(char *prompt)
-{
-    double value = 0;
-    char *expr;
-    while (1)
-    {
-        s_input(&expr, prompt, -1);
-        expr = realloc(expr, EXP_SIZE(strlen(expr)) * sizeof(char));
-        if (parenthesis_check(expr) == false)
-        {
-            error_handler(NULL, 2);
-            continue;
-        }
-        if (implicit_multiplication(expr) == false)
-        {
-            error_handler(NULL, 2);
-            continue;
-        }
-        variable_matcher(expr);
-        value = calculate_expr(expr, false);
-        free(expr);
-        if (isnan(value))
-            error_handler(NULL, 2);
-        else
-            return value;
-    }
-}
-void equation_mode()
-{
-    int degree;
-    char *operation = (char *)malloc(10 * sizeof(char));
-    system(CLEAR_CONSOLE);
-    puts("Current mode: Equation");
-    puts("Enter S followed by a number n for a linear system of n equations.");
-    puts("Enter E followed by a number to calculate a linear equation of degree n.");
-    while (1)
-    {
-        printf("\n");
-        s_input(&operation, NULL, 9);
-        if (strcmp(operation, "exit") == 0)
-            break;
-        switch (*operation)
-        {
-        case 'S':
-            if (sscanf(operation, "S%d", &degree) == 0)
-            {
-                puts("Invalid input.");
-                break;
-            }
-            else
-                system_solver(degree);
-            break;
-        case 'E':
-            if (sscanf(operation, "E%d", &degree) == 0)
-            {
-                puts("Invalid input.");
-                break;
-            }
-            else
-                equation_solver(degree);
-            break;
-        default:
-            puts("Invalid operation.");
-        }
-    }
-    free(operation);
-}
+*/
 double *matrix_input(int a, int b)
 {
     char *expr;
@@ -717,8 +648,7 @@ double *matrix_input(int a, int b)
                     free(expr);
                     continue;
                 }
-                expr = realloc(expr, EXP_SIZE(strlen(expr)));
-                *(matrix + (i * b) + j) = pre_scientific_interpreter(expr);
+                *(matrix + (i * b) + j) = calculate_expr(expr,false);
                 if (isnan(*(matrix + (i * b) + j)))
                 {
                     error_handler(NULL, 2, 1);
@@ -967,4 +897,3 @@ void matrix_mode()
     free(E);
     free(R);
 }
-*/
