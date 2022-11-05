@@ -70,20 +70,10 @@ int main(int argc, char **argv)
             case 'C':
                 complex_mode();
                 break;
-            /*
-            case 'E':
-                equation_mode();
-                break;
-            case 'U':
-                utility_features();
-                break;
             case 'M':
                 matrix_mode();
                 break;
-            case 'e':
-                rps();
-                break;
-                */
+
             default:
                 scientific_calculator(expr, true);
             }
@@ -93,7 +83,6 @@ int main(int argc, char **argv)
             expr = NULL;
         }
         system(CLEAR_CONSOLE);
-        free(expr);
         puts("Interactive mode:");
     }
     /*
