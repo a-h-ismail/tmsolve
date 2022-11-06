@@ -26,8 +26,8 @@ void function_calculator();
 void equation_mode();
 void matrix_mode();
 double get_value(char *prompt);
-double *matrix_input(int a, int b);
-void matrix_print(double *A);
+matrix_str *matrix_input(int a, int b);
+void matrix_print(matrix_str *A);
 void utility_mode();
 void utility_functions(char *expr);
 #endif

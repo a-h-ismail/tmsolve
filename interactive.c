@@ -614,58 +614,23 @@ void nroot_solver(char *expr)
         printf("= (%" PRId32 ")\\|%" PRId32 " ~ %.10g\n", root_power, remain, pow(remain, (double)1 / root_power));
 }
 */
-double *matrix_input(int a, int b)
+matrix_str *matrix_input(int rows, int columns)
 {
-    char *expr;
-    double *matrix;
-    int i, j, success_count;
-    // We reserve 2 extra spaces at the beginning for the dimensions
-    matrix = (double *)malloc((2 + a * b) * sizeof(double));
-    // We save the dimensions like mentioned before
-    *matrix = a;
-    *(matrix + 1) = b;
-    // offset the pointer by 2 to use the array as if there was no 2 spaces reserved for dimensions
-    matrix = matrix + 2;
+    matrix_str *matrix=new_matrix(rows,columns);
+    int i, j;
     puts("Enter data:");
-    char buffer[28];
-    for (i = 0; i < a; ++i)
-        for (j = 0; j < b; ++j)
+    char mem_prompt[28];
+    for (i = 0; i < rows; ++i)
+        for (j = 0; j < columns; ++j)
         {
-            do
-            {
-                success_count = 0;
-                sprintf(buffer, "(%d,%d): ", i + 1, j + 1);
-                s_input(&expr, buffer, -1);
-                if (strcmp(expr, "exit") == 0)
-                {
-                    free(expr);
-                    free(matrix - 2);
-                    return NULL;
-                }
-                if (strlen(expr) == 0)
-                {
-                    puts("Empty input.\n");
-                    free(expr);
-                    continue;
-                }
-                *(matrix + (i * b) + j) = calculate_expr(expr,false);
-                if (isnan(*(matrix + (i * b) + j)))
-                {
-                    error_handler(NULL, 2, 1);
-                    success_count = 0;
-                    free(expr);
-                    continue;
-                }
-                free(expr);
-            } while (success_count != 1);
-            printf("%s\n", expr);
-            free(expr);
+            sprintf(mem_prompt, "(%d,%d):", i + 1, j + 1);
+            matrix->data[i][j]=get_value(mem_prompt);
         }
     // Don't forget that we previously incremented the pointer by 2
-    return matrix - 2;
+    return matrix;
 }
-// Read data into matrix M
-void matrix_edit(double **M)
+// Read data into matrix M from stdin
+void matrix_edit(matrix_str **M)
 {
     int a = 0, b = 0, success_count = 0;
     char *buffer;
@@ -689,30 +654,27 @@ void matrix_edit(double **M)
     } while (a <= 0 || b <= 0 || success_count != 2);
     *M = matrix_input(a, b);
 }
-void matrix_print(double *A)
+void matrix_print(matrix_str *A)
 {
-    int i, j, a, b;
+    int i, j;
     if (A == NULL)
     {
-        puts("No data in the selected matrix");
+        puts("No data in the selected matrix.");
         return;
     }
-    a = *A;
-    b = *(A + 1);
-    A = A + 2;
-    for (i = 0; i < a; ++i)
+    for (i = 0; i < A->rows; ++i)
     {
         printf("|");
-        for (j = 0; j < b; ++j)
-            printf("\t%8.8g", *(A + (b * i) + j));
+        for (j = 0; j <A->columns; ++j)
+            printf("\t%8.8g", A->data[i][j]);
         printf("\t|\n");
     }
 }
 
 // The matrixes as global variables
-double *A, *B, *C, *D, *E, *R, *prevR;
+matrix_str *A, *B, *C, *D, *E, *R, *prevR;
 // Function that matches the letter to the matrix it represents.
-bool match_matrix(double ***pointer, char operand)
+bool match_matrix(matrix_str ***pointer, char operand)
 {
     switch (operand)
     {
@@ -743,7 +705,7 @@ void matrix_mode()
 {
     char buffer[15], *operation = buffer;
     char op1, op2;
-    double **operand1 = NULL, **operand2 = NULL;
+    matrix_str **operand1 = NULL, **operand2 = NULL;
     double det;
     A = B = C = D = E = R = prevR = NULL;
     system(CLEAR_CONSOLE);
@@ -792,13 +754,13 @@ void matrix_mode()
             }
             if (operand1 == operand2)
                 continue;
-            double *temp;
-            temp = matrix_copy(*operand1);
-            if (temp != NULL)
+            matrix_str *tmp;
+            tmp = matrix_copy(*operand1);
+            if (tmp != NULL)
             {
                 puts("Copy done successfuly.");
                 free(*operand2);
-                *operand2 = temp;
+                *operand2 = tmp;
             }
             else
                 puts("Copy failure.");
