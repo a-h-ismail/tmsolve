@@ -2,3 +2,4 @@ tmsolve
 tmsolvedbg
 .vscode
 libtmsolve
+libtmsolve.h
