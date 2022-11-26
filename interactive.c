@@ -38,6 +38,12 @@ void s_input(char **buffer, char *prompt, size_t n)
     while (1)
     {
         temp = readline(prompt);
+        if (strlen(temp) == 0)
+        {
+            puts(NO_INPUT "\n");
+            free(temp);
+            continue;
+        }
         if (n == -1)
         {
             *buffer = temp;
@@ -74,12 +80,6 @@ double get_value(char *prompt)
     while (1)
     {
         s_input(&expr, prompt, -1);
-        if (strlen(expr) == 0)
-        {
-            puts("Empty input.");
-            free(expr);
-            continue;
-        }
         glob_expr = expr;
         if (parenthesis_check(expr) == false)
         {
@@ -110,7 +110,7 @@ void scientific_calculator(char *expr, bool called_by_default)
         s_input(&expr, "> ", -1);
     }
     else
-        printf("> %s\n",expr);
+        printf("> %s\n", expr);
     while (1)
     {
         if (strcmp(expr, "exit") == 0)
@@ -143,7 +143,8 @@ void print_result(double complex result)
             printf("i");
         else if (imag == -1)
             printf("-i");
-        else printf("%.14gi", imag);
+        else
+            printf("%.14gi", imag);
     }
     else
         printf("%.14g", real);
@@ -616,7 +617,7 @@ void nroot_solver(char *expr)
 */
 matrix_str *matrix_input(int rows, int columns)
 {
-    matrix_str *matrix=new_matrix(rows,columns);
+    matrix_str *matrix = new_matrix(rows, columns);
     int i, j;
     puts("Enter data:");
     char mem_prompt[28];
@@ -624,7 +625,7 @@ matrix_str *matrix_input(int rows, int columns)
         for (j = 0; j < columns; ++j)
         {
             sprintf(mem_prompt, "(%d,%d):", i + 1, j + 1);
-            matrix->data[i][j]=get_value(mem_prompt);
+            matrix->data[i][j] = get_value(mem_prompt);
         }
     // Don't forget that we previously incremented the pointer by 2
     return matrix;
@@ -665,7 +666,7 @@ void matrix_print(matrix_str *A)
     for (i = 0; i < A->rows; ++i)
     {
         printf("|");
-        for (j = 0; j <A->columns; ++j)
+        for (j = 0; j < A->columns; ++j)
             printf("\t%8.8g", A->data[i][j]);
         printf("\t|\n");
     }
