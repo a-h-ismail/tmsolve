@@ -262,12 +262,8 @@ void function_calculator()
             return;
         }
         // Anticipating the extra space caused by implied multiplication
-        expr = realloc(function, strlen(function) * 4 * sizeof(char));
-        if (*expr == '\0')
-        {
-            puts("Empty input.\n");
-            continue;
-        }
+        function = realloc(function, strlen(function) * 4 * sizeof(char));
+        
         if (implicit_multiplication(&function) == false)
         {
             error_handler(NULL, 2);
