@@ -145,15 +145,19 @@ void print_result(double complex result)
             printf("-i");
         else
             printf("%.14gi", imag);
+
+        printf("\nModulus = %.14g, argument = %.14g rad = %.14g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
     }
     else
-        printf("%.14g", real);
-    fraction fraction_str = decimal_to_fraction(real, false);
-    if (fraction_str.c != 0)
     {
-        if (fraction_str.a != 0)
-            printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
-        printf("\n= %g / %g", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+        printf("%.14g", real);
+        fraction fraction_str = decimal_to_fraction(real, false);
+        if (fraction_str.c != 0)
+        {
+            if (fraction_str.a != 0)
+                printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
+            printf("\n= %g / %g", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+        }
     }
     printf("\n\n");
 }
@@ -263,7 +267,7 @@ void function_calculator()
         }
         // Anticipating the extra space caused by implied multiplication
         function = realloc(function, strlen(function) * 4 * sizeof(char));
-        
+
         if (implicit_multiplication(&function) == false)
         {
             error_handler(NULL, 2);
