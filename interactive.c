@@ -3,37 +3,43 @@ Copyright (C) 2021-2022 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
-#if defined(_WIN64)
-// This function mimics some of the behavior of GNU readline function, but for non Linux systems
-char *readline(char *prompt)
+char *autocomplete_names[] = {"ans", "exp", "pi", "fact", "abs", "ceil", "floor", "acosh", "asinh", "atanh", "acos", "asin", "atan",
+                              "cosh", "sinh", "tanh", "cos", "sin", "tan", "ln", "log", "int", "der", NULL};
+char *character_name_generator(const char *text, int state)
 {
-    char *buffer = (char *)malloc(10000 * sizeof(char)), c;
-    size_t count = 0, size = 10000;
-    if (prompt != NULL)
-        printf("%s", prompt);
-    do
+    static int list_index, len;
+    char *name;
+
+    if (!state)
     {
-        c = getc(stdin);
-        ++count;
-        if (count > size)
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while ((name = autocomplete_names[list_index++]))
+    {
+        if (strncmp(name, text, len) == 0)
         {
-            size += 10000;
-            buffer = realloc(buffer, size);
-            if (buffer == NULL)
-                return NULL;
+            return strdup(name);
         }
-        buffer[count - 1] = c;
-    } while (c != '\n');
-    buffer[count - 1] = '\0';
-    buffer = realloc(buffer, (count + 1) * sizeof(char));
-    return buffer;
+    }
+
+    return NULL;
 }
-#endif
+char **character_name_completion(const char *text, int start, int end)
+{
+    // Disable normal filename autocomplete
+    rl_attempted_completion_over = 1;
+
+    return rl_completion_matches(text, character_name_generator);
+}
+
 // Reads n characters to *buffer (if n=-1 , no character limit), print prompt
 // Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
 // a char array allocated with malloc, beware of leaks
 void s_input(char **buffer, char *prompt, size_t n)
 {
+    rl_attempted_completion_function = character_name_completion;
     char *temp;
     while (1)
     {
@@ -47,9 +53,7 @@ void s_input(char **buffer, char *prompt, size_t n)
         if (n == -1)
         {
             *buffer = temp;
-#if defined(__linux)
             add_history(temp);
-#endif
             remove_whitespace(*buffer);
             return;
         }
@@ -183,8 +187,11 @@ void scientific_complex_picker(char *expr)
             break;
         }
     }
+    if (cimag(ans) != 0 && s_search(expr, "ans", 0) != -1)
+        is_complex = 1;
     if (is_complex == 0)
     {
+
         i = s_search(expr, "i", 0);
         while (i != -1)
         {
@@ -233,7 +240,6 @@ void scientific_complex_picker(char *expr)
 void complex_mode()
 {
     char *expr;
-    system(CLEAR_CONSOLE);
     puts("Current mode: Complex");
     while (1)
     {
