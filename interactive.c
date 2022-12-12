@@ -181,23 +181,23 @@ void scientific_complex_picker(char *expr)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
     {
-        if (s_search(expr, real_characteristics[i], 0) != -1)
+        if (f_search(expr, real_characteristics[i], 0) != -1)
         {
             is_complex = -1;
             break;
         }
     }
-    if (cimag(ans) != 0 && s_search(expr, "ans", 0) != -1)
+    if (cimag(ans) != 0 && f_search(expr, "ans", 0) != -1)
         is_complex = 1;
     if (is_complex == 0)
     {
 
-        i = s_search(expr, "i", 0);
+        i = f_search(expr, "i", 0);
         while (i != -1)
         {
             // Seeking for the complex number "i"
             if (part_of_keyword(expr, "i", "sin", i) || part_of_keyword(expr, "i", "pi", i) || part_of_keyword(expr, "i", "ceil", i))
-                i = s_search(expr, "i", i + 1);
+                i = f_search(expr, "i", i + 1);
             else
             {
                 is_complex = 1;
