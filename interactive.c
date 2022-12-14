@@ -633,7 +633,6 @@ matrix_str *matrix_input(int rows, int columns)
             sprintf(mem_prompt, "(%d,%d):", i + 1, j + 1);
             matrix->data[i][j] = get_value(mem_prompt);
         }
-    // Don't forget that we previously incremented the pointer by 2
     return matrix;
 }
 // Read data into matrix M from stdin
