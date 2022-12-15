@@ -342,7 +342,7 @@ void function_calculator()
             // Set the value of x in the subexpr_ptr
             set_variable(math_struct, x);
             // Solving the function then printing
-            result = evaluate(math_struct);
+            result = eval_math_expr(math_struct);
             if (isnan(result))
             {
                 error_handler(NULL, 3, 0);
