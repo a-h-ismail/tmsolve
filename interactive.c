@@ -105,8 +105,6 @@ double get_value(char *prompt)
 }
 void scientific_calculator(char *expr, bool called_by_default)
 {
-    // clear the console
-    system(CLEAR_CONSOLE);
     puts("Current mode: Scientific");
     if (called_by_default == false)
     {
@@ -261,7 +259,6 @@ void function_calculator()
     int i;
     char *expr, step_op, *function;
     math_expr *math_struct;
-    system(CLEAR_CONSOLE);
     puts("Current mode: Function");
     while (1)
     {
@@ -410,7 +407,6 @@ void utility_functions(char *expr)
 void utility_mode()
 {
     char input[25];
-    system(CLEAR_CONSOLE);
     puts("Current mode: Utility");
     while (1)
     {
@@ -428,7 +424,6 @@ void rps()
     char *operation = (char *)malloc(10 * sizeof(char)), playerc;
     //playerc is the character entered by the player
     int wins = 0, total = 0, playerv, rnv;
-    system(CLEAR_CONSOLE);
     puts("You found the secret mode!");
     puts("Rock Paper Scissor, enter r for rock, p for paper, s for scissors.");
     while (1)
