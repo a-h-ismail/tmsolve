@@ -84,7 +84,6 @@ double get_value(char *prompt)
     while (1)
     {
         s_input(&expr, prompt, -1);
-        glob_expr = expr;
         if (parenthesis_check(expr) == false)
         {
             error_handler(NULL, 2);
@@ -174,7 +173,6 @@ void scientific_complex_picker(char *expr)
         puts("Empty input.\n");
         return;
     }
-    glob_expr = expr;
     // Seeking for integration,derivation,modulo,factorial operators (implying real operations)
     is_complex = 0;
     for (i = 0; i < 4; ++i)
@@ -268,9 +266,6 @@ void function_calculator()
             free(function);
             return;
         }
-        // Anticipating the extra space caused by implied multiplication
-        function = realloc(function, strlen(function) * 4 * sizeof(char));
-
         if (implicit_multiplication(&function) == false)
         {
             error_handler(NULL, 2);
@@ -281,7 +276,14 @@ void function_calculator()
             printf("\n");
             continue;
         }
+        math_struct = parse_expr(function, true, false);
 
+        if (math_struct == NULL)
+        {
+            error_handler(NULL, 2);
+            free(function);
+            continue;
+        }
         start = get_value("Start: ");
         printf("%.12g\n", start);
         // Read end value
@@ -332,7 +334,6 @@ void function_calculator()
         }
         x = start;
         double prevx, result;
-        math_struct = parse_expr(function, true, false);
         while (x <= end)
         {
             prevx = x;
