@@ -156,8 +156,8 @@ void print_result(double complex result)
         if (fraction_str.c != 0)
         {
             if (fraction_str.a != 0)
-                printf("\n= %g + %g / %g", fraction_str.a, fraction_str.b, fraction_str.c);
-            printf("\n= %g / %g", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+                printf("\n= %d + %d / %d", fraction_str.a, fraction_str.b, fraction_str.c);
+            printf("\n= %d / %d", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
         }
     }
     printf("\n\n");
