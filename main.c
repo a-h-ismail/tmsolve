@@ -9,45 +9,22 @@ SPDX-License-Identifier: GPL-3.0-or-later
 double complex ans = 0;
 int main(int argc, char **argv)
 {
-    char *expr=NULL;
-    //Accessing modes using command parameters
-    if (argc > 1 && argv[1][0] == '-')
+    // Calculate expressions sent as command line arguments.
+    if(argc >1)
     {
-        switch (argv[1][1])
+        for (int i = 1; i < argc;++i)
         {
-        case 's':
-            scientific_calculator(expr, false);
-            break;
-        case 'c':
-            complex_mode();
-            break;
-        case 'f':
-            function_calculator();
-            break;
-        /*
-        case 'e':
-            equation_mode();
-            break;
-        case 'u':
-            utility_features();
-            break;
-        case 'm':
-            matrix_mode();
-            break;
-            */
-        default:
-            puts("Invalid parameter, refer to readme or the manpage for more informations.");
+            ans = calculate_expr(argv[i], false);
+            if(isnan(creal(ans)))
+            {
+                error_handler(NULL, 2);
+                continue;
+            }
+            printf("%.14g\n", creal(ans));
         }
-        system(CLEAR_CONSOLE);
+        return 0;
     }
-    //A 1 calculation pass from the terminal.
-    else if (argc == 2)
-    {
-        expr = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
-        strcpy(expr, argv[1]);
-        scientific_complex_picker(expr);
-        return 1;
-    }
+    char *expr;
     puts("Interactive mode:");
     //pick the mode or call scientific mode if no mode is specified
     while (1)
