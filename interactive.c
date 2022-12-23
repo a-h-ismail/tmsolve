@@ -84,16 +84,12 @@ double get_value(char *prompt)
     while (1)
     {
         s_input(&expr, prompt, -1);
-        if (parenthesis_check(expr) == false)
+        if (syntax_check(expr) == false)
         {
             error_handler(NULL, 2);
             continue;
         }
-        if (implicit_multiplication(&expr) == false)
-        {
-            error_handler(NULL, 2);
-            continue;
-        }
+
         value = calculate_expr(expr, true);
         free(expr);
         if (isnan(value))
@@ -266,12 +262,8 @@ void function_calculator()
             free(function);
             return;
         }
-        if (implicit_multiplication(&function) == false)
-        {
-            error_handler(NULL, 2);
-            continue;
-        }
-        if (parenthesis_check(function) == false)
+
+        if (syntax_check(function) == false)
         {
             printf("\n");
             continue;
