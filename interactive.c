@@ -749,7 +749,7 @@ void matrix_mode()
             if (operand1 == operand2)
                 continue;
             matrix_str *tmp;
-            tmp = matrix_copy(*operand1);
+            tmp = matrix_dup(*operand1);
             if (tmp != NULL)
             {
                 puts("Copy done successfuly.");
