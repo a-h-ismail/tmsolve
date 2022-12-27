@@ -59,12 +59,11 @@ int main(int argc, char **argv)
             scientific_calculator(expr, true);
             expr = NULL;
         }
-        system(CLEAR_CONSOLE);
         puts("Interactive mode:");
     }
     /*
-    No point in freeing readline history (Linux), your OS will reclaim all memory at the process end
-    If ever this project gets into systems that do not free on exit, you should probably find a way to 
+    No point in freeing readline history, your OS will reclaim all memory at the process end
+    If ever this project gets into systems that do not free on exit, you should probably find a way to
     fix the ~200kB not freed memory caused by GNU readline()
     */
 }

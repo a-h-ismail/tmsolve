@@ -702,7 +702,6 @@ void matrix_mode()
     matrix_str **operand1 = NULL, **operand2 = NULL;
     double det;
     A = B = C = D = E = R = prevR = NULL;
-    system(CLEAR_CONSOLE);
     puts("Current mode: Matrix.");
     puts("Supported operations: editX, multiplyXY, detX, comX, invX, trX, copyXY, printX.");
     puts("Available matrixes: A, B, C, D, E, R.\nR stores the result of operations.");

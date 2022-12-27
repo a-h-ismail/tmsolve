@@ -13,14 +13,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "libtmsolve/libtmsolve.h"
 #endif
 // Defining the clear console command
-#if defined(__linux__)
 #include <readline/readline.h>
 #include <readline/history.h>
-#define CLEAR_CONSOLE "clear"
-#elif defined(_WIN64)
-#define CLEAR_CONSOLE "cls"
-char *readline(char *prompt);
-#endif
 #include <stdlib.h>
 void s_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
