@@ -7,7 +7,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdbool.h>
 #include <math.h>
 #include <stdio.h>
+#ifndef LOCAL_BUILD
+#include <tmsolve/libtmsolve.h>
+#else
 #include "libtmsolve/libtmsolve.h"
+#endif
 // Defining the clear console command
 #if defined(__linux__)
 #include <readline/readline.h>
