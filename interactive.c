@@ -98,27 +98,37 @@ double get_value(char *prompt)
             return value;
     }
 }
-void scientific_calculator(char *expr, bool called_by_default)
+bool valid_mode(char mode)
 {
+    char all_modes[] = {"SCFM"};
+    int i;
+    for (i = 0; i < strlen(all_modes); ++i)
+        if (mode == all_modes[i])
+            return true;
+    return false;
+}
+void scientific_mode()
+{
+    char *expr;
     puts("Current mode: Scientific");
-    if (called_by_default == false)
-    {
-        free(expr);
-        s_input(&expr, "> ", -1);
-    }
-    else
-        printf("> %s\n", expr);
     while (1)
     {
+        s_input(&expr, "> ", -1);
         if (strcmp(expr, "exit") == 0)
+            exit(0);
+
+        // If the string has length 1, check for mode switching.
+        if (expr[1] == '\0')
         {
-            free(expr);
-            return;
+            if (valid_mode(expr[0]))
+            {
+                _mode = expr[0];
+                free(expr);
+                return;
+            }
         }
         scientific_complex_picker(expr);
         free(expr);
-        // Expression input is at last because the first expression is entered by main
-        s_input(&expr, "> ", -1);
     }
 }
 void print_result(double complex result)
@@ -237,9 +247,16 @@ void complex_mode()
     {
         s_input(&expr, NULL, -1);
         if (strcmp(expr, "exit") == 0)
+            exit(0);
+        // If the string has length 1, check for mode switching.
+        if (expr[1] == '\0')
         {
-            free(expr);
-            return;
+            if (valid_mode(expr[0]))
+            {
+                _mode = expr[0];
+                free(expr);
+                return;
+            }
         }
         ans = calculate_expr(expr, true);
         free(expr);
@@ -258,9 +275,16 @@ void function_calculator()
     {
         s_input(&function, "f(x) = ", -1);
         if (strcmp(function, "exit") == 0)
+            exit(0);
+        // If the string has length 1, check for mode switching.
+        if (function[1] == '\0')
         {
-            free(function);
-            return;
+            if (valid_mode(function[0]))
+            {
+                _mode = function[0];
+                free(function);
+                return;
+            }
         }
 
         if (syntax_check(function) == false)
@@ -709,8 +733,17 @@ void matrix_mode()
     {
         puts("\nOperation:");
         s_input(&operation, NULL, 15);
-        if (strncmp(operation, "exit", 4) == 0)
-            return;
+        if (strcmp(operation, "exit") == 0)
+            exit(0);
+        // If the string has length 1, check for mode switching.
+        if (operation[1] == '\0')
+        {
+            if (valid_mode(operation[0]))
+            {
+                _mode = operation[0];
+                break;
+            }
+        }
         // If R is pointing to a matrix, copy the pointer to prevR so R can be used to store result of the next operation
         if (R != NULL)
             prevR = R;
