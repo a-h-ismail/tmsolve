@@ -259,6 +259,7 @@ void complex_mode()
             }
         }
         ans = calculate_expr(expr, true);
+        print_result(ans);
         free(expr);
         error_handler(NULL, 2);
     }
