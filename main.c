@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2022 Ahmad Ismail
+Copyright (C) 2021-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include <stdio.h>
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // pick the mode or call scientific mode if no mode is specified
+    // pick the mode
     while (1)
     {
         switch (_mode)
@@ -42,6 +42,9 @@ int main(int argc, char **argv)
             break;
         case 'M':
             matrix_mode();
+            break;
+        case 'U':
+            utility_mode();
             break;
 
         default:

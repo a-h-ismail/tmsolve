@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2022 Ahmad Ismail
+Copyright (C) 2021-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -100,9 +100,9 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SCFM"};
-    int i;
-    for (i = 0; i < strlen(all_modes); ++i)
+    char all_modes[] = {"SCFMU"};
+    int i,length=strlen(all_modes);
+    for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
             return true;
     return false;
@@ -151,7 +151,7 @@ void print_result(double complex result)
         else if (imag == -1)
             printf("-i");
         else
-            printf("%.14gi", imag);
+            printf("%.14g i", imag);
 
         printf("\nModulus = %.14g, argument = %.14g rad = %.14g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
     }
@@ -388,59 +388,67 @@ void function_calculator()
         free(function);
     }
 }
-/*
-void utility_functions(char *expr)
-{
-    int length, i;
-    length = strlen(expr);
-    for (i = 1; i < length; ++i)
-    {
-        if (*(expr + i) == '|')
-        {
-            nroot_solver(expr);
-            return;
-        }
-    }
-    for (i = 1; i < length; ++i)
-    {
-        if (*(expr + i) == '/')
-        {
-            reduce_fraction(expr, false);
-            return;
-        }
-    }
-    for (i = 1; i < length; ++i)
-    {
-        if (*(expr + i) == '.')
-        {
-            if (decimal_to_fraction(expr, false) == true)
-                printf("\n");
-            else
-                puts("Unable to process number.");
-            return;
-        }
-    }
-    factorize(expr);
-}
+
 void utility_mode()
 {
-    char input[25];
+    char *input=malloc(24*sizeof(char));
+    int p;
     puts("Current mode: Utility");
     while (1)
     {
-        s_input(input, NULL, 25);
+        s_input(&input, NULL, 24);
         if (strcmp(input, "exit") == 0)
-            return;
-        utility_functions(input);
+            exit(0);
+
+        // Mode switcher
+        if (input[1] == '\0')
+        {
+            if (valid_mode(input[0]))
+            {
+                _mode = input[0];
+                free(input);
+                return;
+            }
+        }
+
+        p = f_search(input, "(", 0);
+        if (p > 0)
+        {
+            if (strncmp("factor", input, p - 1) == 0)
+            {
+                int32_t value;
+                int_factor *factors_list;
+                sscanf(input + p + 1, "%" PRId32, &value);
+                factors_list = find_factors(value);
+
+                if (factors_list->factor == 0)
+                    puts("= 0");
+
+                // Print the factors in a clear format
+                else
+                {
+                    printf("%" PRId32 " = 1",value);
+                    for (int i = 1; factors_list[i].factor != 0; ++i)
+                    {
+                        // Print in format factor1 ^ power1 * factor2 ^ power2
+                        printf(" * %" PRId32, factors_list[i].factor);
+                        if (factors_list[i].power > 1)
+                            printf(" ^ %" PRId32, factors_list[i].power);
+                    }
+                }
+                free(factors_list);
+                printf("\n\n");
+            }
+        }
         error_handler(NULL, 2);
     }
 }
 
-//Who said a calculator can't have some secrets?
+// Who said a calculator can't have some secrets?
 void rps()
 {
     char *operation = (char *)malloc(10 * sizeof(char)), playerc;
-    //playerc is the character entered by the player
+    // playerc is the character entered by the player
     int wins = 0, total = 0, playerv, rnv;
     puts("You found the secret mode!");
     puts("Rock Paper Scissor, enter r for rock, p for paper, s for scissors.");
@@ -453,7 +461,6 @@ void rps()
         if (strncmp(operation, "stat", 4) == 0)
         {
             printf("Wins=%d\nTotal=%d\n", wins, total);
-            playerc = 'n';
             continue;
         }
         ++total;
@@ -530,110 +537,6 @@ void rps()
     }
 }
 
-void factorize(char *expr)
-{
-    int32_t *factors, n;
-    double check;
-    int i, success_count;
-    success_count = sscanf(expr, "%lf", &check);
-    if (success_count != 1)
-    {
-        puts("Syntax error.");
-        return;
-    }
-    if (fabs(check) > 2147483647)
-    {
-        puts("Values must be in range [-2147483647,2147483647]");
-        return;
-    }
-    n = check;
-    factors = find_factors(n);
-    if (*(factors + 2) == fabs(n))
-    {
-        printf("%" PRId32 " is a prime number.\n", (int32_t)n);
-        free(factors);
-        return;
-    }
-    if (check < 0)
-        *(factors + 2) = -*(factors + 2);
-    if (*(factors + 3) > 1)
-        printf("%" PRId32 " = %" PRId32 "^%" PRId32 "", n, *(factors + 2), *(factors + 3));
-    else
-        printf("%" PRId32 " = %" PRId32 "", n, *(factors + 2));
-    i = 4;
-    while (*(factors + i) != 0)
-    {
-        if (*(factors + i + 1) > 1)
-            printf(" * %" PRId32 "^%" PRId32 "", *(factors + i), *(factors + i + 1));
-        else
-            printf(" * %" PRId32 "", *(factors + i));
-        i += 2;
-    }
-    printf("\n");
-    free(factors);
-}
-// p here must be the index of the root symbol (n)\|value
-void nroot_solver(char *expr)
-{
-    int32_t root = 1, root_power, remain, *factors;
-    int i = 2, success_count;
-    double check1, check2;
-    // Taking input
-    if (*expr == '(')
-    {
-        success_count = sscanf(expr, "(%lf)\\|%lf", &check1, &check2);
-        if (success_count != 2)
-        {
-            puts("Syntax error.");
-            return;
-        }
-    }
-    else
-    {
-        success_count = sscanf(expr, "\\|%lf", &check2);
-        check1 = 2;
-        if (success_count != 1)
-        {
-            puts("Syntax error.");
-            return;
-        }
-    }
-    if (fabs(check1) > 2147483647 || fabs(check2) > 2147483647 || fabs(check1) < 1 || fabs(check2) < 1)
-    {
-        puts("Values must be in range [1,2147483647]");
-        return;
-    }
-    root_power = check1;
-    remain = check2;
-    if (remain == 0)
-    {
-        puts("= 0");
-        return;
-    }
-    factors = find_factors(remain);
-    while (*(factors + i) != 0)
-    {
-        if (*(factors + i + 1) >= root_power)
-            root *= pow(*(factors + i), *(factors + i + 1) / root_power);
-        i += 2;
-    }
-    i = 2;
-    remain = 1;
-    while (*(factors + i) != 0)
-    {
-        if (*(factors + i + 1) % root_power > 0)
-            remain *= pow(*(factors + i), *(factors + i + 1) % root_power);
-        i += 2;
-    }
-    free(factors);
-    if (remain == 1)
-        printf("= %" PRId32 "\n", root);
-    if (remain > 1 && root > 1)
-        printf("= %" PRId32 " * (%" PRId32 ")\\|%" PRId32 " ~ %.10g\n", root, root_power, remain, root * pow(remain, (double)1 / root_power));
-    if (root == 1 && remain > 1)
-        printf("= (%" PRId32 ")\\|%" PRId32 " ~ %.10g\n", root_power, remain, pow(remain, (double)1 / root_power));
-}
-*/
 matrix_str *matrix_input(int rows, int columns)
 {
     matrix_str *matrix = new_matrix(rows, columns);

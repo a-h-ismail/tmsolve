@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2022 Ahmad Ismail
+Copyright (C) 2021-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #ifndef INTERACTIVE_H
@@ -28,7 +28,6 @@ double get_value(char *prompt);
 matrix_str *matrix_input(int a, int b);
 void matrix_print(matrix_str *A);
 void utility_mode();
-void utility_functions(char *expr);
 
 extern char _mode;
 #endif
