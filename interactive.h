@@ -16,7 +16,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
-void s_input(char **buffer, char *prompt, size_t n);
+void get_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
 void scientific_mode();
 void scientific_complex_picker(char *expr);

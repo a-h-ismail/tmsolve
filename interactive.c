@@ -37,7 +37,7 @@ char **character_name_completion(const char *text, int start, int end)
 // Reads n characters to *buffer (if n=-1 , no character limit), print prompt
 // Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
 // a char array allocated with malloc, beware of leaks
-void s_input(char **buffer, char *prompt, size_t n)
+void get_input(char **buffer, char *prompt, size_t n)
 {
     rl_attempted_completion_function = character_name_completion;
     char *temp;
@@ -83,7 +83,7 @@ double get_value(char *prompt)
     char *expr;
     while (1)
     {
-        s_input(&expr, prompt, -1);
+        get_input(&expr, prompt, -1);
         if (syntax_check(expr) == false)
         {
             error_handler(NULL, 2);
@@ -113,7 +113,7 @@ void scientific_mode()
     puts("Current mode: Scientific");
     while (1)
     {
-        s_input(&expr, "> ", -1);
+        get_input(&expr, "> ", -1);
         if (strcmp(expr, "exit") == 0)
             exit(0);
 
@@ -245,7 +245,7 @@ void complex_mode()
     puts("Current mode: Complex");
     while (1)
     {
-        s_input(&expr, NULL, -1);
+        get_input(&expr, NULL, -1);
         if (strcmp(expr, "exit") == 0)
             exit(0);
         // If the string has length 1, check for mode switching.
@@ -274,7 +274,7 @@ void function_calculator()
     puts("Current mode: Function");
     while (1)
     {
-        s_input(&function, "f(x) = ", -1);
+        get_input(&function, "f(x) = ", -1);
         if (strcmp(function, "exit") == 0)
             exit(0);
         // If the string has length 1, check for mode switching.
@@ -321,7 +321,7 @@ void function_calculator()
         // Read step and identify stepping operator
         while (1)
         {
-            s_input(&expr, "Step: ", -1);
+            get_input(&expr, "Step: ", -1);
             i = strlen(expr);
             if (*(expr + i - 1) == '+' || *(expr + i - 1) == '*' || *(expr + i - 1) == '^')
             {
@@ -396,7 +396,7 @@ void utility_mode()
     puts("Current mode: Utility");
     while (1)
     {
-        s_input(&input, NULL, 24);
+        get_input(&input, NULL, 24);
         if (strcmp(input, "exit") == 0)
             exit(0);
 
@@ -454,7 +454,7 @@ void rps()
     puts("Rock Paper Scissor, enter r for rock, p for paper, s for scissors.");
     while (1)
     {
-        s_input(&operation, NULL, 10);
+        get_input(&operation, NULL, 10);
         if (strncmp(operation, "exit", 4) == 0)
             return;
         playerc = operation[0];
@@ -636,7 +636,7 @@ void matrix_mode()
     while (1)
     {
         puts("\nOperation:");
-        s_input(&operation, NULL, 15);
+        get_input(&operation, NULL, 15);
         if (strcmp(operation, "exit") == 0)
             exit(0);
         // If the string has length 1, check for mode switching.
