@@ -45,7 +45,7 @@ int main(int argc, char **argv)
                 strncpy(expr,buffer,separator);
                 expr[separator]='\0';
                 puts(expr);
-                scientific_complex_picker(expr);
+                ans=calculate_expr_auto(expr);
                 // Calculate relative error
                 double relative_error = fabs((expected_ans - ans) / expected_ans);
                 printf("Expected=%g, result=%g, relative error=%g",expected_ans,ans,relative_error);
