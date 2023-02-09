@@ -101,7 +101,7 @@ double get_value(char *prompt)
 bool valid_mode(char mode)
 {
     char all_modes[] = {"SCFMU"};
-    int i,length=strlen(all_modes);
+    int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
             return true;
@@ -127,7 +127,13 @@ void scientific_mode()
                 return;
             }
         }
-        scientific_complex_picker(expr);
+        ans = calculate_expr_auto(expr);
+
+        if (isnan(creal(ans)))
+            error_handler(NULL, 2);
+        else
+            print_result(ans);
+            
         free(expr);
     }
 }
@@ -168,77 +174,7 @@ void print_result(double complex result)
     }
     printf("\n\n");
 }
-// Function that chooses complex or scientific interpreter based on expression and solves it
-void scientific_complex_picker(char *expr)
-{
-    char *real_characteristics[] = {"int", "der", "%", "!"};
-    int i, is_complex;
-    i = strlen(expr);
-    if (i == 0)
-    {
-        puts("Empty input.\n");
-        return;
-    }
-    // Seeking for integration,derivation,modulo,factorial operators (implying real operations)
-    is_complex = 0;
-    for (i = 0; i < 4; ++i)
-    {
-        if (f_search(expr, real_characteristics[i], 0) != -1)
-        {
-            is_complex = -1;
-            break;
-        }
-    }
-    if (cimag(ans) != 0 && f_search(expr, "ans", 0) != -1)
-        is_complex = 1;
-    if (is_complex == 0)
-    {
 
-        i = f_search(expr, "i", 0);
-        while (i != -1)
-        {
-            // Seeking for the complex number "i"
-            if (part_of_keyword(expr, "i", "sin", i) || part_of_keyword(expr, "i", "pi", i) || part_of_keyword(expr, "i", "ceil", i))
-                i = f_search(expr, "i", i + 1);
-            else
-            {
-                is_complex = 1;
-                break;
-            }
-        }
-    }
-    // Case where a complex number was found
-    if (is_complex == 1)
-    {
-        ans = calculate_expr(expr, true);
-        print_result(ans);
-        error_handler(NULL, 2);
-        return;
-    }
-    // Case where the expression seems real, but may yield imaginary numbers
-    else
-    {
-        ans = calculate_expr(expr, false);
-        if (!isnan(creal(ans)))
-        {
-            print_result(ans);
-        }
-        // If evaluating without enabling complex
-        else if (is_complex == 0 && error_handler(NULL, 5, 0) != 0)
-        {
-            // Backup scientific mode errors
-            error_handler(NULL, 6);
-            ans = calculate_expr(expr, true);
-            // If complex mode also returned errors, print the errors of scientific mode
-            if (error_handler(NULL, 5, 0) != 0)
-            {
-                error_handler(NULL, 7);
-                error_handler(NULL, 2, 0);
-            }
-        }
-    }
-    error_handler(NULL, 2);
-}
 void complex_mode()
 {
     char *expr;
@@ -391,7 +327,7 @@ void function_calculator()
 
 void utility_mode()
 {
-    char *input=malloc(24*sizeof(char));
+    char *input = malloc(24 * sizeof(char));
     int p;
     puts("Current mode: Utility");
     while (1)
@@ -411,7 +347,7 @@ void utility_mode()
             }
         }
 
-        p = f_search(input, "(", 0);
+        p = f_search(input, "(", 0, false);
         if (p > 0)
         {
             if (strncmp("factor", input, p - 1) == 0)
@@ -427,7 +363,7 @@ void utility_mode()
                 // Print the factors in a clear format
                 else
                 {
-                    printf("%" PRId32 " = 1",value);
+                    printf("%" PRId32 " = 1", value);
                     for (int i = 1; factors_list[i].factor != 0; ++i)
                     {
                         // Print in format factor1 ^ power1 * factor2 ^ power2
