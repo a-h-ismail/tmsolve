@@ -19,7 +19,6 @@ SPDX-License-Identifier: GPL-3.0-or-later
 void get_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
 void scientific_mode();
-void scientific_complex_picker(char *expr);
 void complex_mode();
 void function_calculator();
 void equation_mode();
@@ -28,6 +27,7 @@ double get_value(char *prompt);
 matrix_str *matrix_input(int a, int b);
 void matrix_print(matrix_str *A);
 void utility_mode();
+void print_result(double complex result);
 
 extern char _mode;
 #endif
