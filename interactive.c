@@ -133,7 +133,7 @@ void scientific_mode()
             error_handler(NULL, 2);
         else
             print_result(ans);
-            
+
         free(expr);
     }
 }
@@ -146,14 +146,15 @@ void print_result(double complex result)
     printf("= ");
     if (imag != 0)
     {
-        if (real > 0)
-        {
-            printf("%.14g", real);
-            if (imag > 0)
-                printf("+");
-        }
+
+        printf("%.14g", real);
+
+        if (imag > 0)
+            printf("+");
+
         if (imag == 1)
             printf("i");
+
         else if (imag == -1)
             printf("-i");
         else
