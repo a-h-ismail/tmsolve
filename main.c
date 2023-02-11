@@ -27,12 +27,21 @@ int main(int argc, char **argv)
                 fputs("Unable to open test file.\n", stderr);
                 exit(1);
             }
-            char buffer[500];
+            char buffer[1000];
             int separator;
             while (feof(test_file) == 0)
             {
-                fgets(buffer, 500, test_file);
-                separator = f_search(buffer, ";", 0,false);
+                fgets(buffer, 1000, test_file);
+                int length=strlen(buffer);
+                if(buffer[length-1]=='\n')
+                buffer[length-1]='\0';
+                else if(!feof(test_file))
+                {
+                    puts("Buffer size possibly exceeded.");
+                    exit(2);
+                }
+                remove_whitespace(buffer);
+                separator = f_search(buffer, ";", 0, false);
                 if (separator == -1)
                 {
                     fputs("Incorrect format for test file, missing ;", stderr);
@@ -40,15 +49,18 @@ int main(int argc, char **argv)
                 }
 
                 char expr[separator];
-                double expected_ans;
-                sscanf(buffer+separator+1, "%lf", &expected_ans);
-                strncpy(expr,buffer,separator);
-                expr[separator]='\0';
+                double complex expected_ans;
+                // Not the most efficient way, but the calculator should be reliable for simple ops.
+                // I could have used sscanf or read_value, but solving it is more robust.
+                expected_ans=calculate_expr_auto(buffer + separator + 1);
+
+                strncpy(expr, buffer, separator);
+                expr[separator] = '\0';
                 puts(expr);
-                ans=calculate_expr_auto(expr);
+                ans = calculate_expr_auto(expr);
                 // Calculate relative error
-                double relative_error = fabs((expected_ans - ans) / expected_ans);
-                printf("Expected=%g, result=%g, relative error=%g",expected_ans,ans,relative_error);
+                double relative_error = cabs((expected_ans - ans) / expected_ans);
+                printf("relative error=%g\n",relative_error);
                 if (relative_error > 1e-3)
                 {
                     fputs("Relative error is too high.", stderr);
