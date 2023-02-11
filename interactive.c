@@ -146,11 +146,12 @@ void print_result(double complex result)
     printf("= ");
     if (imag != 0)
     {
-
-        printf("%.14g", real);
-
-        if (imag > 0)
-            printf("+");
+        if (real != 0)
+        {
+            printf("%.14g", real);
+            if (imag > 0)
+                printf("+");
+        }
 
         if (imag == 1)
             printf("i");
