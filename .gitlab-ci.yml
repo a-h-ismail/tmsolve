@@ -20,6 +20,7 @@ build:
   # before_script:
   #   - apt update && apt -y install make autoconf
   script:
+    - git submodule update --init libtmsolve
     - gcc ./*.c ./libtmsolve/*.c -Wall -lm -D LOCAL_BUILD -lreadline -O2 -o ./tmsolve
   artifacts:
     paths:
