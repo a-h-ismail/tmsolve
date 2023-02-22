@@ -110,6 +110,7 @@ bool valid_mode(char mode)
 void scientific_mode()
 {
     char *expr;
+    double complex result;
     puts("Current mode: Scientific");
     while (1)
     {
@@ -127,12 +128,16 @@ void scientific_mode()
                 return;
             }
         }
-        ans = calculate_expr_auto(expr);
-
+        // Protect the value stored in ans from being overwritten by NaN
+        result = calculate_expr_auto(expr);
+        
         if (isnan(creal(ans)))
             error_handler(NULL, 2);
         else
+        {
+            ans = result;
             print_result(ans);
+        }
 
         free(expr);
     }
