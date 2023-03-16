@@ -22,7 +22,6 @@ int main(int argc, char **argv)
             FILE *test_file;
             test_file = fopen(argv[2], "r");
             if (test_file == NULL)
-
             {
                 fputs("Unable to open test file.\n", stderr);
                 exit(1);
@@ -32,10 +31,10 @@ int main(int argc, char **argv)
             while (feof(test_file) == 0)
             {
                 fgets(buffer, 1000, test_file);
-                int length=strlen(buffer);
-                if(buffer[length-1]=='\n')
-                buffer[length-1]='\0';
-                else if(!feof(test_file))
+                int length = strlen(buffer);
+                if (buffer[length - 1] == '\n')
+                    buffer[length - 1] = '\0';
+                else if (!feof(test_file))
                 {
                     puts("Buffer size possibly exceeded.");
                     exit(2);
@@ -51,25 +50,36 @@ int main(int argc, char **argv)
                 char expr[separator];
                 double complex expected_ans;
                 // Not the most efficient way, but the calculator should be reliable for simple ops.
-                // I could have used sscanf or read_value, but solving it is more robust.
-                expected_ans=calculate_expr_auto(buffer + separator + 1);
+                // I could have used sscanf or read_value, but solving it will handle complex easier.
+                expected_ans = calculate_expr_auto(buffer + separator + 1);
 
                 strncpy(expr, buffer, separator);
                 expr[separator] = '\0';
                 puts(expr);
                 ans = calculate_expr_auto(expr);
                 // Calculate relative error
-                double relative_error = cabs((expected_ans - ans) / expected_ans);
-                printf("relative error=%g\n",relative_error);
-                if (relative_error > 1e-3)
+                if (expected_ans == 0)
                 {
-                    fputs("Relative error is too high.", stderr);
-                    exit(1);
+                    if (fabs(creal(expected_ans)) < 1e-15 && fabs(cimag(expected_ans)) < 1e-15)
+                        puts("Passed");
+                    else
+                        puts("Expected answer is zero but actual answer is non negligible.");
                 }
                 else
-                    puts("Passed");
+                {
+                    double relative_error = cabs((expected_ans - ans) / expected_ans);
+                    printf("relative error=%g\n", relative_error);
+                    if (relative_error > 1e-3)
+                    {
+                        fputs("Relative error is too high.", stderr);
+                        exit(1);
+                    }
+                    else
+                        puts("Passed");
+                }
             }
         }
+        // Calculate the expressions passed as arguments
         else
             for (int i = 1; i < argc; ++i)
             {
