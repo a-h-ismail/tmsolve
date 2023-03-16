@@ -67,10 +67,10 @@ f(4) = 16
 ```
 
 ## Matrix mode
-Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'C' in any mode.
+Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
 
 ## Complex mode
-Forces the calculator to work with complex numbers, not needed since scientific mode can handle complex well. Access by entering 'M' in any mode.
+Forces the calculator to work with complex numbers, not needed since scientific mode can handle complex well. Access by entering 'C' in any mode.
 
 ## Installation instructions
 ### Linux desktop:
