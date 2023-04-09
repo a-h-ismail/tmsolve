@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #else
 #include "libtmsolve/libtmsolve.h"
 #endif
-// Defining the clear console command
+
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
