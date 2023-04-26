@@ -131,7 +131,7 @@ void scientific_mode()
         // Protect the value stored in ans from being overwritten by NaN
         result = calculate_expr_auto(expr);
         
-        if (isnan(creal(ans)))
+        if (isnan(creal(result)))
             error_handler(NULL, 2);
         else
         {
