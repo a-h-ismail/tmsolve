@@ -100,7 +100,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SCFMU"};
+    char all_modes[] = {"SCFEMU"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -130,19 +130,19 @@ void scientific_mode()
         }
         // Protect the value stored in ans from being overwritten by NaN
         result = calculate_expr_auto(expr);
-        
+
         if (isnan(creal(result)))
             error_handler(NULL, 2);
         else
         {
             ans = result;
-            print_result(ans);
+            print_result(ans, true);
         }
 
         free(expr);
     }
 }
-void print_result(double complex result)
+void print_result(double complex result, bool verbose)
 {
     double real = creal(result), imag = cimag(result);
     if (isnan(real) || isnan(imag))
@@ -165,21 +165,25 @@ void print_result(double complex result)
             printf("-i");
         else
             printf("%.14g i", imag);
-
-        printf("\nModulus = %.14g, argument = %.14g rad = %.14g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
+        if (verbose)
+            printf("\nModulus = %.14g, argument = %.14g rad = %.14g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
     }
     else
     {
         printf("%.14g", real);
-        fraction fraction_str = decimal_to_fraction(real, false);
-        if (fraction_str.c != 0)
+        if (verbose)
         {
-            if (fraction_str.a != 0)
-                printf("\n= %d + %d / %d", fraction_str.a, fraction_str.b, fraction_str.c);
-            printf("\n= %d / %d", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+            fraction fraction_str = decimal_to_fraction(real, false);
+            if (fraction_str.c != 0)
+            {
+                if (fraction_str.a != 0)
+                    printf("\n= %d + %d / %d", fraction_str.a, fraction_str.b, fraction_str.c);
+                printf("\n= %d / %d", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+            }
         }
     }
-    printf("\n\n");
+    if (verbose)
+        printf("\n\n");
 }
 
 void complex_mode()
@@ -202,9 +206,36 @@ void complex_mode()
             }
         }
         ans = calculate_expr(expr, true);
-        print_result(ans);
+        print_result(ans, true);
         free(expr);
         error_handler(NULL, 2);
+    }
+}
+
+void equation_mode()
+{
+    int degree, status;
+    char *operation=malloc(5*sizeof(char));
+    puts("Current mode: Equation");
+
+    while (1)
+    {
+        puts("Degree? (n<=3)");
+        get_input(&operation, NULL, 5);
+        status = sscanf(operation, "%d", &degree);
+
+        // For mode switching
+        if (operation[1] == '\0' && status == 0)
+        {
+            if (valid_mode(operation[0]))
+            {
+                _mode = operation[0];
+                free(operation);
+                return;
+            }
+        }
+
+        equation_solver(degree);
     }
 }
 
