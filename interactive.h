@@ -27,7 +27,8 @@ double get_value(char *prompt);
 matrix_str *matrix_input(int a, int b);
 void matrix_print(matrix_str *A);
 void utility_mode();
-void print_result(double complex result);
+void print_result(double complex result, bool verbose);
+void equation_solver(int degree);
 
 extern char _mode;
 #endif

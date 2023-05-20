@@ -105,6 +105,9 @@ int main(int argc, char **argv)
         case 'F':
             function_calculator();
             break;
+        case 'E':
+            equation_mode();
+            break;
         case 'C':
             complex_mode();
             break;
