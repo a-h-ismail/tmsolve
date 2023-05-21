@@ -143,7 +143,9 @@ void print_result(double complex result, bool verbose)
     if (isnan(real) || isnan(imag))
         return;
 
-    printf("= ");
+    if (verbose)
+        printf("= ");
+
     if (imag != 0)
     {
         if (real != 0)
@@ -210,7 +212,7 @@ void complex_mode()
 void equation_mode()
 {
     int degree, status;
-    char *operation=malloc(5*sizeof(char));
+    char *operation = malloc(5 * sizeof(char));
     puts("Current mode: Equation");
 
     while (1)
