@@ -84,13 +84,8 @@ double get_value(char *prompt)
     while (1)
     {
         get_input(&expr, prompt, -1);
-        if (syntax_check(expr) == false)
-        {
-            error_handler(NULL, 2);
-            continue;
-        }
 
-        value = calculate_expr(expr, true);
+        value = calculate_expr(expr, false);
         free(expr);
         if (isnan(value))
             error_handler(NULL, 2);
