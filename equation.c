@@ -77,10 +77,10 @@ void equation_solver(int degree)
         }
         else if (delta < 0)
         {
-            printf("x1 =");
+            printf("x1 = ");
             x1 = -b / (2 * a) + I * sqrt(-delta) / (2 * a);
             print_result(x1, false);
-            printf("\nx2 =");
+            printf("\nx2 = ");
             x2 = conj(x1);
             print_result(x2, false);
         }
@@ -121,18 +121,18 @@ void equation_solver(int degree)
             printf("x1 = x2 = x3 = %.10g", creal(x1));
         else if (x2 == x3)
         {
-            printf("x1 =");
+            printf("x1 = ");
             print_result(x1, false);
-            printf("\nx2 = x3 =");
+            printf("\nx2 = x3 = ");
             print_result(x2, false);
         }
         else
         {
-            printf("x1 =");
+            printf("x1 = ");
             print_result(x1, false);
-            printf("\nx2 =");
+            printf("\nx2 = ");
             print_result(x2, false);
-            printf("\nx3 =");
+            printf("\nx3 = ");
             print_result(x3, false);
         }
 
