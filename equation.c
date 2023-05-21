@@ -45,7 +45,7 @@ void equation_solver(int degree)
         b = get_value("b = ");
 
         printf("Equation: %.10g x = %.10g\n", a, b);
-        printf("Solution: x = %.10g\n", b / a);
+        printf("Solution: x = %.10g", b / a);
         break;
 
     case 2:
@@ -135,11 +135,11 @@ void equation_solver(int degree)
             printf("\nx3 =");
             print_result(x3, false);
         }
-        
+
         break;
 
     default:
         puts("Degree not supported.");
     }
-    printf("\n");
+    printf("\n\n");
 }
