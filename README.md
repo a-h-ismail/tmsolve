@@ -1,10 +1,15 @@
 # tmsolve
+
 ## Description
+
 Powerful and lightweight command line calculator.
 
 ## Usage
+
 ### Scientific mode
+
 Sample usage:
+
 ```
 Current mode: Scientific
 > 2-3/17
@@ -41,8 +46,10 @@ Division by zero isn't defined.
 - Does not support implied multiplication except for the imaginary number with digits [0-9] where for example 5i is treated as (5*i).
 
 ## Function mode
+
 Calculates a function over the specified interval. Access by entering 'F' in any other mode.
 example: Calculating points across a parabola:
+
 ```
 Current mode: Scientific
 > F
@@ -67,23 +74,31 @@ f(4) = 16
 ```
 
 ## Matrix mode
+
 Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
 
 ## Complex mode
+
 Forces the calculator to work with complex numbers, not needed since scientific mode can handle complex well. Access by entering 'C' in any mode.
 
 ## Installation instructions
-### Linux desktop:
-#### Build from source:
+
+### Linux desktop
+
+#### Build from source
+
 Install required packages:
-##### For Debian/Ubuntu:
+
+##### For Debian/Ubuntu
+
 `sudo apt install gcc libreadline-dev git`
 
-##### For Fedora:
+##### For Fedora
+
 `sudo dnf install gcc readline-devel git`
 
-
 Clone the project repository and run the install script:
+
 ```
 git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
 cd tmsolve
@@ -92,8 +107,10 @@ sudo ./install.sh
 ```
 
 ## Security practices
+
 - The binary is run in `valgrind` memcheck tool with a variety of inputs to verify memory safety and possible leaks.
 - The source code is inspected using `clang-tidy`.
 
 ## License
+
 This project is licensed under the GNU GPL-3.0-or-later.
