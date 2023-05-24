@@ -101,9 +101,9 @@ Clone the project repository and run the install script:
 
 ```
 git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
+cd tmsolve
 git submodule init libtmsolve
 git submodule update
-cd tmsolve
 chmod +x install.sh
 sudo ./install.sh
 ```
