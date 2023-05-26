@@ -261,7 +261,7 @@ void function_calculator()
 
         if (syntax_check(function) == false)
         {
-            printf("\n");
+            error_handler(NULL,2);
             continue;
         }
         math_struct = parse_expr(function, true, false);
