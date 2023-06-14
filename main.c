@@ -117,6 +117,9 @@ int main(int argc, char **argv)
         case 'U':
             utility_mode();
             break;
+        case 'G':
+            tic_tac_toe();
+            break;
 
         default:
             exit(1);
