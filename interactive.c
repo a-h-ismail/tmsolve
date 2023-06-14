@@ -70,10 +70,11 @@ void get_input(char **buffer, char *prompt, size_t n)
         }
     }
 }
-// Simple function to flush stdin, do not use with fgets or it will get blocked due to possible lack of \n
+// Simple function to flush stdin
 void flush_stdin()
 {
-    while (fgetc(stdin) != '\n')
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
         ;
 }
 // Function that keeps running until a valid input is obtained, returning the result
@@ -95,7 +96,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SCFEMU"};
+    char all_modes[] = {"SCFEMUG"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -261,7 +262,7 @@ void function_calculator()
 
         if (syntax_check(function) == false)
         {
-            error_handler(NULL,2);
+            error_handler(NULL, 2);
             continue;
         }
         math_struct = parse_expr(function, true, false);
@@ -415,7 +416,8 @@ void utility_mode()
     }
 }
 
-// Who said a calculator can't have some secrets?
+/* Who said a calculator can't have some secrets?
+Legacy game (rock paper scissors), replaced by the fancy tic-tac-toe
 void rps()
 {
     char *operation = (char *)malloc(10 * sizeof(char)), playerc;
@@ -507,7 +509,7 @@ void rps()
         }
     }
 }
-
+*/
 matrix_str *matrix_input(int rows, int columns)
 {
     matrix_str *matrix = new_matrix(rows, columns);
