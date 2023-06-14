@@ -29,6 +29,8 @@ void matrix_print(matrix_str *A);
 void utility_mode();
 void print_result(double complex result, bool verbose);
 void equation_solver(int degree);
+bool valid_mode(char mode);
+void tic_tac_toe();
 
 extern char _mode;
 #endif
