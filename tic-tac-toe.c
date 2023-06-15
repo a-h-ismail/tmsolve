@@ -248,6 +248,7 @@ void tic_tac_toe()
 {
     char **board;
     int i, status, wins = 0, losses = 0, draws = 0;
+    bool computer_start = false;
     board = malloc(3 * sizeof(char *));
     for (i = 0; i < 3; ++i)
         board[i] = malloc(3 * sizeof(char));
@@ -259,7 +260,8 @@ void tic_tac_toe()
         sleep(2);
         printf("Wins = %d\nLosses = %d\nDraws = %d\n", wins, losses, draws);
 
-        // computer_move(board);
+        if (computer_start)
+            computer_move(board);
         display_board(board);
         while (1)
         {
@@ -296,5 +298,7 @@ void tic_tac_toe()
                 break;
             }
         }
+        // Flip the bool to alternate between user and computer starting
+        computer_start = !computer_start;
     }
 }
