@@ -155,16 +155,13 @@ void scientific_mode()
                 return;
             }
         }
-        // Protect the value stored in ans from being overwritten by NaN
+        
         result = calculate_expr_auto(expr);
 
         if (isnan(creal(result)))
             error_handler(NULL, 2);
         else
-        {
-            ans = result;
-            print_result(ans, true);
-        }
+            print_result(result, true);
 
         free(expr);
     }
