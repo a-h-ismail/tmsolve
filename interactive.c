@@ -3,6 +3,8 @@ Copyright (C) 2021-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
+
+#ifdef USE_READLINE
 char *autocomplete_names[] = {"ans", "exp", "pi", "fact", "abs", "ceil", "floor", "acosh", "asinh", "atanh", "acos", "asin", "atan",
                               "cosh", "sinh", "tanh", "cos", "sin", "tan", "ln", "log", "int", "der", NULL};
 char *character_name_generator(const char *text, int state)
@@ -26,6 +28,7 @@ char *character_name_generator(const char *text, int state)
 
     return NULL;
 }
+
 char **character_name_completion(const char *text, int start, int end)
 {
     // Disable normal filename autocomplete
@@ -33,13 +36,39 @@ char **character_name_completion(const char *text, int start, int end)
 
     return rl_completion_matches(text, character_name_generator);
 }
+#else
+//This function mimics some of the behavior of GNU readline function
+char *readline(char *prompt)
+{
+    size_t count = 0, bsize = 1024;
+    char *buffer = (char *)malloc(bsize * sizeof(char)), c;
 
+    if (prompt != NULL)
+        printf("%s", prompt);
+    do
+    {
+        c = getc(stdin);
+        ++count;
+        if (count > bsize)
+        {
+            bsize *= 2;
+            buffer = realloc(buffer, bsize);
+            if (buffer == NULL)
+                return NULL;
+        }
+        buffer[count - 1] = c;
+    } while (c != '\n');
+    buffer[count - 1] = '\0';
+    buffer = realloc(buffer, (count + 1) * sizeof(char));
+    return buffer;
+}
+
+#endif
 // Reads n characters to *buffer (if n=-1 , no character limit), print prompt
 // Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
 // a char array allocated with malloc, beware of leaks
 void get_input(char **buffer, char *prompt, size_t n)
 {
-    rl_attempted_completion_function = character_name_completion;
     char *temp;
     while (1)
     {
@@ -53,7 +82,9 @@ void get_input(char **buffer, char *prompt, size_t n)
         if (n == -1)
         {
             *buffer = temp;
+            #ifdef USE_READLINE
             add_history(temp);
+            #endif
             remove_whitespace(*buffer);
             return;
         }
@@ -151,7 +182,7 @@ void print_result(double complex result, bool verbose)
     {
         if (real != 0)
         {
-            printf("%.14g", real);
+            printf("%.10g", real);
             if (imag > 0)
                 printf("+");
         }
@@ -162,13 +193,13 @@ void print_result(double complex result, bool verbose)
         else if (imag == -1)
             printf("-i");
         else
-            printf("%.14g i", imag);
+            printf("%.10g i", imag);
         if (verbose)
-            printf("\nModulus = %.14g, argument = %.14g rad = %.14g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
+            printf("\nModulus = %.10g, argument = %.10g rad = %.10g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
     }
     else
     {
-        printf("%.14g", real);
+        printf("%.10g", real);
         if (verbose)
         {
             fraction fraction_str = decimal_to_fraction(real, false);

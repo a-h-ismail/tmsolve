@@ -13,9 +13,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "libtmsolve/libtmsolve.h"
 #endif
 
+#ifdef USE_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
+char **character_name_completion(const char *text, int start, int end);
+#endif
+
 #include <stdlib.h>
+
 void get_input(char **buffer, char *prompt, size_t n);
 void flush_stdin();
 void scientific_mode();

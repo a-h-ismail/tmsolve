@@ -93,6 +93,11 @@ int main(int argc, char **argv)
             }
         return 0;
     }
+    
+    // For readline autocompletion
+    #ifdef USE_READLINE
+    rl_attempted_completion_function = character_name_completion;
+    #endif
 
     // pick the mode
     while (1)
