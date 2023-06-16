@@ -6,7 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdlib.h>
 #include <string.h>
 #include "interactive.h"
-double complex ans = 0;
+
 char _mode = 'S';
 int main(int argc, char **argv)
 {
@@ -56,7 +56,8 @@ int main(int argc, char **argv)
                 strncpy(expr, buffer, separator);
                 expr[separator] = '\0';
                 puts(expr);
-                ans = calculate_expr_auto(expr);
+                // Automatically sets ans
+                calculate_expr_auto(expr);
                 // Calculate relative error
                 if (expected_ans == 0)
                 {
@@ -83,7 +84,7 @@ int main(int argc, char **argv)
         else
             for (int i = 1; i < argc; ++i)
             {
-                ans = calculate_expr(argv[i], false);
+                calculate_expr(argv[i], false);
                 if (isnan(creal(ans)))
                 {
                     error_handler(NULL, 2);
