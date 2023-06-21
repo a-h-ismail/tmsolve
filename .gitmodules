@@ -1,3 +1,4 @@
 [submodule "libtmsolve"]
 	path = libtmsolve
 	url = https://gitlab.com/a-h-ismail/libtmsolve
+	branch = main
