@@ -41,9 +41,9 @@ Division by zero isn't defined.
 - Default mode when `tmsolve` is started without arguments.
 - Supports most used scientific functions (trigonometry and its variants, power, factorial...).
 - "ans" variable stores previous results.
-- Automatically detects complex number and switches the output accordingly.
+- Supports complex numbers.
 - Supports numerical integration and derivation using `int(start,end,function)` and `der(function,x0)`.
-- Does not support implied multiplication except for the imaginary number with digits [0-9] where for example 5i is treated as (5*i).
+- Does not support implied multiplication except for the imaginary number with numbers, where for example 5i is treated as (5*i).
 
 ## Function mode
 
@@ -77,9 +77,6 @@ f(4) = 16
 
 Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
 
-## Complex mode
-
-Forces the calculator to work with complex numbers, not needed since scientific mode can handle complex well. Access by entering 'C' in any mode.
 
 ## Installation instructions
 

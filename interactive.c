@@ -37,7 +37,7 @@ char **character_name_completion(const char *text, int start, int end)
     return rl_completion_matches(text, character_name_generator);
 }
 #else
-//This function mimics some of the behavior of GNU readline function
+// This function mimics some of the behavior of GNU readline function
 char *readline(char *prompt)
 {
     size_t count = 0, bsize = 1024;
@@ -64,39 +64,40 @@ char *readline(char *prompt)
 }
 
 #endif
-// Reads n characters to *buffer (if n=-1 , no character limit), print prompt
-// Do not use a size of -1 with stack allocated strings, the "-1" case changes the pointer stored in the buffer to
-// a char array allocated with malloc, beware of leaks
+// Reads n characters to *buffer (if n = -1 , no character limit), print prompt
+// Do not use a size of -1 with stack allocated strings
 void get_input(char **buffer, char *prompt, size_t n)
 {
-    char *temp;
+    char *tmp;
     while (1)
     {
-        temp = readline(prompt);
-        if (strlen(temp) == 0)
+        tmp = readline(prompt);
+        if (strlen(tmp) == 0)
         {
             puts(NO_INPUT "\n");
-            free(temp);
+            free(tmp);
             continue;
         }
         if (n == -1)
         {
-            *buffer = temp;
-            #ifdef USE_READLINE
-            add_history(temp);
-            #endif
+            *buffer = tmp;
+#ifdef USE_READLINE
+            add_history(tmp);
+#endif
             remove_whitespace(*buffer);
-            return;
         }
-        else if (strlen(temp) > n)
+        else if (strlen(tmp) > n)
         {
             printf("Expression is very long, it must be at most %zu characters.\n\n", n);
-            free(temp);
+            free(tmp);
         }
         else
         {
-            strcpy(*buffer, temp);
-            free(temp);
+            strcpy(*buffer, tmp);
+#ifdef USE_READLINE
+            add_history(tmp);
+#endif
+            free(tmp);
             return;
         }
     }
@@ -127,7 +128,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SCFEMUG"};
+    char all_modes[] = {"SFEMUG"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -155,7 +156,7 @@ void scientific_mode()
                 return;
             }
         }
-        
+
         result = calculate_expr_auto(expr);
 
         if (isnan(creal(result)))
@@ -210,32 +211,6 @@ void print_result(double complex result, bool verbose)
     }
     if (verbose)
         printf("\n\n");
-}
-
-void complex_mode()
-{
-    char *expr;
-    puts("Current mode: Complex");
-    while (1)
-    {
-        get_input(&expr, NULL, -1);
-        if (strcmp(expr, "exit") == 0)
-            exit(0);
-        // If the string has length 1, check for mode switching.
-        if (expr[1] == '\0')
-        {
-            if (valid_mode(expr[0]))
-            {
-                _mode = expr[0];
-                free(expr);
-                return;
-            }
-        }
-        ans = calculate_expr(expr, true);
-        print_result(ans, true);
-        free(expr);
-        error_handler(NULL, 2);
-    }
 }
 
 void equation_mode()
@@ -396,7 +371,7 @@ void utility_mode()
     puts("Current mode: Utility");
     while (1)
     {
-        get_input(&input, NULL, 24);
+        get_input(&input, "> ", 24);
         if (strcmp(input, "exit") == 0)
             exit(0);
 
