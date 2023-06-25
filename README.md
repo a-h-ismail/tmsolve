@@ -45,7 +45,7 @@ Division by zero isn't defined.
 - Supports numerical integration and derivation using `int(start,end,function)` and `der(function,x0)`.
 - Does not support implied multiplication except for the imaginary number with numbers, where for example 5i is treated as (5*i).
 
-## Function mode
+### Function mode
 
 Calculates a function over the specified interval. Access by entering 'F' in any other mode.
 example: Calculating points across a parabola:
@@ -73,7 +73,7 @@ f(3) = 9
 f(4) = 16
 ```
 
-## Matrix mode
+### Matrix mode
 
 Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
 
