@@ -119,7 +119,7 @@ double get_value(char *prompt)
         value = calculate_expr(expr, false);
         free(expr);
         if (isnan(value))
-            error_handler(NULL, 2);
+            error_handler(NULL, EH_PRINT);
         else
             return value;
     }
@@ -158,7 +158,7 @@ void scientific_mode()
         result = calculate_expr_auto(expr);
 
         if (isnan(creal(result)))
-            error_handler(NULL, 2);
+            error_handler(NULL, EH_PRINT);
         else
             print_result(result, true);
 
@@ -263,14 +263,14 @@ void function_calculator()
 
         if (syntax_check(function) == false)
         {
-            error_handler(NULL, 2);
+            error_handler(NULL, EH_PRINT);
             continue;
         }
         math_struct = parse_expr(function, true, false);
 
         if (math_struct == NULL)
         {
-            error_handler(NULL, 2);
+            error_handler(NULL, EH_PRINT);
             free(function);
             continue;
         }
@@ -413,7 +413,7 @@ void utility_mode()
                 printf("\n\n");
             }
         }
-        error_handler(NULL, 2);
+        error_handler(NULL, EH_PRINT);
     }
 }
 

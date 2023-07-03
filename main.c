@@ -87,7 +87,7 @@ int main(int argc, char **argv)
                 calculate_expr(argv[i], false);
                 if (isnan(creal(ans)))
                 {
-                    error_handler(NULL, 2);
+                    error_handler(NULL, EH_PRINT);
                     continue;
                 }
                 printf("%.14g\n", creal(ans));
