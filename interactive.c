@@ -333,7 +333,7 @@ void function_calculator()
             result = eval_math_expr(math_struct);
             if (isnan(result))
             {
-                error_handler(NULL, 3, 0);
+                error_handler(NULL, EH_CLEAR, EH_MAIN_DB);
                 printf("f(%g)=Error\n", x);
             }
             else
