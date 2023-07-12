@@ -90,7 +90,7 @@ int main(int argc, char **argv)
                     error_handler(NULL, EH_PRINT);
                     continue;
                 }
-                printf("%.14g\n", creal(ans));
+                printf("%.10g\n", creal(ans));
             }
         return 0;
     }

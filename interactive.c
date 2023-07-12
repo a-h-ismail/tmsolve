@@ -337,7 +337,7 @@ void function_calculator()
                 printf("f(%g)=Error\n", x);
             }
             else
-                printf("f(%g) = %.14g\n", x, result);
+                printf("f(%g) = %.10g\n", x, result);
             // Calculating the next value of x according to the specified method
             switch (step_op)
             {
