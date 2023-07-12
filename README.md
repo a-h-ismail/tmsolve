@@ -13,24 +13,24 @@ Sample usage:
 ```
 Current mode: Scientific
 > 2-3/17
-= 1.8235294117647
+= 1.823529412
 = 1 + 14 / 17
 = 31 / 17
 
 > int(1,exp,ln(x))
-= 0.99999344540145
+= 0.9999983613
 
 > ans*2i
-= 1.9999868908029i
-Modulus = 1.9999868908029, argument = 1.5707963267949 rad = 90 deg
+= 1.999996723 i
+Modulus = 1.999996723, argument = 1.570796327 rad = 90 deg
 
 > 5i
 = 5i
-Modulus = 5, argument = 1.5707963267949 rad = 90 deg
+Modulus = 5, argument = 1.570796327 rad = 90 deg
 
 > exp^(i*pi/12)
-= 0.96592582628907+0.25881904510252i
-Modulus = 1, argument = 0.26179938779915 rad = 15 deg
+= 0.9659258263+0.2588190451 i
+Modulus = 1, argument = 0.2617993878 rad = 15 deg
 
 > 1/(2-2)
 Division by zero isn't defined.
@@ -76,7 +76,6 @@ f(4) = 16
 ### Matrix mode
 
 Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
-
 
 ## Installation instructions
 
