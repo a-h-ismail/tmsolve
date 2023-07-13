@@ -72,6 +72,10 @@ void get_input(char **buffer, char *prompt, size_t n)
     while (1)
     {
         tmp = readline(prompt);
+        // Properly handle end of piped input
+        if (tmp == NULL)
+            exit(0);
+
         if (strlen(tmp) == 0)
         {
             puts(NO_INPUT "\n");
