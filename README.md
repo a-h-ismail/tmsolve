@@ -79,19 +79,17 @@ Basic matrix handling (determinant, multiplication, inversion...). Access by ent
 
 ## Installation instructions
 
-### Linux desktop
-
-#### Build from source
+### Build from source
 
 Install required packages:
 
-##### For Debian/Ubuntu
+#### For Debian/Ubuntu
 
-`sudo apt install gcc libreadline-dev git`
+`sudo apt install gcc libreadline-dev git cmake make`
 
-##### For Fedora
+#### For Fedora
 
-`sudo dnf install gcc readline-devel git`
+`sudo dnf install gcc readline-devel git cmake make`
 
 Clone the project repository and run the install script:
 
@@ -100,8 +98,12 @@ git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
 cd tmsolve
 git submodule init libtmsolve
 git submodule update
-chmod +x install.sh
-sudo ./install.sh
+# Generate the makefile and use it to build the binary
+cd ./tmsolve
+cmake -S. -B./build -G "Unix Makefiles"
+cd ./build
+make
+sudo make install
 ```
 
 ## Security practices
