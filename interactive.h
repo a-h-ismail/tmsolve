@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #ifndef LOCAL_BUILD
 #include <tmsolve/libtmsolve.h>
 #else
-#include "libtmsolve/libtmsolve.h"
+#include "libtmsolve.h"
 #endif
 
 #ifdef USE_READLINE
