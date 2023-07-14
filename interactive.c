@@ -211,8 +211,10 @@ void print_result(double complex result, bool verbose)
             }
         }
     }
+    printf("\n");
+    // If verbose it set (interactive), add an extra space for visibility
     if (verbose)
-        printf("\n\n");
+        printf("\n");
 }
 
 void equation_mode()
