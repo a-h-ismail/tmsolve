@@ -39,8 +39,8 @@ int main(int argc, char **argv)
                     puts("Buffer size possibly exceeded.");
                     exit(2);
                 }
-                remove_whitespace(buffer);
-                separator = f_search(buffer, ";", 0, false);
+                tms_remove_whitespace(buffer);
+                separator = tms_f_search(buffer, ";", 0, false);
                 if (separator == -1)
                 {
                     fputs("Incorrect format for test file, missing ;", stderr);
@@ -50,14 +50,14 @@ int main(int argc, char **argv)
                 char expr[separator];
                 double complex expected_ans;
                 // Not the most efficient way, but the calculator should be reliable for simple ops.
-                // I could have used sscanf or read_value, but solving it will handle complex easier.
-                expected_ans = calculate_expr_auto(buffer + separator + 1);
+                // I could have used sscanf or tms_read_value, but solving it will handle complex easier.
+                expected_ans = tms_solve(buffer + separator + 1);
 
                 strncpy(expr, buffer, separator);
                 expr[separator] = '\0';
                 puts(expr);
                 // Automatically sets ans
-                calculate_expr_auto(expr);
+                tms_solve(expr);
                 // Calculate relative error
                 if (expected_ans == 0)
                 {
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    double relative_error = cabs((expected_ans - ans) / expected_ans);
+                    double relative_error = cabs((expected_ans - tms_g_ans) / expected_ans);
                     printf("relative error=%g\n", relative_error);
                     if (relative_error > 1e-3)
                     {
@@ -96,15 +96,15 @@ int main(int argc, char **argv)
                 strcat(all, argv[i]);
             // This function will set ans if the calculation succeeds.
             // Force set ans to nan if the calculation fails.
-            ans = calculate_expr_auto(all);
+            tms_g_ans = tms_solve(all);
 
-            if (isnan(creal(ans)))
+            if (isnan(creal(tms_g_ans)))
             {
-                error_handler(NULL, EH_PRINT);
+                tms_error_handler(NULL, EH_PRINT);
                 exit(1);
             }
             else
-                print_result(ans, false);
+                print_result(tms_g_ans, false);
         }
         exit(0);
     }

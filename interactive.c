@@ -85,7 +85,7 @@ void get_input(char **buffer, char *prompt, size_t n)
         if (n == -1)
         {
             *buffer = tmp;
-            remove_whitespace(*buffer);
+            tms_remove_whitespace(*buffer);
             break;
         }
         else if (strlen(tmp) > n)
@@ -120,10 +120,10 @@ double get_value(char *prompt)
     {
         get_input(&expr, prompt, -1);
 
-        value = calculate_expr(expr, false);
+        value = tms_solve_e(expr, false);
         free(expr);
         if (isnan(value))
-            error_handler(NULL, EH_PRINT);
+            tms_error_handler(NULL, EH_PRINT);
         else
             return value;
     }
@@ -159,10 +159,10 @@ void scientific_mode()
             }
         }
 
-        result = calculate_expr_auto(expr);
+        result = tms_solve(expr);
 
         if (isnan(creal(result)))
-            error_handler(NULL, EH_PRINT);
+            tms_error_handler(NULL, EH_PRINT);
         else
             print_result(result, true);
 
@@ -202,7 +202,7 @@ void print_result(double complex result, bool verbose)
         printf("%.10g", real);
         if (verbose)
         {
-            fraction fraction_str = decimal_to_fraction(real, false);
+            tms_fraction fraction_str = tms_decimal_to_fraction(real, false);
             if (fraction_str.c != 0)
             {
                 if (fraction_str.a != 0)
@@ -249,7 +249,7 @@ void function_calculator()
     double start, end, step, x;
     int i;
     char *expr, step_op, *function;
-    math_expr *math_struct;
+    tms_math_expr *math_struct;
     puts("Current mode: Function");
     while (1)
     {
@@ -267,16 +267,16 @@ void function_calculator()
             }
         }
 
-        if (syntax_check(function) == false)
+        if (tms_syntax_check(function) == false)
         {
-            error_handler(NULL, EH_PRINT);
+            tms_error_handler(NULL, EH_PRINT);
             continue;
         }
-        math_struct = parse_expr(function, true, false);
+        math_struct = tms_parse_expr(function, true, false);
 
         if (math_struct == NULL)
         {
-            error_handler(NULL, EH_PRINT);
+            tms_error_handler(NULL, EH_PRINT);
             free(function);
             continue;
         }
@@ -309,7 +309,7 @@ void function_calculator()
             }
             else
                 step_op = '+';
-            step = calculate_expr(expr, false);
+            step = tms_solve_e(expr, false);
             if (isnan(step))
             {
                 printf("\n");
@@ -334,12 +334,12 @@ void function_calculator()
         {
             prevx = x;
             // Set the value of x in the subexpr_ptr
-            set_variable(math_struct, x);
+            _tms_set_variable(math_struct, x);
             // Solving the function then printing
-            result = eval_math_expr(math_struct);
+            result = tms_evaluate(math_struct);
             if (isnan(result))
             {
-                error_handler(NULL, EH_CLEAR, EH_MAIN_DB);
+                tms_error_handler(NULL, EH_CLEAR, EH_MAIN_DB);
                 printf("f(%g)=Error\n", x);
             }
             else
@@ -390,15 +390,15 @@ void utility_mode()
             }
         }
 
-        p = f_search(input, "(", 0, false);
+        p = tms_f_search(input, "(", 0, false);
         if (p > 0)
         {
             if (strncmp("factor", input, p - 1) == 0)
             {
                 int32_t value;
-                int_factor *factors_list;
+                tms_int_factor *factors_list;
                 sscanf(input + p + 1, "%" PRId32, &value);
-                factors_list = find_factors(value);
+                factors_list = tms_find_factors(value);
 
                 if (factors_list->factor == 0)
                     puts("= 0");
@@ -419,7 +419,7 @@ void utility_mode()
                 printf("\n\n");
             }
         }
-        error_handler(NULL, EH_PRINT);
+        tms_error_handler(NULL, EH_PRINT);
     }
 }
 
@@ -517,9 +517,9 @@ void rps()
     }
 }
 */
-matrix_str *matrix_input(int rows, int columns)
+tms_matrix *matrix_input(int rows, int columns)
 {
-    matrix_str *matrix = new_matrix(rows, columns);
+    tms_matrix *matrix = tms_new_matrix(rows, columns);
     int i, j;
     puts("Enter data:");
     char mem_prompt[28];
@@ -532,7 +532,7 @@ matrix_str *matrix_input(int rows, int columns)
     return matrix;
 }
 // Read data into matrix M from stdin
-void matrix_edit(matrix_str **M)
+void matrix_edit(tms_matrix **M)
 {
     int a = 0, b = 0, success_count = 0;
     char *buffer;
@@ -556,7 +556,7 @@ void matrix_edit(matrix_str **M)
     } while (a <= 0 || b <= 0 || success_count != 2);
     *M = matrix_input(a, b);
 }
-void matrix_print(matrix_str *A)
+void matrix_print(tms_matrix *A)
 {
     int i, j;
     if (A == NULL)
@@ -574,9 +574,9 @@ void matrix_print(matrix_str *A)
 }
 
 // The matrixes as global variables
-matrix_str *A, *B, *C, *D, *E, *R, *prevR;
+tms_matrix *A, *B, *C, *D, *E, *R, *prevR;
 // Function that matches the letter to the matrix it represents.
-bool match_matrix(matrix_str ***pointer, char operand)
+bool match_matrix(tms_matrix ***pointer, char operand)
 {
     switch (operand)
     {
@@ -607,7 +607,7 @@ void matrix_mode()
 {
     char buffer[15], *operation = buffer;
     char op1, op2;
-    matrix_str **operand1 = NULL, **operand2 = NULL;
+    tms_matrix **operand1 = NULL, **operand2 = NULL;
     double det;
     A = B = C = D = E = R = prevR = NULL;
     puts("Current mode: Matrix.");
@@ -641,7 +641,7 @@ void matrix_mode()
                 continue;
             }
             if (*operand1 != NULL && *operand2 != NULL)
-                R = matrix_multiply(*operand1, *operand2);
+                R = tms_matrix_multiply(*operand1, *operand2);
             else
                 puts("Error, no data.");
             // In case of failure, copy the previous pointer of R back to R
@@ -664,8 +664,8 @@ void matrix_mode()
             }
             if (operand1 == operand2)
                 continue;
-            matrix_str *tmp;
-            tmp = matrix_dup(*operand1);
+            tms_matrix *tmp;
+            tmp = tms_matrix_dup(*operand1);
             if (tmp != NULL)
             {
                 puts("Copy done successfuly.");
@@ -694,7 +694,7 @@ void matrix_mode()
                 puts("Invalid operand.");
                 continue;
             }
-            R = matrix_tr(*operand1);
+            R = tms_matrix_tr(*operand1);
             puts("Result:");
             matrix_print(R);
         }
@@ -716,7 +716,7 @@ void matrix_mode()
                 puts("Invalid operand.");
                 continue;
             }
-            det = matrix_det(*operand1);
+            det = tms_matrix_det(*operand1);
             if (isnan(det))
                 puts("Indeterminate determinant.");
             else
@@ -730,7 +730,7 @@ void matrix_mode()
                 puts("Invalid operand.");
                 continue;
             }
-            R = matrix_inv(*operand1);
+            R = tms_matrix_inv(*operand1);
             if (R == NULL)
                 R = prevR;
             else
@@ -748,7 +748,7 @@ void matrix_mode()
                 puts("Invalid operand.");
                 continue;
             }
-            R = comatrix(*operand1);
+            R = tms_comatrix(*operand1);
             if (R == NULL)
                 R = prevR;
             else
