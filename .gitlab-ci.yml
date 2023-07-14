@@ -8,20 +8,12 @@ build:
   artifacts:
     paths:
       - tmsolve
-  rules:
-    - changes:
-      - /*.{c, h}
-      - ./calc_tests.txt
 
 # run tests using the binary built before
 test:
   stage: test
   script:
     - ./tmsolve --test ./calc_tests.txt
-  rules:
-    - changes:
-      - /*.{c, h}
-      - ./calc_tests.txt
 
 #deploy:
 #  stage: deploy
