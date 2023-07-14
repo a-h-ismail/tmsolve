@@ -80,25 +80,39 @@ int main(int argc, char **argv)
                 }
             }
         }
+
         // Calculate the expressions passed as arguments
         else
-            for (int i = 1; i < argc; ++i)
+        {
+            int i, length = 0;
+            for (i = 1; i < argc; ++i)
+                length += strlen(argv[i]);
+            char *all = malloc((length + 1) * sizeof(char));
+            // Initialize the "all" array using the first argument (strcat expects an initialized string)
+            strcpy(all, argv[1]);
+
+            // Concatenate arguments
+            for (i = 2; i < argc; ++i)
+                strcat(all, argv[i]);
+            // This function will set ans if the calculation succeeds.
+            // Force set ans to nan if the calculation fails.
+            ans = calculate_expr_auto(all);
+
+            if (isnan(creal(ans)))
             {
-                calculate_expr(argv[i], false);
-                if (isnan(creal(ans)))
-                {
-                    error_handler(NULL, EH_PRINT);
-                    continue;
-                }
-                printf("%.10g\n", creal(ans));
+                error_handler(NULL, EH_PRINT);
+                exit(1);
             }
-        return 0;
+            else
+                print_result(ans, false);
+        }
+        exit(0);
     }
-    
-    // For readline autocompletion
-    #ifdef USE_READLINE
+
+// For readline autocompletion
+#ifdef USE_READLINE
     rl_attempted_completion_function = character_name_completion;
-    #endif
+#endif
 
     // pick the mode
     while (1)
