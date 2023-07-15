@@ -48,6 +48,11 @@ char *readline(char *prompt)
     do
     {
         c = getc(stdin);
+        if (c == EOF)
+        {
+            free(buffer);
+            return NULL;
+        }
         ++count;
         if (count > bsize)
         {
