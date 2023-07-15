@@ -65,6 +65,7 @@ char *readline(char *prompt)
 
 #endif
 // Reads n characters to *buffer (if n = -1 , no character limit), print prompt
+// Your buffer should have size of n+1 to accomodate the NULL terminator.
 // Do not use a size of -1 with stack allocated strings
 void get_input(char **buffer, char *prompt, size_t n)
 {
@@ -95,7 +96,8 @@ void get_input(char **buffer, char *prompt, size_t n)
         }
         else
         {
-            strcpy(*buffer, tmp);
+            strncpy(*buffer, tmp, n);
+            (*buffer)[n] = '\0';
             free(tmp);
             break;
         }
@@ -195,7 +197,7 @@ void print_result(double complex result, bool verbose)
         else
             printf("%.10g i", imag);
         if (verbose)
-            printf("\nModulus = %.10g, argument = %.10g rad = %.10g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
+            printf("\nMod = %.10g, arg = %.10g rad = %.10g deg", cabs(result), carg(result), carg(result) * 180 / M_PI);
     }
     else
     {
@@ -226,7 +228,7 @@ void equation_mode()
     while (1)
     {
         puts("Degree? (n<=3)");
-        get_input(&operation, NULL, 5);
+        get_input(&operation, NULL, 4);
         status = sscanf(operation, "%d", &degree);
 
         // For mode switching
@@ -302,6 +304,8 @@ void function_calculator()
         {
             get_input(&expr, "Step: ", -1);
             i = strlen(expr);
+            if (i == 0)
+                continue;
             if (*(expr + i - 1) == '+' || *(expr + i - 1) == '*' || *(expr + i - 1) == '^')
             {
                 step_op = *(expr + i - 1);
@@ -375,7 +379,7 @@ void utility_mode()
     puts("Current mode: Utility");
     while (1)
     {
-        get_input(&input, "> ", 24);
+        get_input(&input, "> ", 23);
         if (strcmp(input, "exit") == 0)
             exit(0);
 
@@ -616,7 +620,7 @@ void matrix_mode()
     while (1)
     {
         puts("\nOperation:");
-        get_input(&operation, NULL, 15);
+        get_input(&operation, NULL, 14);
         if (strcmp(operation, "exit") == 0)
             exit(0);
         // If the string has length 1, check for mode switching.
