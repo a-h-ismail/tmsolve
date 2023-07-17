@@ -6,6 +6,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdlib.h>
 #include <string.h>
 #include "interactive.h"
+#include "version.h"
 
 char _mode = 'S';
 int main(int argc, char **argv)
@@ -50,7 +51,6 @@ int main(int argc, char **argv)
                 char expr[separator];
                 double complex expected_ans;
                 // Not the most efficient way, but the calculator should be reliable for simple ops.
-                // I could have used sscanf or tms_read_value, but solving it will handle complex easier.
                 expected_ans = tms_solve(buffer + separator + 1);
 
                 strncpy(expr, buffer, separator);
@@ -79,6 +79,11 @@ int main(int argc, char **argv)
                         puts("Passed");
                 }
             }
+        }
+        else if (strcmp("--version", argv[1]) == 0)
+        {
+            printf("tmsolve version %s\nlibtmsolve version %s\n", TMSOLVE_VER, LIBTMSOLVE_VER);
+            return 0;
         }
 
         // Calculate the expressions passed as arguments
