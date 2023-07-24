@@ -82,7 +82,7 @@ int main(int argc, char **argv)
         }
         else if (strcmp("--version", argv[1]) == 0)
         {
-            printf("tmsolve version %s\nlibtmsolve version %s\n", TMSOLVE_VER, LIBTMSOLVE_VER);
+            printf("tmsolve version %s\nlibtmsolve version %s\n", TMSOLVE_VER, tms_lib_version);
             return 0;
         }
 
