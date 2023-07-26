@@ -134,11 +134,16 @@ int main(int argc, char **argv)
         }
         else if (strcmp(argv[1], "--version") == 0)
         {
-            printf("tmsolve version %s\nlibtmsolve version %s\n", TMSOLVE_VER, tms_lib_version);
+            printf("tmsolve version %s\nlibtmsolve version %s ", TMSOLVE_VER, tms_lib_version);
+#ifdef LOCAL_BUILD
+            printf("(static)\n");
+#else
+            printf("(dynamic)\n");
+#endif
             return 0;
         }
 
-        #ifdef __linux__
+#ifdef __linux__
         else if (strcmp(argv[1], "--benchmark") == 0)
         {
             char simple_expr[] = {"15.75+3e2-4.8872/2.534e-4"};
@@ -147,7 +152,7 @@ int main(int argc, char **argv)
             run_benchmark(nested_expr);
             exit(0);
         }
-        #endif
+#endif
 
         // Calculate the expressions passed as arguments
         else
