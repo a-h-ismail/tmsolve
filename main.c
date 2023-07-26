@@ -9,6 +9,58 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "version.h"
 
 char _mode = 'S';
+
+// Windows doesn't have timespec_get()
+#ifdef __linux__
+#include <time.h>
+// Calculates the delta time between start (S) and end (E) times
+struct timespec calculate_delta_time(struct timespec *S, struct timespec *E)
+{
+    struct timespec delta_time;
+    delta_time.tv_sec = E->tv_sec - S->tv_sec;
+    delta_time.tv_nsec = E->tv_nsec - S->tv_nsec;
+    // Carry from seconds to nano seconds
+    if (delta_time.tv_nsec < 0 && delta_time.tv_sec > 0)
+    {
+        --delta_time.tv_sec;
+        delta_time.tv_nsec += 1e9;
+    }
+    return delta_time;
+}
+
+int run_benchmark(char *expr)
+{
+    struct timespec start_time, end_time, delta_time;
+    int iterations = 1e6, i;
+    tms_math_expr *M;
+    printf("Expression %s:\n", expr);
+    printf("Running %d iterations of the parser\n", iterations);
+    timespec_get(&start_time, TIME_UTC);
+    M = tms_parse_expr(expr, false, false);
+    for (i = 0; i < iterations; ++i)
+    {
+        M = tms_parse_expr(expr, false, false);
+        tms_delete_math_expr(M);
+    }
+    timespec_get(&end_time, TIME_UTC);
+    delta_time = calculate_delta_time(&start_time, &end_time);
+    printf("Time: %li.%li s\n\n", delta_time.tv_sec, delta_time.tv_nsec / (int)1e6);
+
+    iterations = 1e8;
+    printf("Running %d iterations of the evaluator\n", iterations);
+    M = tms_parse_expr(expr, false, false);
+    timespec_get(&start_time, TIME_UTC);
+    for (i = 0; i < iterations; ++i)
+        tms_g_ans = tms_evaluate(M);
+
+    tms_delete_math_expr(M);
+    timespec_get(&end_time, TIME_UTC);
+    delta_time = calculate_delta_time(&start_time, &end_time);
+    printf("Time: %li.%li s\n\n", delta_time.tv_sec, delta_time.tv_nsec / (int)1e6);
+    return 0;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     // Calculate expressions sent as command line arguments.
@@ -80,11 +132,22 @@ int main(int argc, char **argv)
                 }
             }
         }
-        else if (strcmp("--version", argv[1]) == 0)
+        else if (strcmp(argv[1], "--version") == 0)
         {
             printf("tmsolve version %s\nlibtmsolve version %s\n", TMSOLVE_VER, tms_lib_version);
             return 0;
         }
+
+        #ifdef __linux__
+        else if (strcmp(argv[1], "--benchmark") == 0)
+        {
+            char simple_expr[] = {"15.75+3e2-4.8872/2.534e-4"};
+            char nested_expr[] = {"5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4"};
+            run_benchmark(simple_expr);
+            run_benchmark(nested_expr);
+            exit(0);
+        }
+        #endif
 
         // Calculate the expressions passed as arguments
         else
