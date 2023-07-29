@@ -91,7 +91,6 @@ void get_input(char **buffer, char *prompt, size_t n)
         if (n == -1)
         {
             *buffer = tmp;
-            tms_remove_whitespace(*buffer);
             break;
         }
         else if (strlen(tmp) > n)
