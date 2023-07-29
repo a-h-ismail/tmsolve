@@ -107,7 +107,7 @@ void get_input(char **buffer, char *prompt, size_t n)
         }
     }
 #ifdef USE_READLINE
-    add_history(tmp);
+    add_history(*buffer);
 #endif
 }
 // Simple function to flush stdin
