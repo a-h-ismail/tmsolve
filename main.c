@@ -108,8 +108,14 @@ int main(int argc, char **argv)
                 strncpy(expr, buffer, separator);
                 expr[separator] = '\0';
                 puts(expr);
-                // Automatically sets ans
-                tms_solve(expr);
+
+                tms_g_ans = tms_solve(expr);
+                if (isnan(creal(tms_g_ans)))
+                {
+                    tms_error_handler(NULL, EH_PRINT);
+                    exit(1);
+                }
+                
                 // Calculate relative error
                 if (expected_ans == 0)
                 {
