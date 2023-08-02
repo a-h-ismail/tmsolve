@@ -168,7 +168,7 @@ int draw_move(char **board)
         // Analyze boad columns
         for (i = 0; i < 3; ++i)
         {
-            field_to_take[0] = -1;
+            field_to_take[0] = field_to_take[1] = -1;
             number_of_symbols = 0;
             for (j = 0; j < 3; ++j)
             {
