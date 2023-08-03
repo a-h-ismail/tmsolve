@@ -61,6 +61,18 @@ int run_benchmark(char *expr)
 }
 #endif
 
+// To not clutter main()
+void print_help()
+{
+    puts("usage: tmsolve [options] [expression]\n");
+    puts("Available options:\n");
+    puts("\t--benchmark\n\tRuns a simple benchmark for the parser and evaluator (Linux only).\n");
+    puts("\t--version\n\tPrints version information for the CLI and libtmsolve.\n");
+    puts("\t--test TEST_FILE\n\tCalculates the expressions provided in the test file and compares them with the provided expected result.\n");
+    puts("\t--help\n\tPrint this help prompt.\n");
+    puts("The program will start by default in the scientific mode if no command line option is specified.");
+}
+
 int main(int argc, char **argv)
 {
     // Calculate expressions sent as command line arguments.
@@ -159,6 +171,11 @@ int main(int argc, char **argv)
             exit(0);
         }
 #endif
+        else if (strcmp(argv[1], "--help") == 0)
+        {
+            print_help();
+            exit(0);
+        }
 
         // Calculate the expressions passed as arguments
         else
