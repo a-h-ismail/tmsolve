@@ -36,7 +36,7 @@ int run_benchmark(char *expr)
     printf("Expression %s:\n", expr);
     printf("Running %d iterations of the parser\n", iterations);
     timespec_get(&start_time, TIME_UTC);
-    M = tms_parse_expr(expr, false, false);
+
     for (i = 0; i < iterations; ++i)
     {
         M = tms_parse_expr(expr, false, false);
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
                     tms_error_handler(NULL, EH_PRINT);
                     exit(1);
                 }
-                
+
                 // Calculate relative error
                 if (expected_ans == 0)
                 {
@@ -164,10 +164,14 @@ int main(int argc, char **argv)
 #ifdef __linux__
         else if (strcmp(argv[1], "--benchmark") == 0)
         {
-            char simple_expr[] = {"15.75+3e2-4.8872/2.534e-4"};
-            char nested_expr[] = {"5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4"};
-            run_benchmark(simple_expr);
-            run_benchmark(nested_expr);
+            char *benchmark_expr[] = {"15.75+3e2-4.8872/2.534e-4",
+                                      "5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4)",
+                                      "light_speed=sqrt(1/(8.8541878128e-12*(4e-7*pi)))",
+                                      "(((cos(pi/3))))+0.546545",
+                                      "sin(0.7)^2+cos(0.7)^2"};
+            tmsolve_init();
+            for (int i = 0; i < array_length(benchmark_expr); ++i)
+                run_benchmark(benchmark_expr[i]);
             exit(0);
         }
 #endif
