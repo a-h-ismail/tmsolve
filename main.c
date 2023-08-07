@@ -112,7 +112,7 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                char expr[separator];
+                char expr[separator + 1];
                 double complex expected_ans;
                 // Not the most efficient way, but the calculator should be reliable for simple ops.
                 expected_ans = tms_solve(buffer + separator + 1);
