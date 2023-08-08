@@ -10,10 +10,15 @@ build:
       - tmsolve
 
 # run tests using the binary built before
-test:
+test accuracy:
   stage: test
   script:
-    - ./tmsolve --test ./calc_tests.txt
+    - ./tmsolve --test ./tests/accuracy_test.txt
+
+test resilience:
+  stage: test
+  script:
+    - ./tmsolve < ./tests/resilience_test.txt
 
 #deploy:
 #  stage: deploy
