@@ -129,7 +129,7 @@ double get_value(char *prompt)
         value = tms_solve_e(expr, false);
         free(expr);
         if (isnan(value))
-            tms_error_handler(NULL, EH_PRINT);
+            tms_error_handler(EH_PRINT);
         else
             return value;
     }
@@ -168,7 +168,7 @@ void scientific_mode()
         result = tms_solve(expr);
 
         if (isnan(creal(result)))
-            tms_error_handler(NULL, EH_PRINT);
+            tms_error_handler(EH_PRINT);
         else
             print_result(result, true);
 
@@ -275,14 +275,14 @@ void function_calculator()
 
         if (tms_syntax_check(function) == false)
         {
-            tms_error_handler(NULL, EH_PRINT);
+            tms_error_handler(EH_PRINT);
             continue;
         }
         math_struct = tms_parse_expr(function, true, false);
 
         if (math_struct == NULL)
         {
-            tms_error_handler(NULL, EH_PRINT);
+            tms_error_handler(EH_PRINT);
             free(function);
             continue;
         }
@@ -347,7 +347,7 @@ void function_calculator()
             result = tms_evaluate(math_struct);
             if (isnan(result))
             {
-                tms_error_handler(NULL, EH_CLEAR, EH_MAIN_DB);
+                tms_error_handler(EH_CLEAR, EH_MAIN_DB);
                 printf("f(%g)=Error\n", x);
             }
             else
@@ -427,7 +427,7 @@ void utility_mode()
                 printf("\n\n");
             }
         }
-        tms_error_handler(NULL, EH_PRINT);
+        tms_error_handler(EH_PRINT);
     }
 }
 
