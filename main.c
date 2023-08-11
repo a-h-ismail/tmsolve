@@ -66,6 +66,7 @@ void print_help()
 {
     puts("usage: tmsolve [options] [expression]\n");
     puts("Available options:\n");
+    puts("\t--debug\n\tEnables additional debugging output.\n");
     puts("\t--benchmark\n\tRuns a simple benchmark for the parser and evaluator (Linux only).\n");
     puts("\t--version\n\tPrints version information for the CLI and libtmsolve.\n");
     puts("\t--test TEST_FILE\n\tCalculates the expressions provided in the test file and compares them with the provided expected result.\n");
@@ -75,10 +76,17 @@ void print_help()
 
 int main(int argc, char **argv)
 {
+    // Initialize the library before anything else
+    tmsolve_init();
+
     // Calculate expressions sent as command line arguments.
     if (argc > 1)
     {
-        if (strcmp(argv[1], "--test") == 0)
+        if (strcmp(argv[1], "--debug") == 0)
+        {
+            _tms_debug = true;
+        }
+        else if (strcmp(argv[1], "--test") == 0)
         {
             // Load the test file, should have the following format:
             // expression1;expected_answer1
@@ -149,6 +157,7 @@ int main(int argc, char **argv)
                         puts("Passed");
                 }
             }
+            exit(0);
         }
         else if (strcmp(argv[1], "--version") == 0)
         {
@@ -158,7 +167,7 @@ int main(int argc, char **argv)
 #else
             printf("(dynamic)\n");
 #endif
-            return 0;
+            exit(0);
         }
 
 #ifdef __linux__
@@ -169,7 +178,6 @@ int main(int argc, char **argv)
                                       "light_speed=sqrt(1/(8.8541878128e-12*(4e-7*pi)))",
                                       "(((cos(pi/3))))+0.546545",
                                       "sin(0.7)^2+cos(0.7)^2"};
-            tmsolve_init();
             for (int i = 0; i < array_length(benchmark_expr); ++i)
                 run_benchmark(benchmark_expr[i]);
             exit(0);
@@ -205,8 +213,8 @@ int main(int argc, char **argv)
             }
             else
                 print_result(tms_g_ans, false);
+            exit(0);
         }
-        exit(0);
     }
 
 // For readline autocompletion
