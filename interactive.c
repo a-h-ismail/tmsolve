@@ -1,12 +1,10 @@
 /*
-Copyright (C) 2021-2023 Ahmad Ismail
+Copyright (C) 2022-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
 
 #ifdef USE_READLINE
-char *autocomplete_names[] = {"ans", "exp", "pi", "fact", "abs", "ceil", "floor", "acosh", "asinh", "atanh", "acos", "asin", "atan",
-                              "cosh", "sinh", "tanh", "cos", "sin", "tan", "ln", "log", "int", "der", NULL};
 char *character_name_generator(const char *text, int state)
 {
     static int list_index, len;
@@ -17,12 +15,20 @@ char *character_name_generator(const char *text, int state)
         list_index = 0;
         len = strlen(text);
     }
-
-    while ((name = autocomplete_names[list_index++]))
+    if (_mode == 'S')
     {
-        if (strncmp(name, text, len) == 0)
+        while (list_index < tms_g_func_count)
         {
-            return strdup(name);
+            name = tms_g_all_func_names[list_index];
+            if (strncmp(name, text, len) == 0)
+            {
+                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
+                strcpy(dup_with_parenthesis, name);
+                strcat(dup_with_parenthesis, "(");
+                ++list_index;
+                return dup_with_parenthesis;
+            }
+            ++list_index;
         }
     }
 
