@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2023 Ahmad Ismail
+Copyright (C) 2022-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #ifndef INTERACTIVE_H
