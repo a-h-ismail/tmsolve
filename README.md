@@ -32,18 +32,25 @@ Modulus = 5, argument = 1.570796327 rad = 90 deg
 = 0.9659258263+0.2588190451 i
 Modulus = 1, argument = 0.2617993878 rad = 15 deg
 
-> 1/(2-2)
-Division by zero isn't defined.
-1/(2-2)
-~^
+> 0xff
+= 255
+
+> 0b101.01
+= 5.25
+= 5 + 1 / 4
+= 21 / 4
+
+> oct(700)
+= 448
 ```
 
 - Default mode when `tmsolve` is started without arguments.
 - Supports most used scientific functions (trigonometry and its variants, power, factorial...).
+- Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
 - Supports numerical integration and derivation using `int(start,end,function)` and `der(function,x0)`.
-- Does not support implied multiplication except for the imaginary number with numbers, where for example 5i is treated as (5*i).
+- Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
 
 ### Function mode
 
@@ -76,6 +83,10 @@ f(4) = 16
 ### Matrix mode
 
 Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
+
+### Tic-Tac-Toe
+
+Play tic-tac-toe against the computer, enter 'G' in any mode to launch the game.
 
 ## Installation instructions
 
