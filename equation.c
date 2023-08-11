@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2023 Ahmad Ismail
+Copyright (C) 2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3-only
 */
 #include "interactive.h"
@@ -78,9 +78,9 @@ void equation_solver(int degree)
         else if (delta < 0)
         {
             printf("x1 = ");
-            x1 = -b / (2 * a) + I * sqrt(-delta) / (2 * a);
+            x1 = (-b + csqrt(delta)) / (2 * a);
             print_result(x1, false);
-            printf("\nx2 = ");
+            printf("x2 = ");
             x2 = conj(x1);
             print_result(x2, false);
         }
@@ -105,7 +105,7 @@ void equation_solver(int degree)
         cdelta = csqrt(cdelta);
         x1 = cbrt((-q - cdelta) / 2) + cbrt((-q + cdelta) / 2) - b / (3 * a);
         // delta2
-        cdelta = cpow(b + a * x1, 2) - 4 * a * (c + x1 * (b + a * x1));
+        cdelta = tms_fast_cpow(b + a * x1, 2) - 4 * a * (c + x1 * (b + a * x1));
         cdelta = csqrt(cdelta);
         x2 = (-b - a * x1 - cdelta) / (2 * a);
         x3 = (-b - a * x1 + cdelta) / (2 * a);
@@ -123,16 +123,16 @@ void equation_solver(int degree)
         {
             printf("x1 = ");
             print_result(x1, false);
-            printf("\nx2 = x3 = ");
+            printf("x2 = x3 = ");
             print_result(x2, false);
         }
         else
         {
             printf("x1 = ");
             print_result(x1, false);
-            printf("\nx2 = ");
+            printf("x2 = ");
             print_result(x2, false);
-            printf("\nx3 = ");
+            printf("x3 = ");
             print_result(x3, false);
         }
 
