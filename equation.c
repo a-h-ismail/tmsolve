@@ -105,7 +105,7 @@ void equation_solver(int degree)
         cdelta = csqrt(cdelta);
         x1 = cbrt((-q - cdelta) / 2) + cbrt((-q + cdelta) / 2) - b / (3 * a);
         // delta2
-        cdelta = tms_fast_cpow(b + a * x1, 2) - 4 * a * (c + x1 * (b + a * x1));
+        cdelta = cpow(b + a * x1, 2) - 4 * a * (c + x1 * (b + a * x1));
         cdelta = csqrt(cdelta);
         x2 = (-b - a * x1 - cdelta) / (2 * a);
         x3 = (-b - a * x1 + cdelta) / (2 * a);
