@@ -172,6 +172,7 @@ void scientific_mode()
         }
 
         result = tms_solve(expr);
+        tms_set_ans(result);
 
         if (isnan(creal(result)))
             tms_error_handler(EH_PRINT);
