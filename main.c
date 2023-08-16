@@ -9,6 +9,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "version.h"
 
 char _mode = 'S';
+#ifdef USE_READLINE
+char _autocomplete_mode = 'S';
+#endif
 
 // Windows doesn't have timespec_get()
 #ifdef __linux__
@@ -177,7 +180,8 @@ int main(int argc, char **argv)
                                       "5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4)",
                                       "light_speed=sqrt(1/(8.8541878128e-12*(4e-7*pi)))",
                                       "(((cos(pi/3))))+0.546545",
-                                      "sin(0.7)^2+cos(0.7)^2"};
+                                      "sin(0.7)^2+cos(0.7)^2",
+                                      "rand()+827.837"};
             for (int i = 0; i < array_length(benchmark_expr); ++i)
                 run_benchmark(benchmark_expr[i]);
             exit(0);
@@ -202,8 +206,7 @@ int main(int argc, char **argv)
             // Concatenate arguments
             for (i = 2; i < argc; ++i)
                 strcat(all, argv[i]);
-            // This function will set ans if the calculation succeeds.
-            // Force set ans to nan if the calculation fails.
+
             tms_g_ans = tms_solve(all);
 
             if (isnan(creal(tms_g_ans)))
