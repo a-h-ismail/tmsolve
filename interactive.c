@@ -7,28 +7,34 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
 {
-    static int list_index, len;
+    static int index1, index2, len;
     char *name;
 
     if (!state)
     {
-        list_index = 0;
+        index1 = 0;
+        index2 = 0;
         len = strlen(text);
     }
-    if (_mode == 'S')
+    switch (_autocomplete_mode)
     {
-        while (list_index < tms_g_func_count)
+    case 'S':
+        while (index1 < tms_g_func_count)
         {
-            name = tms_g_all_func_names[list_index];
+            name = tms_g_all_func_names[index1++];
             if (strncmp(name, text, len) == 0)
             {
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                ++list_index;
                 return dup_with_parenthesis;
             }
-            ++list_index;
+        }
+        while (index2 < tms_g_var_count)
+        {
+            name = tms_g_vars[index2++].name;
+            if (strncmp(name, text, len) == 0)
+                return strdup(name);
         }
     }
 
@@ -43,7 +49,7 @@ char **character_name_completion(const char *text, int start, int end)
     return rl_completion_matches(text, character_name_generator);
 }
 #else
-// This function mimics some of the behavior of GNU readline function
+// This function mimics some of the behavior of GNU readline function (printing prompt and returning a malloc'd string)
 char *readline(char *prompt)
 {
     size_t count = 0, bsize = 1024;
