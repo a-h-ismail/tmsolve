@@ -38,4 +38,8 @@ bool valid_mode(char mode);
 void tic_tac_toe();
 
 extern char _mode;
+#ifdef USE_READLINE
+extern char _autocomplete_mode;
+#endif
+
 #endif
