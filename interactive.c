@@ -626,12 +626,13 @@ void matrix_mode()
     double det;
     A = B = C = D = E = R = prevR = NULL;
     puts("Current mode: Matrix.");
-    puts("Supported operations: editX, multiplyXY, detX, comX, invX, trX, copyXY, printX.");
-    puts("Available matrixes: A, B, C, D, E, R.\nR stores the result of operations.");
+    puts("Supported operations: editX, multiply X Y, det X, com X, inv X, tr X, copy X Y, print X.");
+    puts("Available matrixes: A, B, C, D, E, R.\nR stores the result of the last operation.");
     while (1)
     {
         puts("\nOperation:");
         get_input(&operation, NULL, 14);
+        tms_remove_whitespace(operation);
         if (strcmp(operation, "exit") == 0)
             exit(0);
         // If the string has length 1, check for mode switching.
