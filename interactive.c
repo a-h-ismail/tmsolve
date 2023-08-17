@@ -148,7 +148,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SFEMUG"};
+    char all_modes[] = {"SFEUG"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -323,10 +323,10 @@ void function_calculator()
             i = strlen(expr);
             if (i == 0)
                 continue;
-            if (*(expr + i - 1) == '+' || *(expr + i - 1) == '*' || *(expr + i - 1) == '^')
+            if (expr[i - 1] == '+' || expr[i - 1] == '*' || expr[i - 1] == '^')
             {
-                step_op = *(expr + i - 1);
-                *(expr + i - 1) = '\0';
+                step_op = expr[i - 1];
+                expr[i - 1] = '\0';
             }
             else
                 step_op = '+';
@@ -444,7 +444,8 @@ void utility_mode()
     }
 }
 
-/* Who said a calculator can't have some secrets?
+/*
+Who said a calculator can't have some secrets?
 Legacy game (rock paper scissors), replaced by the fancy tic-tac-toe
 void rps()
 {
@@ -538,256 +539,3 @@ void rps()
     }
 }
 */
-tms_matrix *matrix_input(int rows, int columns)
-{
-    tms_matrix *matrix = tms_new_matrix(rows, columns);
-    int i, j;
-    puts("Enter data:");
-    char mem_prompt[28];
-    for (i = 0; i < rows; ++i)
-        for (j = 0; j < columns; ++j)
-        {
-            sprintf(mem_prompt, "(%d,%d):", i + 1, j + 1);
-            matrix->data[i][j] = get_value(mem_prompt);
-        }
-    return matrix;
-}
-// Read data into matrix M from stdin
-void matrix_edit(tms_matrix **M)
-{
-    int a = 0, b = 0, success_count = 0;
-    char *buffer;
-    if (*M != NULL)
-        free(*M);
-    do
-    {
-        buffer = readline("Enter dimensions (format: m*n): ");
-        if (strlen(buffer) == 0)
-        {
-            puts("Empty input.\n");
-            free(buffer);
-            continue;
-        }
-        success_count = sscanf(buffer, "%d*%d", &a, &b);
-        free(buffer);
-        if (a <= 0 || b <= 0)
-            puts("Error, dimensions must be strictly positive.");
-        if (success_count != 2)
-            puts("Error, invalid input\n");
-    } while (a <= 0 || b <= 0 || success_count != 2);
-    *M = matrix_input(a, b);
-}
-void matrix_print(tms_matrix *A)
-{
-    int i, j;
-    if (A == NULL)
-    {
-        puts("No data in the selected matrix.");
-        return;
-    }
-    for (i = 0; i < A->rows; ++i)
-    {
-        printf("|");
-        for (j = 0; j < A->columns; ++j)
-            printf("\t%8.8g", A->data[i][j]);
-        printf("\t|\n");
-    }
-}
-
-// The matrixes as global variables
-tms_matrix *A, *B, *C, *D, *E, *R, *prevR;
-// Function that matches the letter to the matrix it represents.
-bool match_matrix(tms_matrix ***pointer, char operand)
-{
-    switch (operand)
-    {
-    case 'A':
-        *pointer = &A;
-        break;
-    case 'B':
-        *pointer = &B;
-        break;
-    case 'C':
-        *pointer = &C;
-        break;
-    case 'D':
-        *pointer = &D;
-        break;
-    case 'E':
-        *pointer = &E;
-        break;
-    case 'R':
-        *pointer = &R;
-        break;
-    default:
-        return false;
-    }
-    return true;
-}
-void matrix_mode()
-{
-    char buffer[15], *operation = buffer;
-    char op1, op2;
-    tms_matrix **operand1 = NULL, **operand2 = NULL;
-    double det;
-    A = B = C = D = E = R = prevR = NULL;
-    puts("Current mode: Matrix.");
-    puts("Supported operations: editX, multiply X Y, det X, com X, inv X, tr X, copy X Y, print X.");
-    puts("Available matrixes: A, B, C, D, E, R.\nR stores the result of the last operation.");
-    while (1)
-    {
-        puts("\nOperation:");
-        get_input(&operation, NULL, 14);
-        tms_remove_whitespace(operation);
-        if (strcmp(operation, "exit") == 0)
-            exit(0);
-        // If the string has length 1, check for mode switching.
-        if (operation[1] == '\0')
-        {
-            if (valid_mode(operation[0]))
-            {
-                _mode = operation[0];
-                break;
-            }
-        }
-        // If R is pointing to a matrix, copy the pointer to prevR so R can be used to store result of the next operation
-        if (R != NULL)
-            prevR = R;
-        if (strncmp("multiply", operation, 8) == 0)
-        {
-            sscanf(operation, "multiply%c%c", &op1, &op2);
-            // Match letter with corresponding operator
-            if (match_matrix(&operand1, op1) == false || match_matrix(&operand2, op2) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            if (*operand1 != NULL && *operand2 != NULL)
-                R = tms_matrix_multiply(*operand1, *operand2);
-            else
-                puts("Error, no data.");
-            // In case of failure, copy the previous pointer of R back to R
-            if (R == NULL)
-                R = prevR;
-            else
-            {
-                puts("Result stored in R:");
-                matrix_print(R);
-            }
-        }
-        else if (strncmp(operation, "copy", 4) == 0)
-        {
-            sscanf(operation, "copy%c%c", &op1, &op2);
-            // Match letter with corresponding operator
-            if (match_matrix(&operand1, op1) == false || match_matrix(&operand2, op2) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            if (operand1 == operand2)
-                continue;
-            tms_matrix *tmp;
-            tmp = tms_matrix_dup(*operand1);
-            if (tmp != NULL)
-            {
-                puts("Copy done successfuly.");
-                free(*operand2);
-                *operand2 = tmp;
-            }
-            else
-                puts("Copy failure.");
-        }
-        else if (strncmp(operation, "edit", 4) == 0)
-        {
-            sscanf(operation, "edit%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            matrix_edit(operand1);
-            matrix_print(*operand1);
-        }
-        else if (strncmp(operation, "tr", 2) == 0)
-        {
-            sscanf(operation, "tr%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            R = tms_matrix_tr(*operand1);
-            puts("Result:");
-            matrix_print(R);
-        }
-        else if (strncmp(operation, "print", 5) == 0)
-        {
-            sscanf(operation, "print%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            matrix_print(*operand1);
-        }
-        else if (strncmp(operation, "det", 3) == 0)
-        {
-            sscanf(operation, "det%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            det = tms_matrix_det(*operand1);
-            if (isnan(det))
-                puts("Indeterminate determinant.");
-            else
-                printf("%.9g\n", det);
-        }
-        else if (strncmp(operation, "inv", 3) == 0)
-        {
-            sscanf(operation, "inv%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            R = tms_matrix_inv(*operand1);
-            if (R == NULL)
-                R = prevR;
-            else
-            {
-                puts("Result stored in R:");
-                matrix_print(R);
-            }
-        }
-        else if (strncmp(operation, "com", 3) == 0)
-        {
-            prevR = R;
-            sscanf(operation, "com%c", &op1);
-            if (match_matrix(&operand1, op1) == false)
-            {
-                puts("Invalid operand.");
-                continue;
-            }
-            R = tms_comatrix(*operand1);
-            if (R == NULL)
-                R = prevR;
-            else
-            {
-                puts("Result stored in R:");
-                matrix_print(R);
-            }
-        }
-        else
-            puts("Invalid operation.");
-        if (R != prevR)
-            free(prevR);
-    }
-    free(A);
-    free(B);
-    free(C);
-    free(D);
-    free(E);
-    free(R);
-}

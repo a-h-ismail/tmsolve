@@ -239,9 +239,6 @@ int main(int argc, char **argv)
         case 'E':
             equation_mode();
             break;
-        case 'M':
-            matrix_mode();
-            break;
         case 'U':
             utility_mode();
             break;
