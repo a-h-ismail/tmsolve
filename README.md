@@ -6,7 +6,7 @@ Powerful and lightweight command line calculator.
 
 ## Usage
 
-### Scientific mode
+### Scientific Mode
 
 Sample usage:
 
@@ -42,6 +42,9 @@ Modulus = 1, argument = 0.2617993878 rad = 15 deg
 
 > oct(700)
 = 448
+
+> rand()
+= 342083192.2
 ```
 
 - Default mode when `tmsolve` is started without arguments.
@@ -49,10 +52,11 @@ Modulus = 1, argument = 0.2617993878 rad = 15 deg
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
-- Supports numerical integration and derivation using `int(start,end,function)` and `der(function,x0)`.
+- Supports numerical integration and derivation using `integrate(start,end,function)` and `der(function,x0)`.
 - Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
+- The syntax of this mode is used in function and equation mode when a value is requested.
 
-### Function mode
+### Function Mode
 
 Calculates a function over the specified interval. Access by entering 'F' in any other mode.
 example: Calculating points across a parabola:
@@ -80,13 +84,64 @@ f(3) = 9
 f(4) = 16
 ```
 
-### Matrix mode
+### Equation Mode
 
-Basic matrix handling (determinant, multiplication, inversion...). Access by entering 'M' in any mode.
+Used to solve simple equations up to and including third order.
+
+```
+Current mode: Equation
+Degree? (n<=3)
+3
+a*x^3 + b*x^2 + c*x + d = 0
+a = 1
+b = 7
+c = 16
+d = 12
+
+Equation:  1 x^3 + 7 x^2 + 16 x + 12 = 0
+Solutions:
+x1 = -3
+x2 = x3 = -2
+
+
+Degree? (n<=3)
+2
+a*x^2 + b*x + c = 0
+a = 4
+b = -3
+c = -1
+
+Equation: 4 x^2 - 3 x - 1 = 0
+Solutions:
+x1 = -0.25
+x2 = 1
+```
 
 ### Tic-Tac-Toe
 
 Play tic-tac-toe against the computer, enter 'G' in any mode to launch the game.
+
+```
+Current mode: Tic-Tac-Toe
+Wins = 0
+Losses = 0
+Draws = 0
++-------+-------+-------+
+|       |       |       |
+|   1   |   2   |   3   |
+|       |       |       |
++-------+-------+-------+
+|       |       |       |
+|   4   |   5   |   6   |
+|       |       |       |
++-------+-------+-------+
+|       |       |       |
+|   7   |   8   |   9   |
+|       |       |       |
++-------+-------+-------+
+
+Enter position on board [1-9]: 
+```
 
 ## Installation instructions
 
