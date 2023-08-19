@@ -268,7 +268,7 @@ void function_calculator()
     double start, end, step, x;
     int i;
     char *expr, step_op, *function;
-    tms_math_expr *math_struct;
+    tms_math_expr *M;
     puts("Current mode: Function");
     while (1)
     {
@@ -291,9 +291,9 @@ void function_calculator()
             tms_error_handler(EH_PRINT);
             continue;
         }
-        math_struct = tms_parse_expr(function, true, false);
+        M = tms_parse_expr(function, true, false);
 
-        if (math_struct == NULL)
+        if (M == NULL)
         {
             tms_error_handler(EH_PRINT);
             free(function);
@@ -372,9 +372,9 @@ void function_calculator()
         {
             prevx = x;
             // Set the value of x in the subexpr_ptr
-            _tms_set_variable(math_struct, x);
+            tms_set_unknown(M, x);
             // Solving the function then printing
-            result = tms_evaluate(math_struct);
+            result = tms_evaluate(M);
             if (isnan(result))
             {
                 tms_error_handler(EH_CLEAR, EH_MAIN_DB);
