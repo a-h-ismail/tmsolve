@@ -330,6 +330,7 @@ void function_calculator()
             }
             else
                 step_op = '+';
+
             step = tms_solve_e(expr, false);
             if (isnan(step))
             {
@@ -337,12 +338,28 @@ void function_calculator()
                 free(expr);
                 continue;
             }
+
+            if (step_op == '*' && step <= 1)
+            {
+                puts("Step for multiplication should be greater than 1");
+                free(expr);
+                continue;
+            }
+
+            if (step + start == start)
+            {
+                puts("Error, the step is too small relative to start.");
+                free(expr);
+                continue;
+            }
+
             else
             {
                 puts(expr);
                 free(expr);
                 break;
             }
+
             if (step == 0)
             {
                 puts("Error, step cannot be 0");
