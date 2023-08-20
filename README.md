@@ -48,7 +48,7 @@ Modulus = 1, argument = 0.2617993878 rad = 15 deg
 ```
 
 - Default mode when `tmsolve` is started without arguments.
-- Supports most used scientific functions (trigonometry and its variants, power, factorial...).
+- Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
