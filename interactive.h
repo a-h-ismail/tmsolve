@@ -4,9 +4,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 */
 #ifndef INTERACTIVE_H
 #define INTERACTIVE_H
+#include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-#include <stdio.h>
+#include <string.h>
+
 #ifndef LOCAL_BUILD
 #include <tmsolve/libtmsolve.h>
 #else

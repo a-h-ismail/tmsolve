@@ -3,6 +3,11 @@ Copyright (C) 2022-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <math.h>
 
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
@@ -188,6 +193,7 @@ void scientific_mode()
         free(expr);
     }
 }
+
 void print_result(double complex result, bool verbose)
 {
     double real = creal(result), imag = cimag(result);
