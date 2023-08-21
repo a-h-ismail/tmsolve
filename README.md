@@ -17,7 +17,7 @@ Current mode: Scientific
 = 1 + 14 / 17
 = 31 / 17
 
-> int(1,exp,ln(x))
+> integrate(1,exp,ln(x))
 = 0.9999983613
 
 > ans*2i
@@ -52,7 +52,6 @@ Modulus = 1, argument = 0.2617993878 rad = 15 deg
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
-- Supports numerical integration and derivation using `integrate(start,end,function)` and `der(function,x0)`.
 - Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
 - The syntax of this mode is used in function and equation mode when a value is requested.
 
