@@ -6,6 +6,10 @@ Powerful and lightweight command line calculator.
 
 ## Usage
 
+### Command Line Arguments
+
+Run `tmsolve --help` (or `tmsolve.exe --help` for Windows) to see supported command line arguments.
+
 ### Scientific Mode
 
 Sample usage:
