@@ -87,6 +87,8 @@ f(3) = 9
 f(4) = 16
 ```
 
+You can use the `prev` keyword to get the last used function.
+
 ### Equation Mode
 
 Used to solve simple equations up to and including third order.
