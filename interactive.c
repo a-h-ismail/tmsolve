@@ -273,7 +273,7 @@ void function_calculator()
 {
     double start, end, step, x;
     int i;
-    char *expr, step_op, *function;
+    char *expr, step_op, *function, *old_function = NULL;
     tms_math_expr *M;
     puts("Current mode: Function");
     while (1)
@@ -288,6 +288,7 @@ void function_calculator()
             {
                 _mode = function[0];
                 free(function);
+                free(old_function);
                 return;
             }
         }
@@ -295,16 +296,30 @@ void function_calculator()
         if (tms_syntax_check(function) == false)
         {
             tms_error_handler(EH_PRINT);
+            free(function);
             continue;
         }
+
+        if (strcmp(function, "prev") == 0)
+        {
+            free(function);
+            function = strdup(old_function);
+            printf("f(x) = %s\n", function);
+        }
+
         M = tms_parse_expr(function, true, false);
 
         if (M == NULL)
         {
             tms_error_handler(EH_PRINT);
+            tms_delete_math_expr(M);
             free(function);
             continue;
         }
+
+        free(old_function);
+        old_function = strdup(function);
+
         start = get_value("Start: ");
         printf("%.12g\n", start);
         // Read end value
