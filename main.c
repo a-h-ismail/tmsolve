@@ -2,11 +2,11 @@
 Copyright (C) 2021-2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
+#include "interactive.h"
+#include "version.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "interactive.h"
-#include "version.h"
 
 char _mode = 'S';
 #ifdef USE_READLINE
@@ -31,35 +31,72 @@ struct timespec calculate_delta_time(struct timespec *S, struct timespec *E)
     return delta_time;
 }
 
+struct timespec timer_setup(char mode)
+{
+    static struct timespec start_time, end_time;
+    switch (mode)
+    {
+    case 's':
+        timespec_get(&start_time, TIME_UTC);
+        return start_time;
+    case 'e':
+        timespec_get(&end_time, TIME_UTC);
+        return calculate_delta_time(&start_time, &end_time);
+    default:
+        puts("Invalid mode for timer.");
+        exit(1);
+    }
+}
+
+void print_time(struct timespec T)
+{
+    printf("Time: %.6g\n\n", T.tv_sec + T.tv_nsec / (double)1e9);
+}
+
 int run_benchmark(char *expr)
 {
-    struct timespec start_time, end_time, delta_time;
+    struct timespec delta_time;
     int iterations = 1e6, i;
-    tms_math_expr *M;
+    tms_math_expr *M, *MN;
+
+    // Parser benchmark
     printf("Expression %s:\n", expr);
     printf("Running %d iterations of the parser\n", iterations);
-    timespec_get(&start_time, TIME_UTC);
+    timer_setup('s');
 
     for (i = 0; i < iterations; ++i)
     {
         M = tms_parse_expr(expr, false, false);
         tms_delete_math_expr(M);
     }
-    timespec_get(&end_time, TIME_UTC);
-    delta_time = calculate_delta_time(&start_time, &end_time);
-    printf("Time: %li.%li s\n\n", delta_time.tv_sec, delta_time.tv_nsec / (int)1e6);
+    delta_time = timer_setup('e');
+    print_time(delta_time);
 
+    // Copy benchmark
+    printf("Running %d iterations of mexpr duplication\n", iterations);
+    timer_setup('s');
+
+    M = tms_parse_expr(expr, false, false);
+    for (i = 0; i < iterations; ++i)
+    {
+        MN = tms_dup_mexpr(M);
+        tms_delete_math_expr(MN);
+    }
+    delta_time = timer_setup('e');
+    print_time(delta_time);
+    tms_delete_math_expr(M);
+
+    // The evaluator is generally far faster than the parser, so more iterations
     iterations = 1e8;
     printf("Running %d iterations of the evaluator\n", iterations);
     M = tms_parse_expr(expr, false, false);
-    timespec_get(&start_time, TIME_UTC);
+    timer_setup('s');
     for (i = 0; i < iterations; ++i)
         tms_g_ans = tms_evaluate(M);
 
     tms_delete_math_expr(M);
-    timespec_get(&end_time, TIME_UTC);
-    delta_time = calculate_delta_time(&start_time, &end_time);
-    printf("Time: %li.%li s\n\n", delta_time.tv_sec, delta_time.tv_nsec / (int)1e6);
+    delta_time = timer_setup('e');
+    print_time(delta_time);
     return 0;
 }
 #endif
@@ -72,7 +109,8 @@ void print_help()
     puts("\t--debug\n\tEnables additional debugging output.\n");
     puts("\t--benchmark\n\tRuns a simple benchmark for the parser and evaluator (Linux only).\n");
     puts("\t--version\n\tPrints version information for the CLI and libtmsolve.\n");
-    puts("\t--test TEST_FILE\n\tCalculates the expressions provided in the test file and compares them with the provided expected result.\n");
+    puts("\t--test TEST_FILE\n\tCalculates the expressions provided in the test file and compares them with the "
+         "provided expected result.\n");
     puts("\t--help\n\tPrint this help prompt.\n");
     puts("The program will start by default in the scientific mode if no command line option is specified.");
 }
