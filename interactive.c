@@ -164,6 +164,7 @@ void scientific_mode()
 {
     char *expr;
     double complex result;
+    int i;
     puts("Current mode: Scientific");
     while (1)
     {
@@ -182,13 +183,38 @@ void scientific_mode()
             }
         }
 
-        result = tms_solve(expr);
-        tms_set_ans(result);
-
-        if (isnan(creal(result)))
-            tms_error_handler(EH_PRINT);
+        // Search for runtime function assignment
+        i = tms_f_search(expr, "(x)=", 0, false);
+        if (i > 0)
+        {
+            int tmp = tms_r_search(expr, "=", i, false);
+            if (tmp != -1)
+            {
+                _tms_g_expr = expr;
+                tms_error_handler(EH_SAVE, SYNTAX_ERROR, EH_FATAL_ERROR, tmp);
+                tms_error_handler(EH_PRINT);
+                continue;
+            }
+            char *name = strndup(expr, i);
+            // You need to skip 4 chars after i to get the function
+            tmp = tms_set_ufunction(name, expr + i + 4);
+            free(name);
+            if (tmp == 0)
+                printf("Function set successfully\n");
+            else
+                tms_error_handler(EH_PRINT);
+        }
         else
-            print_result(result, true);
+        {
+            // A normal expression to calculate
+            result = tms_solve(expr);
+            tms_set_ans(result);
+
+            if (isnan(creal(result)))
+                tms_error_handler(EH_PRINT);
+            else
+                print_result(result, true);
+        }
 
         free(expr);
     }
