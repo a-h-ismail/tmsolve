@@ -44,7 +44,7 @@ char *character_name_generator(const char *text, int state)
         }
         while (index3 < tms_g_ufunc_count)
         {
-                name = tms_g_ufunc[index3++].name;
+            name = tms_g_ufunc[index3++].name;
             if (strncmp(name, text, len) == 0)
             {
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
@@ -194,6 +194,7 @@ void scientific_mode()
                 return;
             }
         }
+        _tms_g_expr = expr;
 
         // Search for runtime function assignment
         i = tms_f_search(expr, "(x)=", 0, false);
@@ -202,19 +203,25 @@ void scientific_mode()
             int tmp = tms_r_search(expr, "=", i, false);
             if (tmp != -1)
             {
-                _tms_g_expr = expr;
                 tms_error_handler(EH_SAVE, SYNTAX_ERROR, EH_FATAL_ERROR, tmp);
                 tms_error_handler(EH_PRINT);
                 continue;
             }
-            char *name = strndup(expr, i);
-            // You need to skip 4 chars after i to get the function
-            tmp = tms_set_ufunction(name, expr + i + 4);
-            free(name);
-            if (tmp == 0)
-                printf("Function set successfully\n\n");
+            if (expr[i + 4] == '\0')
+            {
+                printf("%s\n\n", NO_INPUT);
+            }
             else
-                tms_error_handler(EH_PRINT);
+            {
+                char *name = strndup(expr, i);
+                // You need to skip 4 chars after i to get the function
+                tmp = tms_set_ufunction(name, expr + i + 4);
+                free(name);
+                if (tmp == 0)
+                    printf("Function set successfully\n\n");
+                else
+                    tms_error_handler(EH_PRINT);
+            }
         }
         else
         {
