@@ -12,13 +12,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
 {
-    static int index1, index2, len;
+    static int index1, index2, index3, len;
     char *name;
 
     if (!state)
     {
         index1 = 0;
         index2 = 0;
+        index3 = 0;
         len = strlen(text);
     }
     switch (_autocomplete_mode)
@@ -40,6 +41,17 @@ char *character_name_generator(const char *text, int state)
             name = tms_g_vars[index2++].name;
             if (strncmp(name, text, len) == 0)
                 return strdup(name);
+        }
+        while (index3 < tms_g_ufunc_count)
+        {
+                name = tms_g_ufunc[index3++].name;
+            if (strncmp(name, text, len) == 0)
+            {
+                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
+                strcpy(dup_with_parenthesis, name);
+                strcat(dup_with_parenthesis, "(");
+                return dup_with_parenthesis;
+            }
         }
     }
 
