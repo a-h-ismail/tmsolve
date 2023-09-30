@@ -200,7 +200,7 @@ void scientific_mode()
             tmp = tms_set_ufunction(name, expr + i + 4);
             free(name);
             if (tmp == 0)
-                printf("Function set successfully\n");
+                printf("Function set successfully\n\n");
             else
                 tms_error_handler(EH_PRINT);
         }
