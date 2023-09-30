@@ -48,9 +48,10 @@ struct timespec timer_setup(char mode)
     }
 }
 
-void print_time(struct timespec T)
+void print_time_and_rate(int iterations, struct timespec T)
 {
-    printf("Time: %.6g\n\n", T.tv_sec + T.tv_nsec / (double)1e9);
+    printf("Time: %.6g\n", T.tv_sec + T.tv_nsec / (double)1e9);
+    printf("Rate: %.6g iterations/second\n\n", iterations / (T.tv_sec + T.tv_nsec / (double)1e9));
 }
 
 int run_benchmark(char *expr)
@@ -70,7 +71,7 @@ int run_benchmark(char *expr)
         tms_delete_math_expr(M);
     }
     delta_time = timer_setup('e');
-    print_time(delta_time);
+    print_time_and_rate(iterations, delta_time);
 
     // Copy benchmark
     printf("Running %d iterations of mexpr duplication\n", iterations);
@@ -83,7 +84,7 @@ int run_benchmark(char *expr)
         tms_delete_math_expr(MN);
     }
     delta_time = timer_setup('e');
-    print_time(delta_time);
+    print_time_and_rate(iterations, delta_time);
     tms_delete_math_expr(M);
 
     // The evaluator is generally far faster than the parser, so more iterations
@@ -96,7 +97,7 @@ int run_benchmark(char *expr)
 
     tms_delete_math_expr(M);
     delta_time = timer_setup('e');
-    print_time(delta_time);
+    print_time_and_rate(iterations, delta_time);
     return 0;
 }
 #endif
