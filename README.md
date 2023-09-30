@@ -49,10 +49,19 @@ Modulus = 1, argument = 0.2617993878 rad = 15 deg
 
 > rand()
 = 342083192.2
+
+> g(x)=x^2+2*x+4
+Function set successfully
+
+> g(3.5)
+= 23.25
+= 23 + 1 / 4
+= 93 / 4
 ```
 
 - Default mode when `tmsolve` is started without arguments.
 - Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
+- Supports user defined functions, syntax: `foo(x)=expression`.
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
