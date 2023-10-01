@@ -4,7 +4,7 @@ build:
   stage: build
   script:
     - git submodule update --init libtmsolve
-    - gcc ./*.c ./libtmsolve/src/*.c -I./libtmsolve/include -Wall -lm -lreadline -D LOCAL_BUILD -D USE_READLINE -O2 -o ./tmsolve
+    - gcc ./*.c ./libtmsolve/src/*.c -I./libtmsolve/include -fsanitize=address -Wall -lm -lreadline -D LOCAL_BUILD -D USE_READLINE -O2 -o ./tmsolve
   artifacts:
     paths:
       - tmsolve
