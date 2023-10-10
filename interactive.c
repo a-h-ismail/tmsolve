@@ -213,12 +213,12 @@ void scientific_mode()
             }
             else
             {
-                char *name = strndup(expr, i * sizeof(char));
+                char *name = tms_strndup(expr, i);
                 // You need to skip 4 chars after i to get the function
                 tmp = tms_set_ufunction(name, expr + i + 4);
                 free(name);
                 if (tmp == 0)
-                    printf("Function set successfully\n\n");
+                    printf("Function set successfully.\n\n");
                 else
                     tms_error_handler(EH_PRINT);
             }
