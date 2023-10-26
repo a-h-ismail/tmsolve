@@ -272,6 +272,9 @@ int main(int argc, char **argv)
         case 'S':
             scientific_mode();
             break;
+        case 'B':
+            base_n_mode();
+            break;
         case 'F':
             function_calculator();
             break;

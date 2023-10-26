@@ -165,7 +165,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SFEUG"};
+    char all_modes[] = {"SBFEUG"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -234,6 +234,41 @@ void scientific_mode()
             else
                 print_result(result, true);
         }
+
+        free(expr);
+    }
+}
+
+void base_n_mode()
+{
+    char *expr;
+    double complex result;
+    puts("Current mode: Base-N");
+    while (1)
+    {
+        get_input(&expr, "> ", -1);
+        if (strcmp(expr, "exit") == 0)
+            exit(0);
+
+        // If the string has length 1, check for mode switching.
+        if (expr[1] == '\0')
+        {
+            if (valid_mode(expr[0]))
+            {
+                _mode = expr[0];
+                free(expr);
+                return;
+            }
+        }
+        _tms_g_expr = expr;
+
+        result = tms_int_solve(expr);
+
+        if (tms_error_bit == 1)
+            tms_error_handler(EH_PRINT);
+        else
+            print_result(result, true);
+        tms_error_bit = 0;
 
         free(expr);
     }
