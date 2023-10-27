@@ -248,6 +248,12 @@ void print_oct(int64_t value)
     // Go left to right, read 3 bits and print the digit to stdout
 
     printf("0o");
+    if (value == 0)
+    {
+        printf("0");
+        return;
+    }
+
     // The first bit
     if ((value & 0x8000000000000000) != 0)
     {
@@ -291,6 +297,11 @@ void print_hex(int64_t value)
     // Go left to right, read 3 bits and print the digit to stdout
 
     printf("0x");
+    if (value == 0)
+    {
+        printf("0");
+        return;
+    }
 
     for (int i = 0; i < 16; ++i)
     {
@@ -309,6 +320,39 @@ void print_hex(int64_t value)
         }
 
         value = value << 4;
+    }
+}
+
+void print_int_value_multibase(int64_t value)
+{
+    if (value == 0)
+        puts("= 0\n");
+    else
+    {
+        printf("= ");
+        switch (tms_int_mask_size)
+        {
+        case 8:
+            printf("%" PRId8, (int8_t)value);
+            break;
+        case 16:
+            printf("%" PRId16, (int16_t)value);
+            break;
+        case 32:
+            printf("%" PRId32, (int32_t)value);
+            break;
+        case 64:
+            printf("%" PRId64, value);
+            break;
+        default:
+            fputs("Unexpected mask size.\n\n", stderr);
+            return;
+        }
+        printf(" = ");
+        print_hex(value);
+        printf(" = ");
+        print_oct(value);
+        printf("\n\n");
     }
 }
 
@@ -333,23 +377,44 @@ void base_n_mode()
                 return;
             }
         }
-        _tms_g_expr = expr;
-
-        result = tms_int_solve(expr);
-
-        if (tms_error_bit == 1)
-            tms_error_handler(EH_PRINT);
+        // Detect word size change request
+        if (strncmp("set", expr, 3) == 0)
+        {
+            if (strcmp(" w1", expr + 3) == 0)
+                tms_int_mask_size = 8;
+            else if (strcmp(" w2", expr + 3) == 0)
+                tms_int_mask_size = 16;
+            else if (strcmp(" w4", expr + 3) == 0)
+                tms_int_mask_size = 32;
+            else if (strcmp(" w8", expr + 3) == 0)
+                tms_int_mask_size = 64;
+            else
+            {
+                fputs("Unrecognized option, try w1, w2, w4, w8\n\n", stderr);
+                free(expr);
+                continue;
+            }
+            // To easily calculate the mask, set all bits to 1, then shift right by 64-mask_size
+            tms_int_mask = ~((uint64_t)0) >> (64 - tms_int_mask_size);
+            printf("Word size set to %d bits.\n\n", tms_int_mask_size);
+        }
         else
         {
-            printf("= %" PRId64 " = ", result);
-            print_hex(result);
-            printf(" = ");
-            print_oct(result);
-            printf("\n\n");
+            // Normal case
+            _tms_g_expr = expr;
+            result = tms_int_solve(expr);
+
+            if (tms_error_bit == 1)
+                tms_error_handler(EH_PRINT);
+            else
+            {
+                print_int_value_multibase(result);
+                tms_g_int_ans = result;
+            }
+
+            // Clear the error bit to avoid confusion
+            tms_error_bit = 0;
         }
-
-        tms_error_bit = 0;
-
         free(expr);
     }
 }
