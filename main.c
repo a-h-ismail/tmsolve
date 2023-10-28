@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 char _mode = 'S';
 #ifdef USE_READLINE
-char _autocomplete_mode = 'S';
+char _autocomplete_mode;
 #endif
 
 // Windows doesn't have timespec_get()
@@ -270,21 +270,27 @@ int main(int argc, char **argv)
         switch (_mode)
         {
         case 'S':
+            _autocomplete_mode = 'S';
             scientific_mode();
             break;
         case 'B':
+            _autocomplete_mode = 'B';
             base_n_mode();
             break;
         case 'F':
+            _autocomplete_mode = 'S';
             function_calculator();
             break;
         case 'E':
+            _autocomplete_mode = '\0';
             equation_mode();
             break;
         case 'U':
+            _autocomplete_mode = '\0';
             utility_mode();
             break;
         case 'G':
+            _autocomplete_mode = '\0';
             tic_tac_toe();
             break;
 
