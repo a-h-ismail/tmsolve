@@ -270,27 +270,39 @@ int main(int argc, char **argv)
         switch (_mode)
         {
         case 'S':
+#ifdef USE_READLINE
             _autocomplete_mode = 'S';
+#endif
             scientific_mode();
             break;
         case 'B':
+#ifdef USE_READLINE
             _autocomplete_mode = 'B';
+#endif
             base_n_mode();
             break;
         case 'F':
+#ifdef USE_READLINE
             _autocomplete_mode = 'S';
+#endif
             function_calculator();
             break;
         case 'E':
+#ifdef USE_READLINE
             _autocomplete_mode = '\0';
+#endif
             equation_mode();
             break;
         case 'U':
+#ifdef USE_READLINE
             _autocomplete_mode = '\0';
+#endif
             utility_mode();
             break;
         case 'G':
+#ifdef USE_READLINE
             _autocomplete_mode = '\0';
+#endif
             tic_tac_toe();
             break;
 
