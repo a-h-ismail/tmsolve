@@ -53,8 +53,39 @@ char *character_name_generator(const char *text, int state)
                 return dup_with_parenthesis;
             }
         }
-    }
+        break;
 
+    case 'B':
+        while (tms_int_nfunc_name[index1] != NULL)
+        {
+            name = tms_int_nfunc_name[index1++];
+            if (strncmp(name, text, len) == 0)
+            {
+                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
+                strcpy(dup_with_parenthesis, name);
+                strcat(dup_with_parenthesis, "(");
+                return dup_with_parenthesis;
+            }
+        }
+        while (tms_int_extf_name[index2] != NULL)
+        {
+            name = tms_int_extf_name[index2++];
+            if (strncmp(name, text, len) == 0)
+            {
+                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
+                strcpy(dup_with_parenthesis, name);
+                strcat(dup_with_parenthesis, "(");
+                return dup_with_parenthesis;
+            }
+        }
+        while (index3 < tms_g_int_var_count)
+        {
+            name = tms_g_int_vars[index3++].name;
+            if (strncmp(name, text, len) == 0)
+                return strdup(name);
+        }
+        break;
+    }
     return NULL;
 }
 
