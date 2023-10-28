@@ -68,6 +68,87 @@ Function set successfully
 - Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
 - The syntax of this mode is used in function and equation mode when a value is requested.
 
+### Base-N Mode
+
+Uses only integers and supports bitwise operations, access by entering 'B' in any mode.
+
+#### Supported Operators
+
+priority: high to low, groups in `[]` have the same priority:
+
+ `[ * / ] [ + - % ] [ < > ] & ^ |`
+
+Where:
+
+```
+* /     Integer multiplication and division.
++ - %   Integer add, subtract, modulo.
+< >     Bitwise left and right shift.
+&       Bitwise AND.
+^       Bitwise XOR.
+|       Bitwise OR.
+```
+
+#### Supported Functions
+
+All of the following functions perform bitwise operations:
+
+- `not(value)`: Expects one argument, returns one's complement of `value`.
+- `and, nand, or, xor, xnor`: Expects 2 arguments, name is self explanatory.
+- `rrc(value, shift)`: Performs right circular rotation of `value` bits by `shift` bits.
+- `rlc(value, shift)`: Performs left circular rotation of `value` bits by `shift` bits.
+
+#### Variable Size
+
+By default, this mode uses 32 bit signed integers, but can be changed to 8, 16, 32, or 64 bits of width during runtime using the command `set` and width specifier `w1`, `w2`, `w4`, `w8`.
+
+Usage:
+
+```
+Current mode: Base-N
+> set w2
+Word size set to 16 bits.
+
+> 0xFE & 0xa5
+= 164 = 0xA4 = 0o244
+= 0b10100100
+
+> ans<2
+= 656 = 0x290 = 0o1220
+= 0b1010010000
+
+> (ans<2)>4
+= 164 = 0xA4 = 0o244
+= 0b10100100
+
+> not(0)
+= -1 = 0xFFFF = 0o177777
+= 0b1111111111111111
+
+> set w8
+Word size set to 64 bits.
+
+> not(0)
+= -1 = 0xFFFFFFFFFFFFFFFF = 0o1777777777777777777777
+= 0b1111111111111111111111111111111111111111111111111111111111111111
+
+> nor(0b1000,0b11)
+= -12 = 0xFFFFFFFFFFFFFFF4 = 0o1777777777777777777764
+= 0b1111111111111111111111111111111111111111111111111111111111110100
+
+> 0xF00 | 0o61
+= 3889 = 0xF31 = 0o7461
+= 0b111100110001
+
+> a=0b001101011
+= 107 = 0x6B = 0o153
+= 0b1101011
+
+> a & 0xF
+= 11 = 0xB = 0o13
+= 0b1011
+```
+
 ### Function Mode
 
 Calculates a function over the specified interval. Access by entering 'F' in any other mode.
