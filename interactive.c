@@ -239,6 +239,41 @@ void scientific_mode()
     }
 }
 
+void print_bin(int64_t value)
+{
+    // This bool determines if the zeros are trailing or not
+    bool trailing = true;
+    uint8_t digit;
+    // An 64 bit int has the MSB as an octal, then every octal digit is 3 bits
+    // Go left to right, read 3 bits and print the digit to stdout
+
+    printf("0b");
+    if (value == 0)
+    {
+        printf("0");
+        return;
+    }
+
+    for (int i = 0; i < 64; ++i)
+    {
+        // Shift 63 positions for the MSB to become LSB
+        digit = ((uint64_t)value) >> 63;
+
+        if (digit == 0)
+        {
+            if (!trailing)
+                putchar('0');
+        }
+        else
+        {
+            putchar('1');
+            trailing = false;
+        }
+
+        value = value << 1;
+    }
+}
+
 void print_oct(int64_t value)
 {
     // This bool determines if the zeros are trailing or not
@@ -264,7 +299,7 @@ void print_oct(int64_t value)
     for (int i = 0; i < 63 / 3; ++i)
     {
         // Mask the most significant three bits and shift them to become LSB
-        digit = (value & 0x7000000000000000) >> 60;
+        digit = ((uint64_t)value & 0x7000000000000000) >> 60;
 
         if (digit == 0)
         {
@@ -305,8 +340,8 @@ void print_hex(int64_t value)
 
     for (int i = 0; i < 16; ++i)
     {
-        // Mask the most significant 4 bits and shift them to become LSB
-        digit = (value & 0xF000000000000000) >> 60;
+        // Shift 4 MSB to become LSB
+        digit = (uint64_t)value >> 60;
 
         if (digit == 0)
         {
@@ -352,6 +387,8 @@ void print_int_value_multibase(int64_t value)
         print_hex(value);
         printf(" = ");
         print_oct(value);
+        printf("\n= ");
+        print_bin(value);
         printf("\n\n");
     }
 }
