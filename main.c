@@ -116,6 +116,79 @@ void print_help()
     puts("The program will start by default in the scientific mode if no command line option is specified.");
 }
 
+void test_mode(char **argv)
+{
+    // Load the test file, should have the following format:
+    // expression1;expected_answer1
+    // expression2;expected_answer2
+    // ...
+    FILE *test_file;
+    test_file = fopen(argv[2], "r");
+    if (test_file == NULL)
+    {
+        fputs("Unable to open test file.\n", stderr);
+        exit(1);
+    }
+    char buffer[1000];
+    int separator;
+    while (feof(test_file) == 0)
+    {
+        fgets(buffer, 1000, test_file);
+        int length = strlen(buffer);
+        if (buffer[length - 1] == '\n')
+            buffer[length - 1] = '\0';
+        else if (!feof(test_file))
+        {
+            puts("Buffer size possibly exceeded.");
+            exit(2);
+        }
+        tms_remove_whitespace(buffer);
+        separator = tms_f_search(buffer, ";", 0, false);
+        if (separator == -1)
+        {
+            fputs("Incorrect format for test file, missing ;", stderr);
+            continue;
+        }
+
+        char expr[separator + 1];
+        double complex expected_ans;
+        // Not the most efficient way, but the calculator should be reliable for simple ops.
+        expected_ans = tms_solve(buffer + separator + 1);
+
+        strncpy(expr, buffer, separator);
+        expr[separator] = '\0';
+        puts(expr);
+
+        tms_g_ans = tms_solve(expr);
+        if (isnan(creal(tms_g_ans)))
+        {
+            tms_error_handler(EH_PRINT);
+            exit(1);
+        }
+
+        // Calculate relative error
+        if (expected_ans == 0)
+        {
+            if (fabs(creal(expected_ans)) < 1e-15 && fabs(cimag(expected_ans)) < 1e-15)
+                puts("Passed");
+            else
+                puts("Expected answer is zero but actual answer is non negligible.");
+        }
+        else
+        {
+            double relative_error = cabs((expected_ans - tms_g_ans) / expected_ans);
+            printf("relative error=%g\n", relative_error);
+            if (relative_error > 1e-3)
+            {
+                fputs("Relative error is too high.", stderr);
+                exit(1);
+            }
+            else
+                puts("Passed");
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Initialize the library before anything else
@@ -130,76 +203,8 @@ int main(int argc, char **argv)
         }
         else if (strcmp(argv[1], "--test") == 0)
         {
-            // Load the test file, should have the following format:
-            // expression1;expected_answer1
-            // expression2;expected_answer2
-            // ...
-            FILE *test_file;
-            test_file = fopen(argv[2], "r");
-            if (test_file == NULL)
-            {
-                fputs("Unable to open test file.\n", stderr);
-                exit(1);
-            }
-            char buffer[1000];
-            int separator;
-            while (feof(test_file) == 0)
-            {
-                fgets(buffer, 1000, test_file);
-                int length = strlen(buffer);
-                if (buffer[length - 1] == '\n')
-                    buffer[length - 1] = '\0';
-                else if (!feof(test_file))
-                {
-                    puts("Buffer size possibly exceeded.");
-                    exit(2);
-                }
-                tms_remove_whitespace(buffer);
-                separator = tms_f_search(buffer, ";", 0, false);
-                if (separator == -1)
-                {
-                    fputs("Incorrect format for test file, missing ;", stderr);
-                    continue;
-                }
-
-                char expr[separator + 1];
-                double complex expected_ans;
-                // Not the most efficient way, but the calculator should be reliable for simple ops.
-                expected_ans = tms_solve(buffer + separator + 1);
-
-                strncpy(expr, buffer, separator);
-                expr[separator] = '\0';
-                puts(expr);
-
-                tms_g_ans = tms_solve(expr);
-                if (isnan(creal(tms_g_ans)))
-                {
-                    tms_error_handler(EH_PRINT);
-                    exit(1);
-                }
-
-                // Calculate relative error
-                if (expected_ans == 0)
-                {
-                    if (fabs(creal(expected_ans)) < 1e-15 && fabs(cimag(expected_ans)) < 1e-15)
-                        puts("Passed");
-                    else
-                        puts("Expected answer is zero but actual answer is non negligible.");
-                }
-                else
-                {
-                    double relative_error = cabs((expected_ans - tms_g_ans) / expected_ans);
-                    printf("relative error=%g\n", relative_error);
-                    if (relative_error > 1e-3)
-                    {
-                        fputs("Relative error is too high.", stderr);
-                        exit(1);
-                    }
-                    else
-                        puts("Passed");
-                }
-            }
-            exit(0);
+            test_mode(argv);
+            return 0;
         }
         else if (strcmp(argv[1], "--version") == 0)
         {
