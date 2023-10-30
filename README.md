@@ -76,14 +76,13 @@ Uses only integers and supports bitwise operations, access by entering 'B' in an
 
 priority: high to low, groups in `[]` have the same priority:
 
- `[ * / ] [ + - % ] [ < > ] & ^ |`
+ `[ * / ] [ + - % ] & ^ |`
 
 Where:
 
 ```
 * /     Integer multiplication and division.
 + - %   Integer add, subtract, modulo.
-< >     Bitwise left and right shift.
 &       Bitwise AND.
 ^       Bitwise XOR.
 |       Bitwise OR.
@@ -95,8 +94,10 @@ All of the following functions perform bitwise operations:
 
 - `not(value)`: Expects one argument, returns one's complement of `value`.
 - `and, nand, or, xor, xnor`: Expects 2 arguments, name is self explanatory.
-- `rrc(value, shift)`: Performs right circular rotation of `value` bits by `shift` bits.
-- `rlc(value, shift)`: Performs left circular rotation of `value` bits by `shift` bits.
+- `rr(value, rot)`: Performs right rotation of `value` bits by `rot` bits.
+- `rl(value, rot)`: Performs left rotation of `value` bits by `rot` bits.
+- `sr(value, shift)`: Performs right shift of `value` bits by `shift` bits.
+- `sl(value, shift)`: Performs left shift of `value` bits by `shift` bits.
 
 #### Variable Size
 
@@ -113,13 +114,13 @@ Word size set to 16 bits.
 = 164 = 0xA4 = 0o244
 = 0b10100100
 
-> ans<2
+> sl(ans,2)
 = 656 = 0x290 = 0o1220
 = 0b1010010000
 
-> (ans<2)>4
-= 164 = 0xA4 = 0o244
-= 0b10100100
+> sr(ans,4)
+= 41 = 0x29 = 0o51
+= 0b101001
 
 > not(0)
 = -1 = 0xFFFF = 0o177777
