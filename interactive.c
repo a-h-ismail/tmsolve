@@ -476,6 +476,9 @@ void base_n_mode()
                 tms_error_handler(EH_PRINT);
             else
             {
+                if (tms_error_handler(EH_ERROR_COUNT, EH_NONFATAL_ERROR) != 0)
+                    tms_error_handler(EH_PRINT);
+
                 print_int_value_multibase(result);
                 tms_g_int_ans = result;
             }
