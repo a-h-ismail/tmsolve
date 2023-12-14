@@ -480,7 +480,7 @@ void base_n_mode()
                     tms_error_handler(EH_PRINT);
 
                 print_int_value_multibase(result);
-                tms_g_int_ans = result;
+                tms_g_int_ans = tms_sign_extend(result);
             }
 
             // Clear the error bit to avoid confusion
