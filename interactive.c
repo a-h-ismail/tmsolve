@@ -750,9 +750,27 @@ void utility_mode()
         {
             if (strncmp("factor", input, p - 1) == 0)
             {
+                double tmp;
                 int32_t value;
+                int status;
+
                 tms_int_factor *factors_list;
-                sscanf(input + p + 1, "%" PRId32, &value);
+                status = sscanf(input + p + 1, "%lf", &tmp);
+
+                if (status < 1)
+                {
+                    fprintf(stderr, "Syntax error.\n\n");
+                    continue;
+                }
+
+                if (fabs(tmp) > INT32_MAX)
+                {
+                    fprintf(stderr, "Values must be in range [-2147483647;2147483647]\n\n");
+                    continue;
+                }
+                else
+                    value = tmp;
+
                 factors_list = tms_find_factors(value);
 
                 if (factors_list->factor == 0)
@@ -774,6 +792,9 @@ void utility_mode()
                 printf("\n\n");
             }
         }
+        else
+            fprintf(stderr, "Invalid input. Supported: factor(int)\n\n");
+
         tms_error_handler(EH_PRINT);
     }
 }
