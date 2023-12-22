@@ -599,7 +599,13 @@ void function_calculator()
         if (strcmp(function, "prev") == 0)
         {
             free(function);
-            function = strdup(old_function);
+            if (old_function != NULL)
+                function = strdup(old_function);
+            else
+            {
+                fputs("No previous function found.\n\n", stderr);
+                continue;
+            }
             printf("f(x) = %s\n", function);
         }
 
@@ -680,6 +686,7 @@ void function_calculator()
             if (step == 0)
             {
                 puts("Error, step cannot be 0");
+                free(expr);
                 continue;
             }
         }
