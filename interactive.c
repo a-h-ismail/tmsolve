@@ -608,6 +608,7 @@ void function_calculator()
         }
         printf("\n");
         free(function);
+        tms_delete_math_expr(M);
     }
 }
 
