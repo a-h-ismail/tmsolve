@@ -132,6 +132,7 @@ int main(int argc, char **argv)
         }
         else if (strcmp(argv[1], "--test") == 0)
         {
+            _tms_debug = true;
             test_mode(argv);
             return 0;
         }
