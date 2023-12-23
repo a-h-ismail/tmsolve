@@ -35,7 +35,7 @@ void test_scientific(char *buffer)
     if (expected_ans == 0)
     {
         if (fabs(creal(expected_ans)) < 1e-15 && fabs(cimag(expected_ans)) < 1e-15)
-            puts("Passed");
+            puts("Passed\n--------------------\n");
         else
             fputs("Expected answer is zero but actual answer is non negligible.", stderr);
     }
@@ -49,7 +49,7 @@ void test_scientific(char *buffer)
             exit(1);
         }
         else
-            puts("Passed");
+            puts("Passed\n--------------------\n");
     }
 }
 
@@ -78,7 +78,7 @@ void test_base_n(char *buffer)
     }
 
     if (tms_g_int_ans == expected_ans)
-        puts("Passed");
+        puts("Passed\n--------------------\n");
     else
     {
         puts("Unexpected result");
