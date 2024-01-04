@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2022-2023 Ahmad Ismail
+Copyright (C) 2022-2024 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 char *character_name_generator(const char *text, int state)
 {
     static int index1, index2, index3, len;
+    static char *inc_name = NULL, *partial = NULL;
     char *name;
 
     if (!state)
@@ -20,7 +21,17 @@ char *character_name_generator(const char *text, int state)
         index1 = 0;
         index2 = 0;
         index3 = 0;
-        len = strlen(text);
+        // The previous partial text
+        free(inc_name);
+        inc_name = tms_get_name((char *)text, strlen(text) - 1, false);
+
+        if (inc_name == NULL)
+            inc_name = strdup("");
+
+        len = strlen(inc_name);
+
+        free(partial);
+        partial = tms_strndup(text, strlen(text) - len);
     }
     switch (_autocomplete_mode)
     {
@@ -28,29 +39,29 @@ char *character_name_generator(const char *text, int state)
         while (index1 < tms_g_func_count)
         {
             name = tms_g_all_func_names[index1++];
-            if (strncmp(name, text, len) == 0)
+            if (strncmp(name, inc_name, len) == 0)
             {
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                return dup_with_parenthesis;
+                return tms_strcat_dup(partial, dup_with_parenthesis);
             }
         }
         while (index2 < tms_g_var_count)
         {
             name = tms_g_vars[index2++].name;
-            if (strncmp(name, text, len) == 0)
-                return strdup(name);
+            if (strncmp(name, inc_name, len) == 0)
+                return tms_strcat_dup(partial, name);
         }
         while (index3 < tms_g_ufunc_count)
         {
             name = tms_g_ufunc[index3++].name;
-            if (strncmp(name, text, len) == 0)
+            if (strncmp(name, inc_name, len) == 0)
             {
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                return dup_with_parenthesis;
+                return tms_strcat_dup(partial, dup_with_parenthesis);
             }
         }
         break;
@@ -64,7 +75,7 @@ char *character_name_generator(const char *text, int state)
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                return dup_with_parenthesis;
+                return tms_strcat_dup(partial, dup_with_parenthesis);
             }
         }
         while (tms_int_extf_name[index2] != NULL)
@@ -75,14 +86,14 @@ char *character_name_generator(const char *text, int state)
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                return dup_with_parenthesis;
+                return tms_strcat_dup(partial, dup_with_parenthesis);
             }
         }
         while (index3 < tms_g_int_var_count)
         {
             name = tms_g_int_vars[index3++].name;
             if (strncmp(name, text, len) == 0)
-                return strdup(name);
+                return tms_strcat_dup(partial, name);
         }
         break;
     }
