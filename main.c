@@ -130,12 +130,6 @@ int main(int argc, char **argv)
         {
             _tms_debug = true;
         }
-        else if (strcmp(argv[1], "--test") == 0)
-        {
-            _tms_debug = true;
-            test_mode(argv);
-            return 0;
-        }
         else if (strcmp(argv[1], "--version") == 0)
         {
             printf("tmsolve version %s\nlibtmsolve version %s ", TMSOLVE_VER, tms_lib_version);
