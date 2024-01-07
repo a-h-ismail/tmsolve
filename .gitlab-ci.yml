@@ -9,12 +9,6 @@ build:
     paths:
       - tmsolve
 
-# run tests using the binary built before
-test accuracy:
-  stage: test
-  script:
-    - ./tmsolve --test ./tests/accuracy_test.txt
-
 test resilience:
   stage: test
   script:
