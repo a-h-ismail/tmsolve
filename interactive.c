@@ -61,7 +61,9 @@ char *character_name_generator(const char *text, int state)
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
                 strcpy(dup_with_parenthesis, name);
                 strcat(dup_with_parenthesis, "(");
-                return tms_strcat_dup(partial, dup_with_parenthesis);
+                char *tmp = tms_strcat_dup(partial, dup_with_parenthesis);
+                free(dup_with_parenthesis);
+                return tmp;
             }
         }
         break;
