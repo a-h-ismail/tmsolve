@@ -21,7 +21,7 @@ Current mode: Scientific
 = 1 + 14 / 17
 = 31 / 17
 
-> integrate(1,exp,ln(x))
+> integrate(1,e,ln(x))
 = 0.9999983613
 
 > ans*2i
@@ -32,7 +32,7 @@ Modulus = 1.999996723, argument = 1.570796327 rad = 90 deg
 = 5i
 Modulus = 5, argument = 1.570796327 rad = 90 deg
 
-> exp^(i*pi/12)
+> exp(i*pi/12)
 = 0.9659258263+0.2588190451 i
 Modulus = 1, argument = 0.2617993878 rad = 15 deg
 
@@ -61,7 +61,7 @@ Function set successfully
 
 - Default mode when `tmsolve` is started without arguments.
 - Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
-- Supports user defined functions, syntax: `foo(x)=expression`.
+- Supports user defined functions, syntax: `foo(x)=eression`.
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
@@ -92,8 +92,8 @@ Where:
 
 All of the following functions perform bitwise operations:
 
-- `not(value)`: Expects one argument, returns one's complement of `value`.
-- `and, nand, or, xor, xnor`: Expects 2 arguments, name is self explanatory.
+- `not(value)`: eects one argument, returns one's complement of `value`.
+- `and, nand, or, xor, xnor`: eects 2 arguments, name is self elanatory.
 - `rr(value, rot)`: Performs right rotation of `value` bits by `rot` bits.
 - `rl(value, rot)`: Performs left rotation of `value` bits by `rot` bits.
 - `sr(value, shift)`: Performs right shift of `value` bits by `shift` bits.

@@ -236,7 +236,6 @@ void scientific_mode()
                 return;
             }
         }
-        _tms_g_expr = expr;
 
         // Search for runtime function assignment
         i = tms_f_search(expr, "(x)=", 0, false);
@@ -245,7 +244,7 @@ void scientific_mode()
             int tmp = tms_r_search(expr, "=", i, false);
             if (tmp != -1)
             {
-                tms_error_handler(EH_SAVE, SYNTAX_ERROR, EH_FATAL_ERROR, tmp);
+                tms_error_handler(EH_SAVE, SYNTAX_ERROR, EH_FATAL_ERROR, expr, tmp);
                 tms_error_handler(EH_PRINT);
                 continue;
             }
@@ -361,7 +360,6 @@ void base_n_mode()
         else
         {
             // Normal case
-            _tms_g_expr = expr;
             result = tms_int_solve(expr);
 
             if (tms_error_bit == 1)
