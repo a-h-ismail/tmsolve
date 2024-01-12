@@ -261,8 +261,8 @@ git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
 cd tmsolve
 git submodule init libtmsolve
 git submodule update
+
 # Generate the makefile and use it to build the binary
-cd ./tmsolve
 cmake -S. -B./build -G "Unix Makefiles"
 cd ./build
 make
