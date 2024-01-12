@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2023 Ahmad Ismail
+Copyright (C) 2021-2024 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -109,12 +109,10 @@ void print_help()
 {
     puts("usage: tmsolve [options] [expression]\n");
     puts("Available options:\n");
-    puts("\t--debug\n\tEnables additional debugging output.\n");
-    puts("\t--benchmark\n\tRuns a simple benchmark for the parser and evaluator (Linux only).\n");
-    puts("\t--version\n\tPrints version information for the CLI and libtmsolve.\n");
-    puts("\t--test TEST_FILE\n\tCalculates the expressions provided in the test file and compares them with the "
-         "provided expected result.\n");
-    puts("\t--help\n\tPrint this help prompt.\n");
+    puts("  --debug       Enables additional debugging output.");
+    puts("  --benchmark   Runs a simple benchmark for the parser and evaluator (Linux only).");
+    puts("  --version     Prints version information for the CLI and libtmsolve.");
+    puts("  --help        Print this help prompt.\n");
     puts("The program will start by default in the scientific mode if no command line option is specified.");
 }
 
@@ -138,6 +136,7 @@ int main(int argc, char **argv)
 #else
             printf("(dynamic)\n");
 #endif
+            puts("Get the latest version from:\nhttps://github.com/a-h-ismail/tmsolve/releases");
             exit(0);
         }
 
