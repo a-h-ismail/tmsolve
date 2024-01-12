@@ -263,7 +263,7 @@ git submodule init libtmsolve
 git submodule update
 
 # Generate the makefile and use it to build the binary
-cmake -S. -B./build -G "Unix Makefiles"
+cmake -DCMAKE_BUILD_TYPE=Release -S. -B./build -G "Unix Makefiles"
 cd ./build
 make
 sudo make install
