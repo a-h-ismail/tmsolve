@@ -13,8 +13,6 @@ char _mode = 'S';
 char _autocomplete_mode;
 #endif
 
-void test_mode(char **argv);
-
 // Windows doesn't have timespec_get()
 #ifdef __linux__
 #include <time.h>
