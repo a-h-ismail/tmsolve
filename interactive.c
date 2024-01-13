@@ -378,9 +378,7 @@ void base_n_mode()
         else
         {
             // Normal case
-            result = tms_int_solve(expr);
-
-            if (tms_error_bit == 1)
+            if (tms_int_solve(expr, &result) == -1)
                 tms_error_handler(EH_PRINT);
             else
             {
@@ -390,9 +388,6 @@ void base_n_mode()
                 print_int_value_multibase(result);
                 tms_g_int_ans = tms_sign_extend(result);
             }
-
-            // Clear the error bit to avoid confusion
-            tms_error_bit = 0;
         }
         free(expr);
     }
