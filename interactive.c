@@ -492,13 +492,6 @@ void function_calculator()
             }
         }
 
-        if (tms_syntax_check(function) == false)
-        {
-            tms_error_handler(EH_PRINT);
-            free(function);
-            continue;
-        }
-
         if (strcmp(function, "prev") == 0)
         {
             free(function);
