@@ -98,6 +98,16 @@ int run_benchmark(char *expr)
     tms_delete_math_expr(M);
     delta_time = timer_setup('e');
     print_time_and_rate(iterations, delta_time);
+
+    // Solver benchmark
+    iterations = 1e6;
+    printf("Running %d iterations of solver routine (pre+switcher+parser+evaluator)\n", iterations);
+    timer_setup('s');
+    for (i = 0; i < iterations; ++i)
+        tms_g_ans = tms_solve(expr);
+
+    delta_time = timer_setup('e');
+    print_time_and_rate(iterations, delta_time);
     return 0;
 }
 #endif
