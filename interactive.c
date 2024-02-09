@@ -12,7 +12,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
 {
-    static int index1, index2, index3, len;
+    static int index1, index2, len;
     static char *to_complete = NULL, *prefix = NULL;
     char *name;
 
@@ -20,7 +20,6 @@ char *character_name_generator(const char *text, int state)
     {
         index1 = 0;
         index2 = 0;
-        index3 = 0;
         // The previous partial text
         free(to_complete);
         to_complete = tms_get_name((char *)text, strlen(text) - 1, false);
@@ -46,7 +45,7 @@ char *character_name_generator(const char *text, int state)
     switch (_autocomplete_mode)
     {
     case 'S':
-        while (index1 < tms_g_func_count)
+        while (index1 < tms_g_all_func_count)
         {
             name = tms_g_all_func_names[index1++];
             if (strncmp(name, to_complete, len) == 0)
@@ -65,25 +64,12 @@ char *character_name_generator(const char *text, int state)
             if (strncmp(name, to_complete, len) == 0)
                 return tms_strcat_dup(prefix, name);
         }
-        while (index3 < tms_g_ufunc_count)
-        {
-            name = tms_g_ufunc[index3++].name;
-            if (strncmp(name, to_complete, len) == 0)
-            {
-                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
-                strcpy(dup_with_parenthesis, name);
-                strcat(dup_with_parenthesis, "(");
-                char *tmp = tms_strcat_dup(prefix, dup_with_parenthesis);
-                free(dup_with_parenthesis);
-                return tmp;
-            }
-        }
         break;
 
     case 'B':
-        while (tms_int_nfunc_name[index1] != NULL)
+        while (tms_g_all_int_func_names[index1] != NULL)
         {
-            name = tms_int_nfunc_name[index1++];
+            name = tms_g_all_int_func_names[index1++];
             if (strncmp(name, text, len) == 0)
             {
                 char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
@@ -94,22 +80,9 @@ char *character_name_generator(const char *text, int state)
                 return tmp;
             }
         }
-        while (tms_int_extf_name[index2] != NULL)
+        while (index2 < tms_g_int_var_count)
         {
-            name = tms_int_extf_name[index2++];
-            if (strncmp(name, text, len) == 0)
-            {
-                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
-                strcpy(dup_with_parenthesis, name);
-                strcat(dup_with_parenthesis, "(");
-                char *tmp = tms_strcat_dup(prefix, dup_with_parenthesis);
-                free(dup_with_parenthesis);
-                return tmp;
-            }
-        }
-        while (index3 < tms_g_int_var_count)
-        {
-            name = tms_g_int_vars[index3++].name;
+            name = tms_g_int_vars[index2++].name;
             if (strncmp(name, text, len) == 0)
                 return tms_strcat_dup(prefix, name);
         }
