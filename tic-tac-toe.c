@@ -69,21 +69,18 @@ int enter_move(char **board)
     }
     while (1)
     {
-        printf("Enter position on board [1-9]: ");
-        scanf("%8s", input);
-        flush_stdin();
-        // Mode switcher
-        if (input[1] == '\0')
+        get_input(input, "Enter position on board [1-9]: ", 9);
+        switch (management_input(input))
         {
-            if (valid_mode(input[0]))
-            {
-                _mode = input[0];
-                return -1;
-            }
+        case SWITCH_MODE:
+            return -1;
+
+        case NEXT_ITERATION:
+            continue;
         }
-        else if (strcmp(input, "exit") == 0)
-            exit(0);
+
         status = sscanf(input, "%d", &position);
+        flush_stdin();
         if (status == 0)
         {
             puts("Invalid input.");
