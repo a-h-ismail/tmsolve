@@ -211,11 +211,11 @@ int main(int argc, char **argv)
 #endif
             scientific_mode();
             break;
-        case 'B':
+        case 'I':
 #ifdef USE_READLINE
-            _autocomplete_mode = 'B';
+            _autocomplete_mode = 'I';
 #endif
-            base_n_mode();
+            integer_mode();
             break;
         case 'F':
 #ifdef USE_READLINE
