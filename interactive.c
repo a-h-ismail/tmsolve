@@ -66,7 +66,7 @@ char *character_name_generator(const char *text, int state)
         }
         break;
 
-    case 'B':
+    case 'I':
         while (tms_g_all_int_func_names[index1] != NULL)
         {
             name = tms_g_all_int_func_names[index1++];
@@ -131,46 +131,50 @@ char *readline(char *prompt)
 }
 
 #endif
-// Reads n characters to *buffer (if n = -1 , no character limit), print prompt
-// Your buffer should have size of n+1 to accomodate the NULL terminator.
-// Do not use a size of -1 with stack allocated strings
-void get_input(char **buffer, char *prompt, size_t n)
+
+/*
+  Reads n characters from stdin.
+  If dest is set to NULL, the function will return a malloc'd char * array (ignoring the max size)
+  Otherwise, the characters are directly written to "dest"
+*/
+char *get_input(char *dest, char *prompt, size_t n)
 {
     char *tmp;
     while (1)
     {
         tmp = readline(prompt);
+        size_t length = strlen(tmp);
         // Properly handle end of piped input
         if (tmp == NULL)
             exit(0);
 
-        if (strlen(tmp) == 0)
+        if (length == 0)
         {
             puts(NO_INPUT "\n");
             free(tmp);
-            continue;
         }
-        if (n == -1)
+        else if (length > n)
         {
-            *buffer = tmp;
-            break;
-        }
-        else if (strlen(tmp) > n)
-        {
-            printf("Expression is very long, it must be at most %zu characters.\n\n", n);
+            printf("Input is longer than expected (%zu characters).\n\n", n);
             free(tmp);
         }
         else
         {
-            strncpy(*buffer, tmp, n);
-            (*buffer)[n] = '\0';
-            free(tmp);
-            break;
+            if (dest != NULL)
+            {
+                strcpy(dest, tmp);
+                free(tmp);
+                tmp = NULL;
+                break;
+            }
+            else
+                break;
         }
     }
 #ifdef USE_READLINE
-    add_history(*buffer);
+    add_history(dest);
 #endif
+    return tmp;
 }
 // Simple function to flush stdin
 void flush_stdin()
@@ -179,6 +183,60 @@ void flush_stdin()
     while ((c = getchar()) != '\n' && c != EOF)
         ;
 }
+
+// Handles "management" input common to all modes
+// Ex: exit, mode switching
+int management_input(char *input)
+{
+    char *token = strtok(input, " ");
+
+    // Not supposed to happen normally
+    if (token == NULL)
+        exit(1);
+
+    if (strcmp(token, "exit") == 0)
+        exit(0);
+
+    else if (strcmp(token, "mode") == 0)
+    {
+        token = strtok(NULL, " ");
+        if (token == NULL)
+        {
+            puts("Available modes:\n"
+                 "* Scientific (S)\n"
+                 "* Integer (I)\n"
+                 "* Function (F)\n"
+                 "* Equation (E)\n"
+                 "* Utility (U)\n\n"
+                 "To switch between modes, add the correct letter after the command \"mode\"\n"
+                 "Example: mode I");
+            return NEXT_ITERATION;
+        }
+        else
+        {
+            if (strlen(token) > 1)
+            {
+                puts("Expected a single letter, type \"mode\" for help.");
+                return NEXT_ITERATION;
+            }
+            else
+            {
+                if (valid_mode(token[0]))
+                {
+                    _mode = token[0];
+                    return SWITCH_MODE;
+                }
+                else
+                {
+                    puts("Invalid mode. Type \"mode\" to see a list of all available modes.");
+                    return NEXT_ITERATION;
+                }
+            }
+        }
+    }
+
+    return NO_ACTION;
+}
 // Function that keeps running until a valid input is obtained, returning the result
 double get_value(char *prompt)
 {
@@ -186,7 +244,7 @@ double get_value(char *prompt)
     char *expr;
     while (1)
     {
-        get_input(&expr, prompt, -1);
+        expr = get_input(NULL, prompt, -1);
 
         value = tms_solve_e(expr, false);
         free(expr);
@@ -198,7 +256,7 @@ double get_value(char *prompt)
 }
 bool valid_mode(char mode)
 {
-    char all_modes[] = {"SBFEUG"};
+    char all_modes[] = {"SIFEUG"};
     int i, length = strlen(all_modes);
     for (i = 0; i < length; ++i)
         if (mode == all_modes[i])
@@ -213,19 +271,17 @@ void scientific_mode()
     puts("Current mode: Scientific");
     while (1)
     {
-        get_input(&expr, "> ", -1);
-        if (strcmp(expr, "exit") == 0)
-            exit(0);
+        expr = get_input(NULL, "> ", -1);
 
-        // If the string has length 1, check for mode switching.
-        if (expr[1] == '\0')
+        switch (management_input(expr))
         {
-            if (valid_mode(expr[0]))
-            {
-                _mode = expr[0];
-                free(expr);
-                return;
-            }
+        case SWITCH_MODE:
+            free(expr);
+            return;
+
+        case NEXT_ITERATION:
+            free(expr);
+            continue;
         }
 
         // Search for runtime function assignment
@@ -306,27 +362,26 @@ void print_int_value_multibase(int64_t value)
     }
 }
 
-void base_n_mode()
+void integer_mode()
 {
     char *expr;
     int64_t result;
-    puts("Current mode: Base-N");
+    puts("Current mode: Integer");
     while (1)
     {
-        get_input(&expr, "> ", -1);
-        if (strcmp(expr, "exit") == 0)
-            exit(0);
+        expr = get_input(NULL, "> ", -1);
 
-        // If the string has length 1, check for mode switching.
-        if (expr[1] == '\0')
+        switch (management_input(expr))
         {
-            if (valid_mode(expr[0]))
-            {
-                _mode = expr[0];
-                free(expr);
-                return;
-            }
+        case SWITCH_MODE:
+            free(expr);
+            return;
+
+        case NEXT_ITERATION:
+            free(expr);
+            continue;
         }
+
         // Detect word size change request
         if (strncmp("set", expr, 3) == 0)
         {
@@ -417,13 +472,23 @@ void print_result(double complex result, bool verbose)
 void equation_mode()
 {
     int degree, status;
-    char *operation = malloc(5 * sizeof(char));
+    char operation[7];
     puts("Current mode: Equation");
 
     while (1)
     {
         puts("Degree? (n<=3)");
-        get_input(&operation, NULL, 4);
+        get_input(operation, "> ", 6);
+
+        switch (management_input(operation))
+        {
+        case SWITCH_MODE:
+            return;
+
+        case NEXT_ITERATION:
+            continue;
+        }
+
         status = sscanf(operation, "%d", &degree);
 
         // For mode switching
@@ -432,7 +497,6 @@ void equation_mode()
             if (valid_mode(operation[0]))
             {
                 _mode = operation[0];
-                free(operation);
                 return;
             }
         }
@@ -450,19 +514,17 @@ void function_calculator()
     puts("Current mode: Function");
     while (1)
     {
-        get_input(&function, "f(x) = ", -1);
-        if (strcmp(function, "exit") == 0)
-            exit(0);
-        // If the string has length 1, check for mode switching.
-        if (function[1] == '\0')
+        function = get_input(NULL, "f(x) = ", -1);
+
+        switch (management_input(function))
         {
-            if (valid_mode(function[0]))
-            {
-                _mode = function[0];
-                free(function);
-                free(old_function);
-                return;
-            }
+        case SWITCH_MODE:
+            free(function);
+            return;
+
+        case NEXT_ITERATION:
+            free(function);
+            continue;
         }
 
         if (strcmp(function, "prev") == 0)
@@ -511,7 +573,7 @@ void function_calculator()
         // Read step and identify stepping operator
         while (1)
         {
-            get_input(&expr, "Step: ", -1);
+            expr = get_input(NULL, "Step: ", -1);
             i = strlen(expr);
             if (i == 0)
                 continue;
@@ -602,24 +664,20 @@ void function_calculator()
 
 void utility_mode()
 {
-    char *input = malloc(24 * sizeof(char));
+    char input[24];
     int p;
     puts("Current mode: Utility");
     while (1)
     {
-        get_input(&input, "> ", 23);
-        if (strcmp(input, "exit") == 0)
-            exit(0);
+        get_input(input, "> ", 23);
 
-        // Mode switcher
-        if (input[1] == '\0')
+        switch (management_input(input))
         {
-            if (valid_mode(input[0]))
-            {
-                _mode = input[0];
-                free(input);
-                return;
-            }
+        case SWITCH_MODE:
+            return;
+
+        case NEXT_ITERATION:
+            continue;
         }
 
         p = tms_f_search(input, "(", 0, false);
