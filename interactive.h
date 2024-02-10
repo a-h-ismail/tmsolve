@@ -15,6 +15,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "libtmsolve.h"
 #endif
 
+#define NO_ACTION 0
+#define NEXT_ITERATION 1
+#define SWITCH_MODE 2
+
 #ifdef USE_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -23,10 +27,11 @@ char **character_name_completion(const char *text, int start, int end);
 
 #include <stdlib.h>
 
-void get_input(char **buffer, char *prompt, size_t n);
+char *get_input(char *dest, char *prompt, size_t n);
 void flush_stdin();
+int management_input(char *input);
 void scientific_mode();
-void base_n_mode();
+void integer_mode();
 void function_calculator();
 void equation_mode();
 double get_value(char *prompt);
