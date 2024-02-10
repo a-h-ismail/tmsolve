@@ -134,8 +134,9 @@ char *readline(char *prompt)
 
 /*
   Reads n characters from stdin.
-  If dest is set to NULL, the function will return a malloc'd char * array (ignoring the max size)
-  Otherwise, the characters are directly written to "dest"
+  If dest is set to NULL, the function will return a malloc'd char * array (ignoring the max size).
+  Otherwise, the characters are directly written to "dest".
+  Adds the valid input to readline's history.
 */
 char *get_input(char *dest, char *prompt, size_t n)
 {
@@ -143,11 +144,11 @@ char *get_input(char *dest, char *prompt, size_t n)
     while (1)
     {
         tmp = readline(prompt);
-        size_t length = strlen(tmp);
         // Properly handle end of piped input
         if (tmp == NULL)
             exit(0);
 
+        size_t length = strlen(tmp);
         if (length == 0)
         {
             puts(NO_INPUT "\n");
@@ -163,17 +164,23 @@ char *get_input(char *dest, char *prompt, size_t n)
             if (dest != NULL)
             {
                 strcpy(dest, tmp);
+#ifdef USE_READLINE
+                add_history(tmp);
+#endif
                 free(tmp);
                 tmp = NULL;
                 break;
             }
             else
+            {
+
+#ifdef USE_READLINE
+                add_history(tmp);
+#endif
                 break;
+            }
         }
     }
-#ifdef USE_READLINE
-    add_history(dest);
-#endif
     return tmp;
 }
 // Simple function to flush stdin
