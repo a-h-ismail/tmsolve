@@ -193,7 +193,8 @@ void flush_stdin()
 
 // Handles "management" input common to all modes
 // Ex: exit, mode switching
-int management_input(char *input)
+// It is lazy because the input copy/free is done somewhere else
+int _management_input_lazy(char *input)
 {
     char *token = strtok(input, " ");
 
@@ -244,6 +245,16 @@ int management_input(char *input)
 
     return NO_ACTION;
 }
+
+// This stub exists to avoid calling free() at every possible return of this function
+int management_input(char *input)
+{
+    input = strdup(input);
+    int decision = _management_input_lazy(input);
+    free(input);
+    return decision;
+}
+
 // Function that keeps running until a valid input is obtained, returning the result
 double get_value(char *prompt)
 {
@@ -298,7 +309,7 @@ void scientific_mode()
             int tmp = tms_r_search(expr, "=", i, false);
             if (tmp != -1)
             {
-                tms_error_handler(EH_SAVE, SYNTAX_ERROR, EH_FATAL_ERROR, expr, tmp);
+                tms_error_handler(EH_SAVE, TMS_PARSER, SYNTAX_ERROR, EH_FATAL, expr, tmp);
                 tms_error_handler(EH_PRINT);
                 continue;
             }
@@ -417,7 +428,7 @@ void integer_mode()
                 tms_error_handler(EH_PRINT);
             else
             {
-                if (tms_error_handler(EH_ERROR_COUNT, EH_NONFATAL_ERROR) != 0)
+                if (tms_error_handler(EH_ERROR_COUNT, EH_NONFATAL) != 0)
                     tms_error_handler(EH_PRINT);
 
                 print_int_value_multibase(result);
@@ -639,7 +650,7 @@ void function_calculator()
             result = tms_evaluate(M);
             if (isnan(result))
             {
-                tms_error_handler(EH_CLEAR, EH_MAIN_DB);
+                tms_error_handler(EH_CLEAR, TMS_EVALUATOR);
                 printf("f(%g)=Error\n", x);
             }
             else
