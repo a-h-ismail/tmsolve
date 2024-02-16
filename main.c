@@ -185,10 +185,7 @@ int main(int argc, char **argv)
             tms_g_ans = tms_solve(all);
 
             if (isnan(creal(tms_g_ans)))
-            {
-                tms_error_handler(EH_PRINT);
                 exit(1);
-            }
             else
                 print_result(tms_g_ans, false);
             exit(0);
