@@ -266,10 +266,7 @@ double get_value(char *prompt)
 
         value = tms_solve_e(expr, false);
         free(expr);
-        if (isnan(value))
-            tms_error_handler(EH_PRINT);
-        else
-            return value;
+        return value;
     }
 }
 bool valid_mode(char mode)
@@ -310,7 +307,7 @@ void scientific_mode()
             if (tmp != -1)
             {
                 tms_error_handler(EH_SAVE, TMS_PARSER, SYNTAX_ERROR, EH_FATAL, expr, tmp);
-                tms_error_handler(EH_PRINT);
+                tms_error_handler(EH_PRINT, TMS_PARSER);
                 continue;
             }
             if (expr[i + 4] == '\0')
@@ -326,7 +323,7 @@ void scientific_mode()
                 if (tmp == 0)
                     printf("Function set successfully.\n\n");
                 else
-                    tms_error_handler(EH_PRINT);
+                    tms_error_handler(EH_PRINT, TMS_PARSER);
             }
         }
         else
@@ -335,9 +332,7 @@ void scientific_mode()
             result = tms_solve(expr);
             tms_set_ans(result);
 
-            if (isnan(creal(result)))
-                tms_error_handler(EH_PRINT);
-            else
+            if (!isnan(creal(result)))
                 print_result(result, true);
         }
 
@@ -424,13 +419,8 @@ void integer_mode()
         else
         {
             // Normal case
-            if (tms_int_solve(expr, &result) == -1)
-                tms_error_handler(EH_PRINT);
-            else
+            if (tms_int_solve(expr, &result) != -1)
             {
-                if (tms_error_handler(EH_ERROR_COUNT, EH_NONFATAL) != 0)
-                    tms_error_handler(EH_PRINT);
-
                 print_int_value_multibase(result);
                 tms_g_int_ans = tms_sign_extend(result);
             }
@@ -477,12 +467,12 @@ void print_result(double complex result, bool verbose)
             {
                 if (fraction_str.a != 0)
                     printf("\n= %d + %d / %d", fraction_str.a, fraction_str.b, fraction_str.c);
-                printf("\n= %d / %d", (fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
+                printf("\n= %" PRId64 " / %d", ((int64_t)fraction_str.a * fraction_str.c + fraction_str.b), fraction_str.c);
             }
         }
     }
     printf("\n");
-    // If verbose it set (interactive), add an extra space for visibility
+    // If verbose it set (interactive), add an extra newline for visibility
     if (verbose)
         printf("\n");
 }
@@ -562,7 +552,6 @@ void function_calculator()
 
         if (M == NULL)
         {
-            tms_error_handler(EH_PRINT);
             tms_delete_math_expr(M);
             free(function);
             continue;
@@ -747,8 +736,6 @@ void utility_mode()
         }
         else
             fprintf(stderr, "Invalid input. Supported: factor(int)\n\n");
-
-        tms_error_handler(EH_PRINT);
     }
 }
 
