@@ -80,7 +80,6 @@ int enter_move(char **board)
         }
 
         status = sscanf(input, "%d", &position);
-        flush_stdin();
         if (status == 0)
         {
             puts("Invalid input.");
