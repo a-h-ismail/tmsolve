@@ -67,7 +67,7 @@ char *character_name_generator(const char *text, int state)
         break;
 
     case 'I':
-        while (tms_g_all_int_func_names[index1] != NULL)
+        while (index1 < tms_g_all_int_func_count)
         {
             name = tms_g_all_int_func_names[index1++];
             if (strncmp(name, text, len) == 0)
@@ -365,7 +365,12 @@ void print_int_value_multibase(int64_t value)
             fputs("Unexpected mask size.\n\n", stderr);
             return;
         }
-        printf(" = ");
+        if (tms_int_mask_size > 15)
+        {
+            printf(" = ");
+            tms_print_dot_decimal(value);
+        }
+        printf("\n= ");
         tms_print_hex(value);
         printf(" = ");
         tms_print_oct(value);
