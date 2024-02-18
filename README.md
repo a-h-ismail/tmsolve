@@ -10,6 +10,20 @@ Powerful and lightweight command line calculator.
 
 Run `tmsolve --help` (or `tmsolve.exe --help` for Windows) to see supported command line arguments.
 
+### Modes
+
+The calculator has the following modes:
+
+- Scientific (S)
+- Integer (I)
+- Function (F)
+- Equation (E)
+- Utility (U)
+
+To switch between modes, add the correct letter after the command `mode`
+
+Example: `mode I` will switch to integer mode.
+
 ### Scientific Mode
 
 Sample usage:
@@ -61,16 +75,16 @@ Function set successfully
 
 - Default mode when `tmsolve` is started without arguments.
 - Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
-- Supports user defined functions, syntax: `foo(x)=eression`.
+- Supports user defined functions, syntax: `foo(x)=expression`.
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
 - Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
 - The syntax of this mode is used in function and equation mode when a value is requested.
 
-### Base-N Mode
+### Integer Mode
 
-Uses only integers and supports bitwise operations, access by entering 'B' in any mode.
+Uses only integers and supports bitwise operations.
 
 #### Supported Operators
 
@@ -90,15 +104,17 @@ Where:
 
 #### Supported Functions
 
-All of the following functions perform bitwise operations:
-
-- `not(value)`: eects one argument, returns one's complement of `value`.
-- `and, nand, or, xor, xnor`: eects 2 arguments, name is self elanatory.
+- `not(value)`: Flips all bits of `value`.
+- `mask(n)`: Creates an n bit wide mask.
+- `inv_mask(n)`: Creates an n bit wide inverse mask.
+- `and, nand, or, xor, xnor`: Expects 2 arguments, name is self explanatory.
 - `rr(value, rot)`: Performs right rotation of `value` bits by `rot` bits.
 - `rl(value, rot)`: Performs left rotation of `value` bits by `rot` bits.
 - `sr(value, shift)`: Performs right shift of `value` bits by `shift` bits.
 - `sra(value, shift)`: Performs arithmetic right shift.
 - `sl(value, shift)`: Performs left shift of `value` bits by `shift` bits.
+- `ipv4(a.b.c.d)`: Reads an IPv4 in dot decimal notation.
+- `dotted(a.b...)`: Reads a dot decimal notation of any width.
 
 #### Variable Size
 
@@ -153,13 +169,10 @@ Word size set to 64 bits.
 
 ### Function Mode
 
-Calculates a function over the specified interval. Access by entering 'F' in any other mode.
+Calculates a function over the specified interval.
 example: Calculating points across a parabola:
 
 ```
-Current mode: Scientific
-> F
-
 Current mode: Function
 f(x) = x^2
 Start: -4
@@ -212,32 +225,6 @@ Equation: 4 x^2 - 3 x - 1 = 0
 Solutions:
 x1 = -0.25
 x2 = 1
-```
-
-### Tic-Tac-Toe
-
-Play tic-tac-toe against the computer, enter 'G' in any mode to launch the game.
-
-```
-Current mode: Tic-Tac-Toe
-Wins = 0
-Losses = 0
-Draws = 0
-+-------+-------+-------+
-|       |       |       |
-|   1   |   2   |   3   |
-|       |       |       |
-+-------+-------+-------+
-|       |       |       |
-|   4   |   5   |   6   |
-|       |       |       |
-+-------+-------+-------+
-|       |       |       |
-|   7   |   8   |   9   |
-|       |       |       |
-+-------+-------+-------+
-
-Enter position on board [1-9]: 
 ```
 
 ## Installation instructions
