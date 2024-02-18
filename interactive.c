@@ -191,6 +191,24 @@ void flush_stdin()
         ;
 }
 
+void print_array_of_chars(char **c, int length)
+{
+    if (length < 1)
+        return;
+
+    for (int i = 0; i < length; ++i)
+    {
+        printf(" %s", c[i]);
+
+        if (i != length - 1)
+            putchar(',');
+
+        if (i % 3 == 2)
+            putchar('\n');
+    }
+    putchar('\n');
+}
+
 // Handles "management" input common to all modes
 // Ex: exit, mode switching
 // It is lazy because the input copy/free is done somewhere else
@@ -241,6 +259,161 @@ int _management_input_lazy(char *input)
                 }
             }
         }
+    }
+    // Per mode help
+    else if (strcmp("help", token) == 0)
+    {
+        token = strtok(NULL, " ");
+        if (token == NULL)
+        {
+            switch (_mode)
+            {
+            case 'S':
+                puts("Scientific mode calculates math expressions provided by the user.\n"
+                     "It supports most common functions and allows for user defined variables and functions.\n\n"
+                     "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
+                     "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
+                     "To view available functions, type \"functions\"\n"
+                     "To view currently defined variables, type \"variables\"");
+                break;
+            case 'I':
+                puts("Integer mode calculates math expressions provided by the user.\n"
+                     "Compared to scientific mode, this mode uses integers instead of double precision floats.\n"
+                     "It supports most common logic operators and allows for user defined variables.\n\n"
+                     "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1.\n\n"
+                     "To change current variable size, use the \"set\" keyword.\n"
+                     "To view available functions, type \"functions\"\n"
+                     "To view currently defined variables, type \"variables\"");
+                break;
+            case 'F':
+                puts("Function mode calculates a function over a specified interval.\n"
+                     "Provide the function and start, end, step to get the results.");
+                break;
+            case 'E':
+                puts("Equation mode solves equations up to the third degree.\n"
+                     "Enter the degree and follow the on screen instructions.");
+                break;
+            case 'U':
+                puts("Utility mode is meant for useful functions that don't fit in any other mode.\n"
+                     "Currently, only factor() is available.");
+                break;
+            case 'G':
+                puts("You are playing against the computer, and expecting it to help you?");
+                break;
+            default:
+                return NO_ACTION;
+            }
+            putchar('\n');
+            return NEXT_ITERATION;
+        }
+        else
+            return NO_ACTION;
+    }
+
+    // Specific to every mode
+    switch (_mode)
+    {
+    case 'S':
+        if (strcmp("functions", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                puts("List of defined functions:");
+                print_array_of_chars(tms_g_all_func_names, tms_g_all_func_count);
+                return NEXT_ITERATION;
+            }
+        }
+        else if (strcmp("variables", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                if (tms_g_var_count == 0)
+                    puts("No variables.");
+                else
+                {
+                    puts("List of defined variables:");
+                    for (int i = 0; i < tms_g_var_count; ++i)
+                    {
+                        printf("\"%s\" = ", tms_g_vars[i].name);
+                        tms_print_value(tms_g_vars[i].value);
+                        if (tms_g_vars[i].is_constant)
+                            printf(" (read-only)");
+                        putchar('\n');
+                    }
+                }
+                putchar('\n');
+                return NEXT_ITERATION;
+            }
+        }
+        break;
+    case 'I':
+        // Detect word size change request
+        if (strcmp("set", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                printf("Current word size: %d bits\n", tms_int_mask_size);
+                puts("Use the \"set\" keyword with w1, w2, w4, w8 to set the word size.\n"
+                     "Example: set w8\n");
+            }
+            else
+            {
+                if (strcmp("w1", token) == 0)
+                    tms_int_mask_size = 8;
+                else if (strcmp("w2", token) == 0)
+                    tms_int_mask_size = 16;
+                else if (strcmp("w4", token) == 0)
+                    tms_int_mask_size = 32;
+                else if (strcmp("w8", token) == 0)
+                    tms_int_mask_size = 64;
+                else
+                {
+                    fputs("Unrecognized option, try w1, w2, w4, w8\n\n", stderr);
+                    return NEXT_ITERATION;
+                }
+
+                // To easily calculate the mask, set all bits to 1, then shift right by 64-mask_size
+                tms_int_mask = ~((uint64_t)0) >> (64 - tms_int_mask_size);
+                printf("Word size set to %d bits.\n\n", tms_int_mask_size);
+            }
+            return NEXT_ITERATION;
+        }
+        else if (strcmp("functions", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                puts("List of defined functions:");
+                print_array_of_chars(tms_g_all_int_func_names, tms_g_all_int_func_count);
+                return NEXT_ITERATION;
+            }
+        }
+        else if (strcmp("variables", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                if (tms_g_int_var_count == 0)
+                    puts("No variables.");
+                else
+                {
+                    puts("List of defined variables:");
+                    for (int i = 0; i < tms_g_int_var_count; ++i)
+                    {
+                        printf("\"%s\" = ", tms_g_int_vars[i].name);
+                        tms_print_hex(tms_g_int_vars[i].value);
+                        putchar('\n');
+                    }
+                }
+                putchar('\n');
+                return NEXT_ITERATION;
+            }
+        }
+    default:
+        break;
     }
 
     return NO_ACTION;
@@ -400,36 +573,12 @@ void integer_mode()
             continue;
         }
 
-        // Detect word size change request
-        if (strncmp("set", expr, 3) == 0)
+        if (tms_int_solve(expr, &result) != -1)
         {
-            if (strcmp(" w1", expr + 3) == 0)
-                tms_int_mask_size = 8;
-            else if (strcmp(" w2", expr + 3) == 0)
-                tms_int_mask_size = 16;
-            else if (strcmp(" w4", expr + 3) == 0)
-                tms_int_mask_size = 32;
-            else if (strcmp(" w8", expr + 3) == 0)
-                tms_int_mask_size = 64;
-            else
-            {
-                fputs("Unrecognized option, try w1, w2, w4, w8\n\n", stderr);
-                free(expr);
-                continue;
-            }
-            // To easily calculate the mask, set all bits to 1, then shift right by 64-mask_size
-            tms_int_mask = ~((uint64_t)0) >> (64 - tms_int_mask_size);
-            printf("Word size set to %d bits.\n\n", tms_int_mask_size);
+            print_int_value_multibase(result);
+            tms_g_int_ans = tms_sign_extend(result);
         }
-        else
-        {
-            // Normal case
-            if (tms_int_solve(expr, &result) != -1)
-            {
-                print_int_value_multibase(result);
-                tms_g_int_ans = tms_sign_extend(result);
-            }
-        }
+
         free(expr);
     }
 }
@@ -695,7 +844,7 @@ void utility_mode()
         p = tms_f_search(input, "(", 0, false);
         if (p > 0)
         {
-            if (strncmp("factor", input, p - 1) == 0)
+            if (strncmp("factor(", input, p) == 0)
             {
                 double tmp;
                 int32_t value;
