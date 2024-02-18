@@ -128,9 +128,6 @@ int main(int argc, char **argv)
 {
     // Initialize the library before anything else
     tmsolve_init();
-    printf("tmsolve %s, library version %s\n", TMSOLVE_VER, tms_lib_version);
-    puts("Enter \"mode\" to get a list of available modes.\n"
-         "Enter \"help\" to view a description and generic usage of the current mode.\n");
 
     // Calculate expressions sent as command line arguments.
     if (argc > 1)
@@ -174,23 +171,17 @@ int main(int argc, char **argv)
         // Calculate the expressions passed as arguments
         else
         {
-            int i, length = 0;
+            int i;
+            double complex result;
             for (i = 1; i < argc; ++i)
-                length += strlen(argv[i]);
-            char *all = malloc((length + 1) * sizeof(char));
-            // Initialize the "all" array using the first argument (strcat expects an initialized string)
-            strcpy(all, argv[1]);
-
-            // Concatenate arguments
-            for (i = 2; i < argc; ++i)
-                strcat(all, argv[i]);
-
-            tms_g_ans = tms_solve(all);
-
-            if (isnan(creal(tms_g_ans)))
-                exit(1);
-            else
-                print_result(tms_g_ans, false);
+            {
+                result = tms_solve(argv[i]);
+                tms_set_ans(result);
+                if (isnan(creal(result)))
+                    puts("nan");
+                else
+                    print_result(tms_g_ans, false);
+            }
             exit(0);
         }
     }
@@ -199,6 +190,10 @@ int main(int argc, char **argv)
 #ifdef USE_READLINE
     rl_attempted_completion_function = character_name_completion;
 #endif
+
+    printf("tmsolve %s, library version %s\n", TMSOLVE_VER, tms_lib_version);
+    puts("Enter \"mode\" to get a list of available modes.\n"
+         "Enter \"help\" to view a description and generic usage of the current mode.\n");
 
     // pick the mode
     while (1)
