@@ -128,6 +128,9 @@ int main(int argc, char **argv)
 {
     // Initialize the library before anything else
     tmsolve_init();
+    printf("tmsolve %s, library version %s\n", TMSOLVE_VER, tms_lib_version);
+    puts("Enter \"mode\" to get a list of available modes.\n"
+         "Enter \"help\" to view a description and generic usage of the current mode.\n");
 
     // Calculate expressions sent as command line arguments.
     if (argc > 1)
