@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include <ctype.h>
 
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
