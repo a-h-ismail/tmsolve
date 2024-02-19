@@ -14,7 +14,7 @@ Run `tmsolve --help` (or `tmsolve.exe --help` for Windows) to see supported comm
 
 The calculator has the following modes:
 
-- Scientific (S)
+- Scientific (S) (default)
 - Integer (I)
 - Function (F)
 - Equation (E)
@@ -73,7 +73,6 @@ Function set successfully
 = 93 / 4
 ```
 
-- Default mode when `tmsolve` is started without arguments.
 - Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
 - Supports user defined functions, syntax: `foo(x)=expression`.
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
