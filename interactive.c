@@ -235,18 +235,20 @@ int _management_input_lazy(char *input)
                  "* Equation (E)\n"
                  "* Utility (U)\n\n"
                  "To switch between modes, add the correct letter after the command \"mode\"\n"
-                 "Example: mode I");
+                 "Example: mode I\n");
             return NEXT_ITERATION;
         }
         else
         {
             if (strlen(token) > 1)
             {
-                puts("Expected a single letter, type \"mode\" for help.");
+                puts("Expected a single letter, type \"mode\" for help.\n");
                 return NEXT_ITERATION;
             }
             else
             {
+                token[0] = toupper(token[0]);
+
                 if (valid_mode(token[0]))
                 {
                     _mode = token[0];
@@ -254,7 +256,7 @@ int _management_input_lazy(char *input)
                 }
                 else
                 {
-                    puts("Invalid mode. Type \"mode\" to see a list of all available modes.");
+                    puts("Invalid mode. Type \"mode\" to see a list of all available modes.\n");
                     return NEXT_ITERATION;
                 }
             }
