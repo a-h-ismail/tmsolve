@@ -192,7 +192,8 @@ int main(int argc, char **argv)
 #endif
 
     printf("tmsolve %s, library version %s\n", TMSOLVE_VER, tms_lib_version);
-    puts("Enter \"mode\" to get a list of available modes.\n"
+    puts("Get the latest version from: https://github.com/a-h-ismail/tmsolve/releases/latest\n"
+         "Enter \"mode\" to get a list of available modes.\n"
          "Enter \"help\" to view a description and generic usage of the current mode.\n");
 
     // pick the mode
