@@ -101,7 +101,7 @@ int run_benchmark(char *expr)
 
     // Solver benchmark
     iterations = 1e6;
-    printf("Running %d iterations of solver routine (pre+switcher+parser+evaluator)\n", iterations);
+    printf("Running %d iterations of solver routine (parser+complex_switcher+evaluator)\n", iterations);
     timer_setup('s');
     for (i = 0; i < iterations; ++i)
         tms_g_ans = tms_solve(expr);
