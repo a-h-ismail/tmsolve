@@ -331,20 +331,20 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                if (tms_g_var_count == 0)
-                    puts("No variables.");
-                else
+
+                puts("List of defined variables:");
+                printf("\"ans\" = ");
+                tms_print_value(tms_g_ans);
+                putchar('\n');
+                for (int i = 0; i < tms_g_var_count; ++i)
                 {
-                    puts("List of defined variables:");
-                    for (int i = 0; i < tms_g_var_count; ++i)
-                    {
-                        printf("\"%s\" = ", tms_g_vars[i].name);
-                        tms_print_value(tms_g_vars[i].value);
-                        if (tms_g_vars[i].is_constant)
-                            printf(" (read-only)");
-                        putchar('\n');
-                    }
+                    printf("\"%s\" = ", tms_g_vars[i].name);
+                    tms_print_value(tms_g_vars[i].value);
+                    if (tms_g_vars[i].is_constant)
+                        printf(" (read-only)");
+                    putchar('\n');
                 }
+
                 putchar('\n');
                 return NEXT_ITERATION;
             }
@@ -398,18 +398,17 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                if (tms_g_int_var_count == 0)
-                    puts("No variables.");
-                else
+                puts("List of defined variables:");
+                printf("\"ans\" = ");
+                tms_print_hex(tms_g_int_ans);
+                putchar('\n');
+                for (int i = 0; i < tms_g_int_var_count; ++i)
                 {
-                    puts("List of defined variables:");
-                    for (int i = 0; i < tms_g_int_var_count; ++i)
-                    {
-                        printf("\"%s\" = ", tms_g_int_vars[i].name);
-                        tms_print_hex(tms_g_int_vars[i].value);
-                        putchar('\n');
-                    }
+                    printf("\"%s\" = ", tms_g_int_vars[i].name);
+                    tms_print_hex(tms_g_int_vars[i].value);
+                    putchar('\n');
                 }
+
                 putchar('\n');
                 return NEXT_ITERATION;
             }
