@@ -364,14 +364,15 @@ int _management_input_lazy(char *input)
             }
             else
             {
+                int size;
                 if (strcmp("w1", token) == 0)
-                    tms_int_mask_size = 8;
+                    size = 8;
                 else if (strcmp("w2", token) == 0)
-                    tms_int_mask_size = 16;
+                    size = 16;
                 else if (strcmp("w4", token) == 0)
-                    tms_int_mask_size = 32;
+                    size = 32;
                 else if (strcmp("w8", token) == 0)
-                    tms_int_mask_size = 64;
+                    size = 64;
                 else
                 {
                     fputs("Unrecognized option, try w1, w2, w4, w8\n\n", stderr);
@@ -379,7 +380,7 @@ int _management_input_lazy(char *input)
                 }
 
                 // To easily calculate the mask, set all bits to 1, then shift right by 64-mask_size
-                tms_int_mask = ~((uint64_t)0) >> (64 - tms_int_mask_size);
+                tms_set_int_mask(size);
                 printf("Word size set to %d bits.\n\n", tms_int_mask_size);
             }
             return NEXT_ITERATION;
