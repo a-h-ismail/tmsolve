@@ -272,17 +272,21 @@ int _management_input_lazy(char *input)
             switch (_mode)
             {
             case 'S':
-                puts("Scientific mode calculates math expressions provided by the user.\n"
-                     "It supports most common functions and allows for user defined variables and functions.\n\n"
+                puts("Calculate a math expression.\n"
+                     "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
+                     "Operator priority groups (high to low): () ^ [ * / % ] [ + - ]\n"
+                     "Supports user defined variables and functions.\n\n"
                      "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
                      "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
                      "To view available functions, type \"functions\"\n"
                      "To view currently defined variables, type \"variables\"");
                 break;
             case 'I':
-                puts("Integer mode calculates math expressions provided by the user.\n"
+                puts("Calculate a math expression.\n"
                      "Compared to scientific mode, this mode uses integers instead of double precision floats.\n"
-                     "It supports most common logic operators and allows for user defined variables.\n\n"
+                     "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
+                     "Operator priority groups (high to low): () [ * / % ] [ + - ] & ^ |\n"
+                     "Supports user defined variables.\n\n"
                      "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1.\n\n"
                      "To change current variable size, use the \"set\" keyword.\n"
                      "To view available functions, type \"functions\"\n"
