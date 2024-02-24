@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 char _mode = 'S';
 #ifdef USE_READLINE
@@ -115,13 +116,14 @@ int run_benchmark(char *expr)
 // To not clutter main()
 void print_help()
 {
-    puts("usage: tmsolve [options] [expression]\n");
+    puts("usage: tmsolve { [options] | [expression1] [expression2] [...] }\n");
     puts("Available options:\n");
     puts("  --debug       Enables additional debugging output.");
     puts("  --benchmark   Runs a simple benchmark for the parser and evaluator (Linux only).");
     puts("  --version     Prints version information for the CLI and libtmsolve.");
     puts("  --help        Print this help prompt.\n");
     puts("The program will start by default in the scientific mode if no command line option is specified.");
+    puts("Expressions provided as arguments can be prefixed with \"I:\" to use integer mode instead of scientific mode.");
 }
 
 int main(int argc, char **argv)
