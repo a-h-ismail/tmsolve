@@ -26,7 +26,34 @@ Example: `mode I` will switch to integer mode.
 
 ### Scientific Mode
 
-Sample usage:
+#### Supported Operators
+
+priority: high to low, groups in `[]` have the same priority:
+
+ `() ^ [ * / % ] [ + - ]`
+
+Where:
+
+```
+^       Power operator.
+* / %   Multiplication, division, modulo.
++ -     Addition and subtraction.
+```
+
+#### Supported Functions
+
+Provided by `libtmsolve`, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
+
+#### Features
+
+- Supports user defined (single variable) functions and variables.
+- Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
+- "ans" variable stores previous results.
+- Supports complex numbers.
+- Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
+- Attempts to find the reduced fractional form of the result.
+
+#### Sample usage:
 
 ```
 Current mode: Scientific
@@ -73,14 +100,6 @@ Function set successfully
 = 93 / 4
 ```
 
-- Supported functions are the ones provided by libtmsolve, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
-- Supports user defined functions, syntax: `foo(x)=expression`.
-- Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
-- "ans" variable stores previous results.
-- Supports complex numbers.
-- Does not allow implied multiplication except for the imaginary "i" with numbers, where for example 5i is treated as (5*i).
-- The syntax of this mode is used in function and equation mode when a value is requested.
-
 ### Integer Mode
 
 Uses only integers and supports bitwise operations.
@@ -89,13 +108,13 @@ Uses only integers and supports bitwise operations.
 
 priority: high to low, groups in `[]` have the same priority:
 
- `[ * / ] [ + - % ] & ^ |`
+ `[ * / % ] [ + - ] & ^ |`
 
 Where:
 
 ```
-* /     Integer multiplication and division.
-+ - %   Integer add, subtract, modulo.
+* / %   Multiplication, division and modulo.
++ -     Addition and subtraction.
 &       Bitwise AND.
 ^       Bitwise XOR.
 |       Bitwise OR.
@@ -103,65 +122,55 @@ Where:
 
 #### Supported Functions
 
-- `not(value)`: Flips all bits of `value`.
-- `mask(n)`: Creates an n bit wide mask.
-- `inv_mask(n)`: Creates an n bit wide inverse mask.
-- `and, nand, or, xor, xnor`: Expects 2 arguments, name is self explanatory.
-- `rr(value, rot)`: Performs right rotation of `value` bits by `rot` bits.
-- `rl(value, rot)`: Performs left rotation of `value` bits by `rot` bits.
-- `sr(value, shift)`: Performs right shift of `value` bits by `shift` bits.
-- `sra(value, shift)`: Performs arithmetic right shift.
-- `sl(value, shift)`: Performs left shift of `value` bits by `shift` bits.
-- `ipv4(a.b.c.d)`: Reads an IPv4 in dot decimal notation.
-- `dotted(a.b...)`: Reads a dot decimal notation of any width.
+Provided by `libtmsolve`, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_INT_FUNCTIONS.html).
 
 #### Variable Size
 
 By default, this mode uses 32 bit signed integers, but can be changed to 8, 16, 32, or 64 bits of width during runtime using the command `set` and width specifier `w1`, `w2`, `w4`, `w8`.
 
-Usage:
+#### Usage
 
 ```
 Current mode: Integer
 > 0xFE & 0xa5
 = 164 = 0.0.0.164
 = 0xA4 = 0o244
-= 0b10100100
+= 0b 00000000 00000000 00000000 10100100
 
 > sr(ans,4)
 = 10 = 0.0.0.10
 = 0xA = 0o12
-= 0b1010
+= 0b 00000000 00000000 00000000 00001010
 
-> sl(ans,2)
-= 40 = 0.0.0.40
-= 0x28 = 0o50
-= 0b101000
+> > sl(ans,5)
+= 320 = 0.0.1.64
+= 0x140 = 0o500
+= 0b 00000000 00000000 00000001 01000000
 
 > not(0)
 = -1 = 255.255.255.255
 = 0xFFFF FFFF = 0o37777777777
-= 0b11111111 11111111 11111111 11111111
+= 0b 11111111 11111111 11111111 11111111
 
 > ipv4(192.168.1.229)
 = -1062731291 = 192.168.1.229
 = 0xC0A8 01E5 = 0o30052000745
-= 0b11000000 10101000 00000001 11100101
+= 0b 11000000 10101000 00000001 11100101
 
-> ipv4(192.168.1.229) & inv_mask(8)
-= -1062731520 = 192.168.1.0
-= 0xC0A8 0100 = 0o30052000400
-= 0b11000000 10101000 00000001 00000000
+> ipv4(192.168.162.229) & ipv4_prefix(22)
+= -1062690816 = 192.168.160.0
+= 0xC0A8 A000 = 0o30052120000
+= 0b 11000000 10101000 10100000 00000000
 
 > a=0b001101011
 = 107 = 0.0.0.107
 = 0x6B = 0o153
-= 0b1101011
+= 0b 00000000 00000000 00000000 01101011
 
 > a & 0xF
 = 11 = 0.0.0.11
 = 0xB = 0o13
-= 0b1011
+= 0b 00000000 00000000 00000000 00001011
 
 > set w8
 Word size set to 64 bits.
@@ -169,7 +178,7 @@ Word size set to 64 bits.
 > not(0)
 = -1 = 255.255.255.255.255.255.255.255
 = 0xFFFF FFFF FFFF FFFF = 0o1777777777777777777777
-= 0b11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
+= 0b 11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111
 ```
 
 ### Function Mode
@@ -260,11 +269,6 @@ cd ./build
 make
 sudo make install
 ```
-
-## Security practices
-
-- The binary is run in `valgrind` memcheck tool with a variety of inputs to verify memory safety and possible leaks.
-- The source code is inspected using `clang-tidy`.
 
 ## License
 
