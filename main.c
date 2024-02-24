@@ -132,11 +132,11 @@ int main(int argc, char **argv)
     // Calculate expressions sent as command line arguments.
     if (argc > 1)
     {
-        if (strcmp(argv[1], "--debug") == 0)
+        if (tms_find_str_in_array("--debug", argv, argc, TMS_NOFUNC) != -1)
         {
             _tms_debug = true;
         }
-        else if (strcmp(argv[1], "--version") == 0)
+        else if (tms_find_str_in_array("--version", argv, argc, TMS_NOFUNC) != -1)
         {
             printf("tmsolve version %s\nlibtmsolve version %s ", TMSOLVE_VER, tms_lib_version);
 #ifdef LOCAL_BUILD
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
         }
 
 #ifdef __linux__
-        else if (strcmp(argv[1], "--benchmark") == 0)
+        else if (tms_find_str_in_array("--benchmark", argv, argc, TMS_NOFUNC) != -1)
         {
             char *benchmark_expr[] = {"15.75+3e2-4.8872/2.534e-4",
                                       "5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4)",
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
             exit(0);
         }
 #endif
-        else if (strcmp(argv[1], "--help") == 0)
+        else if (tms_find_str_in_array("--help", argv, argc, TMS_NOFUNC) != -1)
         {
             print_help();
             exit(0);
@@ -175,12 +175,40 @@ int main(int argc, char **argv)
             double complex result;
             for (i = 1; i < argc; ++i)
             {
-                result = tms_solve(argv[i]);
-                tms_set_ans(result);
-                if (isnan(creal(result)))
-                    puts("nan");
+                tms_remove_whitespace(argv[i]);
+                if (argv[i][1] == ':')
+                {
+                    switch (toupper(argv[i][0]))
+                    {
+                    case 'S':
+                        argv[i] += 2;
+                        result = tms_solve(argv[i]);
+                        tms_set_ans(result);
+                        if (isnan(creal(result)))
+                            puts("nan");
+                        else
+                            print_result(tms_g_ans, false);
+                        break;
+                    case 'I':
+                        int64_t result;
+                        argv[i] += 2;
+                        if (tms_int_solve(argv[i], &result) != 0)
+                            puts("nan");
+                        else
+                            printf("%" PRId32 "\n", (int32_t)result);
+                    default:
+                        fputs("Invalid mode prefix.\n", stderr);
+                    }
+                }
                 else
-                    print_result(tms_g_ans, false);
+                {
+                    result = tms_solve(argv[i]);
+                    tms_set_ans(result);
+                    if (isnan(creal(result)))
+                        puts("nan");
+                    else
+                        print_result(tms_g_ans, false);
+                }
             }
             exit(0);
         }
