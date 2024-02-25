@@ -709,7 +709,7 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, true, false);
+        M = tms_parse_expr(function, true, true);
 
         if (M == NULL)
         {
@@ -790,21 +790,26 @@ void function_calculator()
             }
         }
         x = start;
-        double prevx, result;
+        double prev_x;
+        double complex result;
         while (x <= end)
         {
-            prevx = x;
+            prev_x = x;
             // Set the value of x in the subexpr_ptr
             tms_set_unknown(M, x);
             // Solving the function then printing
-            result = tms_evaluate(M);
-            if (isnan(result))
+            result = _tms_evaluate_unsafe(M);
+            if (isnan(creal(result)))
             {
                 tms_error_handler(EH_CLEAR, TMS_EVALUATOR);
-                printf("f(%g)=Error\n", x);
+                printf("f(%g)=Error", x);
             }
             else
-                printf("f(%g) = %.10g\n", x, result);
+            {
+                printf("f(%g) = ", x);
+                tms_print_value(result);
+            }
+            putchar('\n');
             // Calculating the next value of x according to the specified method
             switch (step_op)
             {
@@ -818,7 +823,7 @@ void function_calculator()
                 x = pow(x, step);
                 break;
             }
-            if (prevx >= x)
+            if (prev_x >= x)
             {
                 puts("Error, the step used makes it impossible to reach the end.");
                 break;
