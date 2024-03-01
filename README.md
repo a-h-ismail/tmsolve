@@ -108,7 +108,7 @@ Uses only integers and supports bitwise operations.
 
 priority: high to low, groups in `[]` have the same priority:
 
- `[ * / % ] [ + - ] & ^ |`
+ `() [ * / % ] [ + - ] & ^ |`
 
 Where:
 
