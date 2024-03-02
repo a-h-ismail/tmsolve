@@ -204,10 +204,10 @@ void print_array_of_chars(char **c, int length)
         if (i != length - 1)
             putchar(',');
 
-        if (i % 3 == 2)
+        if (i % 3 == 2 && i != length - 1)
             putchar('\n');
     }
-    putchar('\n');
+    puts("\n");
 }
 
 // Handles "management" input for all modes
