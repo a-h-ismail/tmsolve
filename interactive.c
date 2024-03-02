@@ -210,9 +210,9 @@ void print_array_of_chars(char **c, int length)
     putchar('\n');
 }
 
-// Handles "management" input common to all modes
+// Handles "management" input for all modes
 // Ex: exit, mode switching
-// It is lazy because the input copy/free is done somewhere else
+// It is lazy because the input copy/free is done in the caller
 int _management_input_lazy(char *input)
 {
     char *token = strtok(input, " ");
@@ -279,7 +279,8 @@ int _management_input_lazy(char *input)
                      "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
                      "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
                      "To view available functions, type \"functions\"\n"
-                     "To view currently defined variables, type \"variables\"");
+                     "To view currently defined variables, type \"variables\"\n"
+                     "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'I':
                 puts("Calculate a math expression.\n"
@@ -290,7 +291,8 @@ int _management_input_lazy(char *input)
                      "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1.\n\n"
                      "To change current variable size, use the \"set\" keyword.\n"
                      "To view available functions, type \"functions\"\n"
-                     "To view currently defined variables, type \"variables\"");
+                     "To view currently defined variables, type \"variables\"\n"
+                     "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'F':
                 puts("Function mode calculates a function over a specified interval.\n"
@@ -353,6 +355,18 @@ int _management_input_lazy(char *input)
                 putchar('\n');
                 return NEXT_ITERATION;
             }
+        }
+        else if (strcmp("debug", token) == 0)
+        {
+            _tms_debug = true;
+            puts("Debug output enabled.\n");
+            return NEXT_ITERATION;
+        }
+        else if (strcmp("undebug", token) == 0)
+        {
+            _tms_debug = false;
+            puts("Debug output disabled.\n");
+            return NEXT_ITERATION;
         }
         break;
     case 'I':
@@ -418,6 +432,18 @@ int _management_input_lazy(char *input)
                 putchar('\n');
                 return NEXT_ITERATION;
             }
+        }
+        else if (strcmp("debug", token) == 0)
+        {
+            _tms_debug = true;
+            puts("Debug output enabled.\n");
+            return NEXT_ITERATION;
+        }
+        else if (strcmp("undebug", token) == 0)
+        {
+            _tms_debug = false;
+            puts("Debug output disabled.\n");
+            return NEXT_ITERATION;
         }
     default:
         break;
