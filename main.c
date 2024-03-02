@@ -146,7 +146,6 @@ int main(int argc, char **argv)
 #else
             printf("(dynamic)\n");
 #endif
-            puts("Get the latest version from:\nhttps://github.com/a-h-ismail/tmsolve/releases");
             exit(0);
         }
 
