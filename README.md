@@ -128,7 +128,7 @@ Provided by `libtmsolve`, check them [here](https://a-h-ismail.gitlab.io/libtmso
 
 By default, this mode uses 32 bit signed integers, but can be changed to 8, 16, 32, or 64 bits of width during runtime using the command `set` and width specifier `w1`, `w2`, `w4`, `w8`.
 
-#### Usage
+#### Usage Examples
 
 ```
 Current mode: Integer
@@ -142,10 +142,21 @@ Current mode: Integer
 = 0xA = 0o12
 = 0b 00000000 00000000 00000000 00001010
 
-> > sl(ans,5)
+> sl(ans,5)
 = 320 = 0.0.1.64
 = 0x140 = 0o500
 = 0b 00000000 00000000 00000001 01000000
+
+> set w2
+Word size set to 16 bits.
+
+> rr(0b1111,8)
+= 3840 = 15.0
+= 0xF00 = 0o7400
+= 0b 00001111 00000000
+
+> set w4
+Word size set to 32 bits.
 
 > not(0)
 = -1 = 255.255.255.255
@@ -157,10 +168,25 @@ Current mode: Integer
 = 0xC0A8 01E5 = 0o30052000745
 = 0b 11000000 10101000 00000001 11100101
 
+> ipv4_prefix(24)
+= -256 = 255.255.255.0
+= 0xFFFF FF00 = 0o37777777400
+= 0b 11111111 11111111 11111111 00000000
+
 > ipv4(192.168.162.229) & ipv4_prefix(22)
 = -1062690816 = 192.168.160.0
 = 0xC0A8 A000 = 0o30052120000
 = 0b 11000000 10101000 10100000 00000000
+
+> mask(8)
+= 255 = 0.0.0.255
+= 0xFF = 0o377
+= 0b 00000000 00000000 00000000 11111111
+
+> ipv4(194.43.236.139) & mask(12)
+= 3211 = 0.0.12.139
+= 0xC8B = 0o6213
+= 0b 00000000 00000000 00001100 10001011
 
 > a=0b001101011
 = 107 = 0.0.0.107
@@ -243,7 +269,13 @@ x2 = 1
 
 ## Installation instructions
 
-### Build from source
+### Windows
+
+Precompiled binaries are provided in the "Releases" section. You can also use CMake if you want to build from source.
+
+### Linux
+
+You need to build from source.
 
 Install required packages:
 
@@ -255,7 +287,9 @@ Install required packages:
 
 `sudo dnf install gcc readline-devel git cmake make`
 
-Clone the project repository and run the install script:
+---
+
+Clone the project repository, generate the makefile and build using make:
 
 ```
 git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
