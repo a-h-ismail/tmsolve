@@ -68,7 +68,7 @@ int run_benchmark(char *expr)
 
     for (i = 0; i < iterations; ++i)
     {
-        M = tms_parse_expr(expr, false, false);
+        M = _tms_parse_expr_unsafe(expr, false, false);
         tms_delete_math_expr(M);
     }
     delta_time = timer_setup('e');
@@ -94,7 +94,7 @@ int run_benchmark(char *expr)
     M = tms_parse_expr(expr, false, false);
     timer_setup('s');
     for (i = 0; i < iterations; ++i)
-        tms_g_ans = tms_evaluate(M);
+        tms_g_ans = _tms_evaluate_unsafe(M);
 
     tms_delete_math_expr(M);
     delta_time = timer_setup('e');
@@ -131,7 +131,6 @@ int main(int argc, char **argv)
     // Initialize the library before anything else
     tmsolve_init();
 
-    // Calculate expressions sent as command line arguments.
     if (argc > 1)
     {
         if (tms_find_str_in_array("--debug", argv, argc, TMS_NOFUNC) != -1)
