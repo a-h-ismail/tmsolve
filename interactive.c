@@ -174,9 +174,11 @@ char *get_input(char *dest, char *prompt, size_t n)
             }
             else
             {
-
 #ifdef USE_READLINE
-                add_history(tmp);
+                // Check if the input line already exists at the end of the history to avoid duplicates
+                HIST_ENTRY *last_entry = history_get(history_length);
+                if (last_entry == NULL || strcmp(last_entry->line, tmp) != 0)
+                    add_history(tmp);
 #endif
                 break;
             }
