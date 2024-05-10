@@ -2,7 +2,7 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
-## 1.2.1 - 2024-05-09
+## 1.2.1 - 2024-05-10
 
 Built with `libtmsolve` version 2.3.0
 
@@ -11,6 +11,10 @@ Built with `libtmsolve` version 2.3.0
 - Use non locking parser and evaluator in benchmark mode.
 - Avoid consecutive duplicated lines in input history (Linux only).
 - Other minor changes.
+
+### Fixed
+
+- Some silent failures in utility mode.
 
 ## 1.2.0 - 2024-03-02
 
