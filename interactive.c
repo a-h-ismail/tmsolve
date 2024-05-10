@@ -927,6 +927,8 @@ void utility_mode()
                 free(factors_list);
                 printf("\n\n");
             }
+            else
+                fprintf(stderr, "Invalid function. Supported: factor(int)\n\n");
         }
         else
             fprintf(stderr, "Invalid input. Supported: factor(int)\n\n");
