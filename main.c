@@ -68,7 +68,7 @@ int run_benchmark(char *expr)
 
     for (i = 0; i < iterations; ++i)
     {
-        M = _tms_parse_expr_unsafe(expr, false, false);
+        M = _tms_parse_expr_unsafe(expr, 0, NULL);
         tms_delete_math_expr(M);
     }
     delta_time = timer_setup('e');

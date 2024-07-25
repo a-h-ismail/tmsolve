@@ -507,31 +507,20 @@ void scientific_mode()
             continue;
         }
 
-        // Search for runtime function assignment
-        i = tms_f_search(expr, "(x)=", 0, false);
-        if (i > 0)
+        // Search for assignment operator to handle runtime functions or variables
+        i = tms_f_search(expr, "=", 0, false);
+        if (i != -1)
         {
-            int tmp = tms_r_search(expr, "=", i, false);
-            if (tmp != -1)
+            if (i > 3 && expr[i - 1] == ')')
             {
-                tms_error_handler(EH_SAVE, TMS_PARSER, SYNTAX_ERROR, EH_FATAL, expr, tmp);
-                tms_error_handler(EH_PRINT, TMS_PARSER);
-                continue;
-            }
-            if (expr[i + 4] == '\0')
-            {
-                printf("%s\n\n", NO_INPUT);
-            }
-            else
-            {
-                char *name = tms_strndup(expr, i);
-                // You need to skip 4 chars after i to get the function
-                tmp = tms_set_ufunction(name, expr + i + 4);
-                free(name);
-                if (tmp == 0)
+                int name_len = tms_f_search(expr, "(", 0, false);
+                if (name_len == -1)
+                    return;
+                char *name = tms_strndup(expr, name_len), *unknowns_list = tms_strndup(expr + name_len + 1, i - name_len - 2);
+                if (tms_set_ufunction(name, unknowns_list, expr + i + 1) == 0)
                     printf("Function set successfully.\n\n");
                 else
-                    tms_error_handler(EH_PRINT, TMS_PARSER);
+                    tms_print_errors(TMS_PARSER);
             }
         }
         else
@@ -708,6 +697,8 @@ void function_calculator()
     int i;
     char *expr, step_op, *function, *old_function = NULL;
     tms_math_expr *M;
+    // We have one variable here: x
+    tms_arg_list *the_x = tms_get_args("x");
     puts("Current mode: Function");
     while (1)
     {
@@ -717,6 +708,7 @@ void function_calculator()
         {
         case SWITCH_MODE:
             free(function);
+            free(the_x);
             return;
 
         case NEXT_ITERATION:
@@ -737,7 +729,7 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, true, true);
+        M = tms_parse_expr(function, TMS_ENABLE_CMPLX | TMS_ENABLE_UNK, the_x);
 
         if (M == NULL)
         {
@@ -819,17 +811,18 @@ void function_calculator()
         }
         x = start;
         double prev_x;
-        double complex result;
+        double complex result, tmp;
         while (x <= end)
         {
             prev_x = x;
             // Set the value of x in the subexpr_ptr
-            tms_set_unknown(M, x);
+            tmp = x;
+            tms_set_unknowns(M, &tmp);
             // Solving the function then printing
             result = _tms_evaluate_unsafe(M);
             if (isnan(creal(result)))
             {
-                tms_error_handler(EH_CLEAR, TMS_EVALUATOR);
+                tms_clear_errors(TMS_EVALUATOR);
                 printf("f(%g)=Error", x);
             }
             else
@@ -851,7 +844,7 @@ void function_calculator()
                 x = pow(x, step);
                 break;
             }
-            if (prev_x >= x)
+            if (prev_x >= creal(x))
             {
                 puts("Error, the step used makes it impossible to reach the end.");
                 break;
