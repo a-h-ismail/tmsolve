@@ -521,6 +521,8 @@ void scientific_mode()
                     printf("Function set successfully.\n\n");
                 else
                     tms_print_errors(TMS_PARSER);
+                free(name);
+                free(unknowns_list);
             }
         }
         else
