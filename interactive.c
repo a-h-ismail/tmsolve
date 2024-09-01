@@ -13,83 +13,28 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
 {
-    static int index1, index2, len;
-    static char *to_complete = NULL, *prefix = NULL;
-    char *name;
+    static int next;
+    static char **completions = NULL;
 
     if (!state)
     {
-        index1 = 0;
-        index2 = 0;
-        // The previous partial text
-        free(to_complete);
-        to_complete = tms_get_name((char *)text, strlen(text) - 1, false);
-
-        if (to_complete == NULL)
-            to_complete = strdup("");
-
-        len = strlen(to_complete);
-
-        free(prefix);
-        prefix = tms_strndup(text, strlen(text) - len);
-
-        if (strlen(prefix) > 0)
+        next = 0;
+        free(completions);
+        switch (_autocomplete_mode)
         {
-            char last_in_prefix = prefix[strlen(prefix) - 1];
+        case 'S':
+            completions = tms_smode_autocompletion_helper(text);
+            break;
 
-            // If tms_get_name didn't find a valid name, but the previous char is valid for names
-            // Then this is a syntax error, don't autocomplete
-            if (tms_legal_char_in_name(last_in_prefix) && to_complete[0] == '\0')
-                return NULL;
+        case 'I':
+            completions = tms_imode_autocompletion_helper(text);
+            break;
         }
     }
-    switch (_autocomplete_mode)
-    {
-    case 'S':
-        while (index1 < tms_g_all_func_count)
-        {
-            name = tms_g_all_func_names[index1++];
-            if (strncmp(name, to_complete, len) == 0)
-            {
-                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
-                strcpy(dup_with_parenthesis, name);
-                strcat(dup_with_parenthesis, "(");
-                char *tmp = tms_strcat_dup(prefix, dup_with_parenthesis);
-                free(dup_with_parenthesis);
-                return tmp;
-            }
-        }
-        while (index2 < tms_g_var_count)
-        {
-            name = tms_g_vars[index2++].name;
-            if (strncmp(name, to_complete, len) == 0)
-                return tms_strcat_dup(prefix, name);
-        }
-        break;
-
-    case 'I':
-        while (index1 < tms_g_all_int_func_count)
-        {
-            name = tms_g_all_int_func_names[index1++];
-            if (strncmp(name, text, len) == 0)
-            {
-                char *dup_with_parenthesis = malloc((strlen(name) + 2) * sizeof(char));
-                strcpy(dup_with_parenthesis, name);
-                strcat(dup_with_parenthesis, "(");
-                char *tmp = tms_strcat_dup(prefix, dup_with_parenthesis);
-                free(dup_with_parenthesis);
-                return tmp;
-            }
-        }
-        while (index2 < tms_g_int_var_count)
-        {
-            name = tms_g_int_vars[index2++].name;
-            if (strncmp(name, text, len) == 0)
-                return tms_strcat_dup(prefix, name);
-        }
-        break;
-    }
-    return NULL;
+    if (completions == NULL)
+        return NULL;
+    else
+        return completions[next++];
 }
 
 char **character_name_completion(const char *text, int start, int end)
@@ -331,7 +276,7 @@ int _management_input_lazy(char *input)
             if (token == NULL)
             {
                 puts("List of defined functions:");
-                print_array_of_chars(tms_g_all_func_names, tms_g_all_func_count);
+                //           print_array_of_chars(tms_g_all_func_names, tms_g_all_func_count);
                 return NEXT_ITERATION;
             }
         }
@@ -345,14 +290,6 @@ int _management_input_lazy(char *input)
                 printf("\"ans\" = ");
                 tms_print_value(tms_g_ans);
                 putchar('\n');
-                for (int i = 0; i < tms_g_var_count; ++i)
-                {
-                    printf("\"%s\" = ", tms_g_vars[i].name);
-                    tms_print_value(tms_g_vars[i].value);
-                    if (tms_g_vars[i].is_constant)
-                        printf(" (read-only)");
-                    putchar('\n');
-                }
 
                 putchar('\n');
                 return NEXT_ITERATION;
@@ -411,7 +348,7 @@ int _management_input_lazy(char *input)
             if (token == NULL)
             {
                 puts("List of defined functions:");
-                print_array_of_chars(tms_g_all_int_func_names, tms_g_all_int_func_count);
+                //          print_array_of_chars(tms_g_all_int_func_names, tms_g_all_int_func_count);
                 return NEXT_ITERATION;
             }
         }
@@ -424,12 +361,7 @@ int _management_input_lazy(char *input)
                 printf("\"ans\" = ");
                 tms_print_hex(tms_g_int_ans);
                 putchar('\n');
-                for (int i = 0; i < tms_g_int_var_count; ++i)
-                {
-                    printf("\"%s\" = ", tms_g_int_vars[i].name);
-                    tms_print_hex(tms_g_int_vars[i].value);
-                    putchar('\n');
-                }
+                /*Readd a way to list defined variables*/
 
                 putchar('\n');
                 return NEXT_ITERATION;
@@ -488,13 +420,13 @@ bool valid_mode(char mode)
 }
 void scientific_mode()
 {
-    char *expr;
+    char *expr, *shifted_expr, *name = NULL;
     double complex result;
     int i;
     puts("Current mode: Scientific");
     while (1)
     {
-        expr = get_input(NULL, "> ", -1);
+        shifted_expr = expr = get_input(NULL, "> ", -1);
 
         switch (management_input(expr))
         {
@@ -507,32 +439,51 @@ void scientific_mode()
             continue;
         }
 
-        // Search for assignment operator to handle runtime functions or variables
+        // Search for assignment operator to handle user functions or variables
         i = tms_f_search(expr, "=", 0, false);
         if (i != -1)
         {
+            // Set user function (has a name and parenthesis)
             if (i > 3 && expr[i - 1] == ')')
             {
                 int name_len = tms_f_search(expr, "(", 0, false);
                 if (name_len == -1)
+                {
+                    free(expr);
                     return;
-                char *name = tms_strndup(expr, name_len), *unknowns_list = tms_strndup(expr + name_len + 1, i - name_len - 2);
-                if (tms_set_ufunction(name, unknowns_list, expr + i + 1) == 0)
+                }
+                name = tms_strndup(expr, name_len);
+                char *argument_names = tms_strndup(expr + name_len + 1, i - name_len - 2);
+                if (tms_set_ufunction(name, argument_names, expr + i + 1) == 0)
                     printf("Function set successfully.\n\n");
                 else
                     tms_print_errors(TMS_PARSER);
                 free(name);
-                free(unknowns_list);
+                free(argument_names);
+                free(expr);
+                name = NULL;
+                continue;
+            }
+            else
+            {
+                // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
+                name = tms_strndup(expr, i);
+                shifted_expr += i + 1;
             }
         }
-        else
-        {
-            // A normal expression to calculate
-            result = tms_solve(expr);
-            tms_set_ans(result);
+        // A normal expression to calculate
+        result = tms_solve(shifted_expr);
+        tms_set_ans(result);
 
-            if (!isnan(creal(result)))
-                print_result(result, true);
+        if (!isnan(creal(result)))
+        {
+            print_result(result, true);
+            if (name != NULL)
+            {
+                tms_set_var(name, result, false);
+                free(name);
+                name = NULL;
+            }
         }
 
         free(expr);
@@ -581,12 +532,14 @@ void print_int_value_multibase(int64_t value)
 
 void integer_mode()
 {
-    char *expr;
+    char *name = NULL, *expr, *shifted_expr;
+    int i;
     int64_t result;
     puts("Current mode: Integer");
     while (1)
     {
         expr = get_input(NULL, "> ", -1);
+        shifted_expr = expr;
 
         switch (management_input(expr))
         {
@@ -598,11 +551,49 @@ void integer_mode()
             free(expr);
             continue;
         }
-
+        // Search for assignment operator to handle user functions or variables
+        i = tms_f_search(expr, "=", 0, false);
+        if (i != -1)
+        {
+            // Set user function (has a name and parenthesis)
+            if (i > 3 && expr[i - 1] == ')')
+            {
+                int name_len = tms_f_search(expr, "(", 0, false);
+                if (name_len == -1)
+                {
+                    free(expr);
+                    return;
+                }
+                name = tms_strndup(expr, name_len);
+                char *label_names = tms_strndup(expr + name_len + 1, i - name_len - 2);
+                if (tms_set_int_ufunction(name, label_names, expr + i + 1) == 0)
+                    printf("Function set successfully.\n\n");
+                else
+                    tms_print_errors(TMS_INT_PARSER);
+                free(name);
+                free(label_names);
+                free(expr);
+                name = NULL;
+                continue;
+            }
+            else
+            {
+                // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
+                name = tms_strndup(expr, i);
+                shifted_expr += i + 1;
+            }
+        }
+        // Not a function
         if (tms_int_solve(expr, &result) != -1)
         {
             print_int_value_multibase(result);
             tms_g_int_ans = tms_sign_extend(result);
+            if (name != NULL)
+            {
+                tms_set_int_var(name, result, false);
+                free(name);
+                name = NULL;
+            }
         }
 
         free(expr);
@@ -731,7 +722,7 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, TMS_ENABLE_CMPLX | TMS_ENABLE_UNK, the_x);
+        M = tms_parse_expr(function, TMS_ENABLE_CMPLX | TMS_ENABLE_LABELS, the_x);
 
         if (M == NULL)
         {
@@ -819,7 +810,7 @@ void function_calculator()
             prev_x = x;
             // Set the value of x in the subexpr_ptr
             tmp = x;
-            tms_set_unknowns(M, &tmp);
+            tms_set_labels_values(M, &tmp);
             // Solving the function then printing
             result = _tms_evaluate_unsafe(M);
             if (isnan(creal(result)))
