@@ -55,7 +55,7 @@ void print_time_and_rate(int iterations, struct timespec T)
     printf("Rate: %.6g iterations/second\n\n", iterations / (T.tv_sec + T.tv_nsec / (double)1e9));
 }
 
-int run_benchmark(char *expr)
+int run_solver_benchmark(char *expr)
 {
     struct timespec delta_time;
     int iterations = 1e6, i;
@@ -111,6 +111,19 @@ int run_benchmark(char *expr)
     print_time_and_rate(iterations, delta_time);
     return 0;
 }
+
+int run_access_benchmark()
+{
+    int iterations = 1e8;
+    printf("Running %d variable lookup operations\n", iterations);
+    timer_setup('s');
+    for (int i = 0; i < iterations; ++i)
+        tms_get_var_by_name("pi");
+
+    struct timespec delta_time = timer_setup('e');
+    print_time_and_rate(iterations, delta_time);
+    return 0;
+}
 #endif
 
 // To not clutter main()
@@ -158,7 +171,8 @@ int main(int argc, char **argv)
                                       "sin(0.7)^2+cos(0.7)^2",
                                       "rand()+827.837"};
             for (int i = 0; i < array_length(benchmark_expr); ++i)
-                run_benchmark(benchmark_expr[i]);
+                run_solver_benchmark(benchmark_expr[i]);
+            run_access_benchmark();
             exit(0);
         }
 #endif
