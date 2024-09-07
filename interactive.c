@@ -139,22 +139,28 @@ void flush_stdin()
         ;
 }
 
-void print_array_of_chars(char **c, int length)
+// Function that should be called repetitively to cleanly print an array of chars as groups of 3
+// When the array is done, provide NULL as argument to reset the internal state of the function
+void print_array_of_chars_helper(char *next)
 {
-    if (length < 1)
-        return;
-
-    for (int i = 0; i < length; ++i)
+    static int i;
+    if (next != NULL)
     {
-        printf(" %s", c[i]);
-
-        if (i != length - 1)
+        if (i > 0)
             putchar(',');
-
-        if (i % 3 == 2 && i != length - 1)
+        if (i > 2)
+        {
+            i = 0;
             putchar('\n');
+        }
+        printf(" %s", next);
+        ++i;
     }
-    puts("\n");
+    else
+    {
+        puts("\n");
+        i = 0;
+    }
 }
 
 // Handles "management" input for all modes
@@ -275,8 +281,38 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                puts("List of defined functions:");
-                //           print_array_of_chars(tms_g_all_func_names, tms_g_all_func_count);
+                size_t count;
+
+                puts("Simple functions:");
+                tms_rc_func *all_rcfunc = tms_get_all_rc_func(&count, true);
+                for (size_t i = 0; i < count; ++i)
+                    print_array_of_chars_helper(all_rcfunc[i].name);
+                print_array_of_chars_helper(NULL);
+                free(all_rcfunc);
+
+                puts("Extended functions:");
+                tms_extf *all_extf = tms_get_all_extf(&count, true);
+                for (size_t i = 0; i < count; ++i)
+                    print_array_of_chars_helper(all_extf[i].name);
+                print_array_of_chars_helper(NULL);
+                free(all_extf);
+
+                puts("User defined functions:");
+                tms_ufunc *all_ufunc = tms_get_all_ufunc(&count, true);
+                if (all_ufunc == NULL)
+                    puts("<None defined>");
+                else
+                {
+                    char *argstring;
+                    for (size_t i = 0; i < count; ++i)
+                    {
+                        argstring = tms_args_to_string(all_ufunc[i].F->label_names);
+                        printf("%s(%s) = %s\n", all_ufunc[i].name, argstring, all_ufunc[i].F->expr);
+                    }
+                    free(argstring);
+                }
+                putchar('\n');
+                free(all_ufunc);
                 return NEXT_ITERATION;
             }
         }
@@ -285,13 +321,24 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-
                 puts("List of defined variables:");
-                printf("\"ans\" = ");
+                printf("ans = ");
                 tms_print_value(tms_g_ans);
                 putchar('\n');
-
+                // Retrieve all variables into an array using library call
+                size_t count;
+                tms_var *var_list = tms_get_all_vars(&count, true);
+                for (size_t i = 0; i < count; ++i)
+                {
+                    printf("%s = ", var_list[i].name);
+                    tms_print_value(var_list[i].value);
+                    if (var_list[i].is_constant)
+                        puts(" (read-only)");
+                    else
+                        putchar('\n');
+                }
                 putchar('\n');
+                free(var_list);
                 return NEXT_ITERATION;
             }
         }
