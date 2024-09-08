@@ -570,13 +570,14 @@ void scientific_mode()
         {
             print_result(result, true);
             if (name != NULL)
-            {
                 tms_set_var(name, result, false);
-                free(name);
-                name = NULL;
-            }
         }
 
+        if (name != NULL)
+        {
+            free(name);
+            name = NULL;
+        }
         free(expr);
     }
 }
@@ -680,11 +681,13 @@ void integer_mode()
             print_int_value_multibase(result);
             tms_g_int_ans = tms_sign_extend(result);
             if (name != NULL)
-            {
                 tms_set_int_var(name, result, false);
-                free(name);
-                name = NULL;
-            }
+        }
+
+        if (name != NULL)
+        {
+            free(name);
+            name = NULL;
         }
 
         free(expr);
