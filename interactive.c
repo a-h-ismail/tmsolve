@@ -308,8 +308,8 @@ int _management_input_lazy(char *input)
                     {
                         argstring = tms_args_to_string(all_ufunc[i].F->label_names);
                         printf("%s(%s) = %s\n", all_ufunc[i].name, argstring, all_ufunc[i].F->expr);
+                        free(argstring);
                     }
-                    free(argstring);
                 }
                 putchar('\n');
                 free(all_ufunc);
@@ -328,14 +328,17 @@ int _management_input_lazy(char *input)
                 // Retrieve all variables into an array using library call
                 size_t count;
                 tms_var *var_list = tms_get_all_vars(&count, true);
-                for (size_t i = 0; i < count; ++i)
+                if (var_list != NULL)
                 {
-                    printf("%s = ", var_list[i].name);
-                    tms_print_value(var_list[i].value);
-                    if (var_list[i].is_constant)
-                        puts(" (read-only)");
-                    else
-                        putchar('\n');
+                    for (size_t i = 0; i < count; ++i)
+                    {
+                        printf("%s = ", var_list[i].name);
+                        tms_print_value(var_list[i].value);
+                        if (var_list[i].is_constant)
+                            puts(" (read-only)");
+                        else
+                            putchar('\n');
+                    }
                 }
                 putchar('\n');
                 free(var_list);
@@ -383,7 +386,6 @@ int _management_input_lazy(char *input)
                     return NEXT_ITERATION;
                 }
 
-                // To easily calculate the mask, set all bits to 1, then shift right by 64-mask_size
                 tms_set_int_mask(size);
                 printf("Word size set to %d bits.\n\n", tms_int_mask_size);
             }
@@ -394,8 +396,38 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                puts("List of defined functions:");
-                //          print_array_of_chars(tms_g_all_int_func_names, tms_g_all_int_func_count);
+                size_t count;
+
+                puts("Simple functions:");
+                tms_int_func *all_int_func = tms_get_all_int_func(&count, true);
+                for (size_t i = 0; i < count; ++i)
+                    print_array_of_chars_helper(all_int_func[i].name);
+                print_array_of_chars_helper(NULL);
+                free(all_int_func);
+
+                puts("Extended functions:");
+                tms_int_extf *all_int_extf = tms_get_all_int_extf(&count, true);
+                for (size_t i = 0; i < count; ++i)
+                    print_array_of_chars_helper(all_int_extf[i].name);
+                print_array_of_chars_helper(NULL);
+                free(all_int_extf);
+
+                puts("User defined functions:");
+                tms_int_ufunc *all_int_ufunc = tms_get_all_int_ufunc(&count, true);
+                if (all_int_ufunc == NULL)
+                    puts("<None defined>");
+                else
+                {
+                    char *argstring;
+                    for (size_t i = 0; i < count; ++i)
+                    {
+                        argstring = tms_args_to_string(all_int_ufunc[i].F->label_names);
+                        printf("%s(%s) = %s\n", all_int_ufunc[i].name, argstring, all_int_ufunc[i].F->expr);
+                        free(argstring);
+                    }
+                }
+                putchar('\n');
+                free(all_int_ufunc);
                 return NEXT_ITERATION;
             }
         }
@@ -405,12 +437,24 @@ int _management_input_lazy(char *input)
             if (token == NULL)
             {
                 puts("List of defined variables:");
-                printf("\"ans\" = ");
+                printf("ans = ");
                 tms_print_hex(tms_g_int_ans);
                 putchar('\n');
-                /*Readd a way to list defined variables*/
-
+                // Retrieve all variables into an array using library call
+                size_t count;
+                tms_int_var *int_var_list = tms_get_all_int_vars(&count, true);
+                if (int_var_list != NULL)
+                    for (size_t i = 0; i < count; ++i)
+                    {
+                        printf("%s = ", int_var_list[i].name);
+                        tms_print_hex(int_var_list[i].value);
+                        if (int_var_list[i].is_constant)
+                            puts(" (read-only)");
+                        else
+                            putchar('\n');
+                    }
                 putchar('\n');
+                free(int_var_list);
                 return NEXT_ITERATION;
             }
         }
@@ -631,7 +675,7 @@ void integer_mode()
             }
         }
         // Not a function
-        if (tms_int_solve(expr, &result) != -1)
+        if (tms_int_solve(shifted_expr, &result) != -1)
         {
             print_int_value_multibase(result);
             tms_g_int_ans = tms_sign_extend(result);
