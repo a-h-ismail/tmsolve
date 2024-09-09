@@ -357,6 +357,59 @@ int _management_input_lazy(char *input)
             puts("Debug output disabled.\n");
             return NEXT_ITERATION;
         }
+        else if (strcmp("del", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                puts("Usage: del var1|func1 [var2|func2 ...]");
+                putchar('\n');
+                return NEXT_ITERATION;
+            }
+            const tms_var *target_var;
+            const tms_ufunc *target_ufunc;
+            do
+            {
+                // Lookup if the provided name is a var or a function
+                target_var = tms_get_var_by_name(token);
+                target_ufunc = tms_get_ufunc_by_name(token);
+                if (target_var == NULL && target_ufunc == NULL)
+                    printf("No variable or user function named \"%s\"\n", token);
+                if (target_var != NULL)
+                {
+                    int status = tms_remove_var(token);
+                    switch (status)
+                    {
+                    case 0:
+                        printf("Variable \"%s\" removed\n", token);
+                        break;
+                    // This case should never happen, put here for completeness
+                    case -1:
+                        printf("Variable \"%s\" not found\n", token);
+                        break;
+                    case 1:
+                        printf("Variable \"%s\" is read-only, it can't be removed\n", token);
+                    }
+                }
+                else if (target_ufunc != NULL)
+                {
+                    int status = tms_remove_ufunc(token);
+                    switch (status)
+                    {
+                    case 0:
+                        printf("Function \"%s\" removed\n", token);
+                        break;
+                    // This case should never happen, put here for completeness
+                    case -1:
+                        printf("Function \"%s\" not found\n", token);
+                        break;
+                    }
+                }
+                token = strtok(NULL, " ");
+            } while (token != NULL);
+            putchar('\n');
+            return NEXT_ITERATION;
+        }
         break;
     case 'I':
         // Detect word size change request
@@ -389,6 +442,59 @@ int _management_input_lazy(char *input)
                 tms_set_int_mask(size);
                 printf("Word size set to %d bits.\n\n", tms_int_mask_size);
             }
+            return NEXT_ITERATION;
+        }
+        else if (strcmp("del", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                puts("Usage: del var1|func1 [var2|func2 ...]");
+                putchar('\n');
+                return NEXT_ITERATION;
+            }
+            const tms_int_var *target_int_var;
+            const tms_int_ufunc *target_int_ufunc;
+            do
+            {
+                // Lookup if the provided name is a var or a function
+                target_int_var = tms_get_int_var_by_name(token);
+                target_int_ufunc = tms_get_int_ufunc_by_name(token);
+                if (target_int_var == NULL && target_int_ufunc == NULL)
+                    printf("No variable or user function named \"%s\"\n", token);
+                if (target_int_var != NULL)
+                {
+                    int status = tms_remove_int_var(token);
+                    switch (status)
+                    {
+                    case 0:
+                        printf("Variable \"%s\" removed\n", token);
+                        break;
+                    // This case should never happen, put here for completeness
+                    case -1:
+                        printf("Variable \"%s\" not found\n", token);
+                        break;
+                    case 1:
+                        printf("Variable \"%s\" is read-only, it can't be removed\n", token);
+                    }
+                }
+                else if (target_int_ufunc != NULL)
+                {
+                    int status = tms_remove_int_ufunc(token);
+                    switch (status)
+                    {
+                    case 0:
+                        printf("Function \"%s\" removed\n", token);
+                        break;
+                    // This case should never happen, put here for completeness
+                    case -1:
+                        printf("Function \"%s\" not found\n", token);
+                        break;
+                    }
+                }
+                token = strtok(NULL, " ");
+            } while (token != NULL);
+            putchar('\n');
             return NEXT_ITERATION;
         }
         else if (strcmp("functions", token) == 0)
@@ -816,7 +922,7 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, TMS_ENABLE_CMPLX | TMS_ENABLE_LABELS, the_x);
+        M = tms_parse_expr(function, ENABLE_CMPLX | ENABLE_LABELS, the_x);
 
         if (M == NULL)
         {
