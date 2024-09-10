@@ -41,7 +41,17 @@ char **character_name_completion(const char *text, int start, int end)
 {
     // Disable normal filename autocomplete
     rl_attempted_completion_over = 1;
-
+    switch (_mode)
+    {
+    case 'S':
+        rl_completer_word_break_characters = " +-*/^%(,";
+        break;
+    case 'I':
+        rl_completer_word_break_characters = " +-*/^%&|(,";
+        break;
+    default:
+        rl_completer_word_break_characters = rl_basic_word_break_characters;
+    }
     return rl_completion_matches(text, character_name_generator);
 }
 #else
