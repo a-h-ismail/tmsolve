@@ -316,7 +316,7 @@ int _management_input_lazy(char *input)
                     char *argstring;
                     for (size_t i = 0; i < count; ++i)
                     {
-                        argstring = tms_args_to_string(all_ufunc[i].F->label_names);
+                        argstring = tms_args_to_string(all_ufunc[i].F->labels);
                         printf("%s(%s) = %s\n", all_ufunc[i].name, argstring, all_ufunc[i].F->expr);
                         free(argstring);
                     }
@@ -537,7 +537,7 @@ int _management_input_lazy(char *input)
                     char *argstring;
                     for (size_t i = 0; i < count; ++i)
                     {
-                        argstring = tms_args_to_string(all_int_ufunc[i].F->label_names);
+                        argstring = tms_args_to_string(all_int_ufunc[i].F->labels);
                         printf("%s(%s) = %s\n", all_int_ufunc[i].name, argstring, all_int_ufunc[i].F->expr);
                         free(argstring);
                     }
@@ -611,7 +611,7 @@ double get_value(char *prompt)
     {
         expr = get_input(NULL, prompt, -1);
 
-        value = tms_solve_e(expr, false);
+        value = tms_solve_e(expr, 0, NULL);
         free(expr);
         return value;
     }
@@ -932,7 +932,7 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, ENABLE_CMPLX | ENABLE_LABELS, the_x);
+        M = tms_parse_expr(function, ENABLE_CMPLX, the_x);
 
         if (M == NULL)
         {
@@ -976,7 +976,7 @@ void function_calculator()
             else
                 step_op = '+';
 
-            step = tms_solve_e(expr, false);
+            step = tms_solve_e(expr, 0, NULL);
             if (isnan(step))
             {
                 printf("\n");
@@ -1022,7 +1022,7 @@ void function_calculator()
             tmp = x;
             tms_set_labels_values(M, &tmp);
             // Solving the function then printing
-            result = _tms_evaluate_unsafe(M);
+            result = tms_evaluate(M, NO_LOCK);
             if (isnan(creal(result)))
             {
                 tms_clear_errors(TMS_EVALUATOR);
