@@ -723,17 +723,17 @@ void print_int_value_multibase(int64_t value)
             fputs("Unexpected mask size.\n\n", stderr);
             return;
         }
-        if (tms_int_mask_size > 15)
-        {
-            printf(" = ");
-            tms_print_dot_decimal(value);
-        }
         printf("\n= ");
         tms_print_hex(value);
         printf(" = ");
         tms_print_oct(value);
         printf("\n= ");
         tms_print_bin(value);
+        if (tms_int_mask_size > 15)
+        {
+            printf("\n= ");
+            tms_print_dot_decimal(value);
+        }
         printf("\n\n");
     }
 }
