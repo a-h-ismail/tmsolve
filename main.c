@@ -78,7 +78,7 @@ int run_solver_benchmark(char *expr)
     printf("Running %d iterations of mexpr duplication\n", iterations);
     timer_setup('s');
 
-    M = tms_parse_expr(expr, false, false);
+    M = tms_parse_expr(expr, NO_LOCK, NULL);
     for (i = 0; i < iterations; ++i)
     {
         MN = tms_dup_mexpr(M);
@@ -91,7 +91,7 @@ int run_solver_benchmark(char *expr)
     // The evaluator is generally far faster than the parser, so more iterations
     iterations = 1e8;
     printf("Running %d iterations of the evaluator\n", iterations);
-    M = tms_parse_expr(expr, false, false);
+    M = tms_parse_expr(expr, NO_LOCK, NULL);
     timer_setup('s');
     for (i = 0; i < iterations; ++i)
         tms_g_ans = tms_evaluate(M, NO_LOCK);
