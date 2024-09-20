@@ -912,8 +912,6 @@ void function_calculator()
     int i;
     char *expr, step_op, *function, *old_function = NULL;
     tms_math_expr *M;
-    // We have one variable here: x
-    tms_arg_list *the_x = tms_get_args("x");
     puts("Current mode: Function");
     while (1)
     {
@@ -923,7 +921,6 @@ void function_calculator()
         {
         case SWITCH_MODE:
             free(function);
-            free(the_x);
             return;
 
         case NEXT_ITERATION:
@@ -944,11 +941,10 @@ void function_calculator()
             printf("f(x) = %s\n", function);
         }
 
-        M = tms_parse_expr(function, ENABLE_CMPLX, the_x);
+        M = tms_parse_expr(function, ENABLE_CMPLX | PRINT_ERRORS, tms_get_args("x"));
 
         if (M == NULL)
         {
-            tms_delete_math_expr(M);
             free(function);
             continue;
         }
