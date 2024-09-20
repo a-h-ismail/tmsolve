@@ -46,7 +46,7 @@ Provided by `libtmsolve`, check them [here](https://a-h-ismail.gitlab.io/libtmso
 
 #### Features
 
-- Supports user defined (single variable) functions and variables.
+- Supports user defined functions and variables.
 - Supports hexadecimal, octal and binary represenation using prefixes `0x`,`0o`,`0b` or functions `hex()`, `oct()`, `bin()`.
 - "ans" variable stores previous results.
 - Supports complex numbers.
