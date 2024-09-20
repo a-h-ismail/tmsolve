@@ -2,6 +2,23 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.3.0 - 2024-09-20
+
+Built with `libtmsolve` version 3.0.0
+
+### Changed
+
+- Scientific mode now supports multi-argument user functions, adding it to Integer mode too.
+- Autocompletion (Linux) now works much better using proper separators and `libtmsolve` new helper functions.
+- On Windows, the terminal color is set to white background with black text.
+- Display format of functions distinguishes between the 3 types.
+
+### Added
+
+- `del` keyword to unset user variables and functions.
+- `reset` keyword to clear the state of the calculator.
+- A simple solver benchmark to test the hashmap performance.
+
 ## 1.2.1 - 2024-05-10
 
 Built with `libtmsolve` version 2.3.0
