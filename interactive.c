@@ -241,8 +241,10 @@ int _management_input_lazy(char *input)
                      "Supports user defined variables and functions.\n\n"
                      "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
                      "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
-                     "To view available functions, type \"functions\"\n"
-                     "To view currently defined variables, type \"variables\"\n"
+                     "To view available functions, type \"functions\".\n"
+                     "To view currently defined variables, type \"variables\".\n"
+                     "To remove a user defined variable or function, type \"del\" var_or_function_name."
+                     "To reset all user variables and functions, type \"reset\".\n"
                      "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'I':
@@ -255,6 +257,8 @@ int _management_input_lazy(char *input)
                      "To change current variable size, use the \"set\" keyword.\n"
                      "To view available functions, type \"functions\"\n"
                      "To view currently defined variables, type \"variables\"\n"
+                     "To remove a user defined variable or function, type \"del\" var_or_function_name."
+                     "To reset all user variables and functions, type \"reset\".\n"
                      "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'F':
