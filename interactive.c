@@ -666,6 +666,12 @@ void scientific_mode()
         i = tms_f_search(expr, "=", 0, false);
         if (i != -1)
         {
+            if (tms_f_search(expr, "=", i + 1, false) != -1)
+            {
+                fputs("Using multiple assignment operators is not supported\n\n", stderr);
+                free(expr);
+                continue;
+            }
             // Set user function (has a name and parenthesis)
             if (i > 3 && expr[i - 1] == ')')
             {
@@ -779,6 +785,12 @@ void integer_mode()
         i = tms_f_search(expr, "=", 0, false);
         if (i != -1)
         {
+            if (tms_f_search(expr, "=", i + 1, false) != -1)
+            {
+                fputs("Using multiple assignment operators is not supported\n\n", stderr);
+                free(expr);
+                continue;
+            }
             // Set user function (has a name and parenthesis)
             if (i > 3 && expr[i - 1] == ')')
             {
