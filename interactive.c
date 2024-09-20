@@ -420,6 +420,12 @@ int _management_input_lazy(char *input)
             putchar('\n');
             return NEXT_ITERATION;
         }
+        else if (strcmp("reset", token) == 0)
+        {
+            tmsolve_reset();
+            puts("Calculator reset complete\n");
+            return NEXT_ITERATION;
+        }
         break;
     case 'I':
         // Detect word size change request
@@ -584,6 +590,12 @@ int _management_input_lazy(char *input)
         {
             _tms_debug = false;
             puts("Debug output disabled.\n");
+            return NEXT_ITERATION;
+        }
+        else if (strcmp("reset", token) == 0)
+        {
+            tmsolve_reset();
+            puts("Calculator reset complete\n");
             return NEXT_ITERATION;
         }
     default:
