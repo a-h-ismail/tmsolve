@@ -871,7 +871,7 @@ void print_result(double complex result, bool verbose)
         printf("%.10g", real);
         if (verbose)
         {
-            tms_fraction fraction_str = tms_decimal_to_fraction(real, false);
+            tms_fraction fraction_str = tms_decimal_to_fraction(real, 0, false);
             if (fraction_str.c != 0)
             {
                 if (fraction_str.a != 0)
