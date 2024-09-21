@@ -243,7 +243,7 @@ int _management_input_lazy(char *input)
                      "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
                      "To view available functions, type \"functions\".\n"
                      "To view currently defined variables, type \"variables\".\n"
-                     "To remove a user defined variable or function, type \"del\" var_or_function_name."
+                     "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
                      "To reset all user variables and functions, type \"reset\".\n"
                      "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
@@ -257,7 +257,7 @@ int _management_input_lazy(char *input)
                      "To change current variable size, use the \"set\" keyword.\n"
                      "To view available functions, type \"functions\"\n"
                      "To view currently defined variables, type \"variables\"\n"
-                     "To remove a user defined variable or function, type \"del\" var_or_function_name."
+                     "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
                      "To reset all user variables and functions, type \"reset\".\n"
                      "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;

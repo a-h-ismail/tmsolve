@@ -2,7 +2,7 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
-## 1.3.0 - 2024-09-20
+## 1.3.0 - 2024-09-21
 
 Built with `libtmsolve` version 3.0.0
 
