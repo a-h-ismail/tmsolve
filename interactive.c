@@ -704,11 +704,14 @@ void scientific_mode()
         result = tms_solve(shifted_expr);
         tms_set_ans(result);
 
-        if (!isnan(creal(result)))
+        if (!tms_iscnan(result))
         {
             print_result(result, true);
-            if (name != NULL)
-                tms_set_var(name, result, false);
+            if (name != NULL && tms_set_var(name, result, false) != 0)
+            {
+                fputs("Warning: failed to set result to the requested variable...\n", stderr);
+                tms_print_errors(TMS_PARSER);
+            }
         }
 
         if (name != NULL)
@@ -824,8 +827,11 @@ void integer_mode()
         {
             print_int_value_multibase(result);
             tms_g_int_ans = tms_sign_extend(result);
-            if (name != NULL)
-                tms_set_int_var(name, result, false);
+            if (name != NULL && tms_set_int_var(name, result, false) != 0)
+            {
+                fputs("Warning: failed to set result to the requested variable...\n", stderr);
+                tms_print_errors(TMS_INT_PARSER);
+            }
         }
 
         if (name != NULL)
@@ -1047,7 +1053,7 @@ void function_calculator()
             tms_set_labels_values(M, &tmp);
             // Solving the function then printing
             result = tms_evaluate(M, NO_LOCK);
-            if (isnan(creal(result)))
+            if (tms_iscnan(result))
             {
                 tms_clear_errors(TMS_EVALUATOR);
                 printf("f(%g)=Error", x);
