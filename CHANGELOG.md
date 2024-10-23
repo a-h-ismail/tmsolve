@@ -2,6 +2,14 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.3.1 - 2024-10-23
+
+Built with `libtmsolve` version 3.0.1
+
+## Fixed
+
+- Missing error message when setting a user variable fails.
+
 ## 1.3.0 - 2024-09-21
 
 Built with `libtmsolve` version 3.0.0
