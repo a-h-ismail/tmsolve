@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2022-2023 Ahmad Ismail
+Copyright (C) 2022-2025 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #ifndef INTERACTIVE_H
@@ -45,5 +45,16 @@ extern char _mode;
 #ifdef USE_READLINE
 extern char _autocomplete_mode;
 #endif
+
+// Stands for newline newline, shorter to write
+#define NN "\n\n"
+#define NL "\n"
+
+// Place error messages specific to the interactive mode here
+
+#define MULTIPLE_ASSIGMENT_ERROR "Using multiple assignment operators is not supported"
+#define MISSING_VAR_NAME "Expected a variable name for assignment"
+#define MISSING_FUNCTION_NAME "Expected a function name for assignment"
+#define ERROR_DURING_VAR_ASSIGNMENT "Error during variable assignment: "
 
 #endif
