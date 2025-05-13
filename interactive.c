@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2022-2024 Ahmad Ismail
+Copyright (C) 2022-2025 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -703,7 +703,7 @@ void scientific_mode()
                     printf("Function set successfully.\n\n");
                 else
                     tms_print_errors(TMS_PARSER);
-                name = NULL;
+                free(function_args);
                 continue;
             }
             else
