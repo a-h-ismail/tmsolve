@@ -661,7 +661,6 @@ void scientific_mode()
         assignment_operator = '\0';
 
         expr = get_input(NULL, "> ", -1);
-        tms_remove_whitespace(expr);
         shifted_expr = expr = realloc(expr, strlen(expr) + 1);
 
         switch (management_input(expr))
@@ -674,6 +673,7 @@ void scientific_mode()
             continue;
         }
 
+        tms_remove_whitespace(expr);
         // Search for assignment operator to handle user functions or variables
         i = tms_f_search(expr, "=", 0, false);
 
@@ -826,6 +826,7 @@ void print_int_value_multibase(int64_t value)
         puts("= 0\n");
     else
     {
+        value &= tms_int_mask;
         printf("= ");
         switch (tms_int_mask_size)
         {
@@ -862,14 +863,22 @@ void print_int_value_multibase(int64_t value)
 
 void integer_mode()
 {
-    char *name = NULL, *expr, *shifted_expr;
+    char *name = NULL, *expr = NULL, *shifted_expr;
+    char assignment_operator;
     int i;
     int64_t result;
     puts("Current mode: Integer");
     while (1)
     {
+        // By freeing the strings at the beginning of the loop and NULLing, we avoid having free at every break and continue
+        free(expr);
+        free(name);
+        // No need to NULL expr as it is always guaranteed to be set, unlike "name"
+        name = NULL;
+        assignment_operator = '\0';
+
         expr = get_input(NULL, "> ", -1);
-        shifted_expr = expr;
+        shifted_expr = expr = realloc(expr, strlen(expr) + 1);
 
         switch (management_input(expr))
         {
@@ -878,17 +887,24 @@ void integer_mode()
             return;
 
         case NEXT_ITERATION:
-            free(expr);
             continue;
         }
+
+        tms_remove_whitespace(expr);
+
         // Search for assignment operator to handle user functions or variables
         i = tms_f_search(expr, "=", 0, false);
+
+        if (i == 0)
+        {
+            fputs(MISSING_VAR_NAME NN, stderr);
+            continue;
+        }
         if (i != -1)
         {
             if (tms_f_search(expr, "=", i + 1, false) != -1)
             {
-                fputs("Using multiple assignment operators is not supported\n\n", stderr);
-                free(expr);
+                fputs(MULTIPLE_ASSIGMENT_ERROR NN, stderr);
                 continue;
             }
             // Set user function (has a name and parenthesis)
@@ -897,47 +913,128 @@ void integer_mode()
                 int name_len = tms_f_search(expr, "(", 0, false);
                 if (name_len == -1)
                 {
-                    free(expr);
                     return;
                 }
                 name = tms_strndup(expr, name_len);
-                char *label_names = tms_strndup(expr + name_len + 1, i - name_len - 2);
-                if (tms_set_int_ufunction(name, label_names, expr + i + 1) == 0)
+                char *function_args = tms_strndup(expr + name_len + 1, i - name_len - 2);
+                if (tms_set_int_ufunction(name, function_args, expr + i + 1) == 0)
                     printf("Function set successfully.\n\n");
                 else
                     tms_print_errors(TMS_INT_PARSER);
-                free(name);
-                free(label_names);
-                free(expr);
-                name = NULL;
+                free(function_args);
                 continue;
             }
             else
             {
                 // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
-                name = tms_strndup(expr, i);
+                // Get operation to do with the assignment
+                if (tms_is_int_op(expr[i - 1]))
+                {
+                    assignment_operator = expr[i - 1];
+                    name = tms_strndup(expr, i - 1);
+                }
+                else
+                    // Bare assignment without operator
+                    name = tms_strndup(expr, i);
+
                 shifted_expr += i + 1;
             }
         }
         // Not a function
         if (tms_int_solve(shifted_expr, &result) != -1)
         {
-            print_int_value_multibase(result);
-            tms_g_int_ans = tms_sign_extend(result);
-            if (name != NULL && tms_set_int_var(name, result, false) != 0)
+            tms_g_int_ans = result = tms_sign_extend(result);
+            bool fail = false;
+            // We aren't done yet, a variable must be updated
+            if (name != NULL)
             {
-                fputs("Warning: failed to set result to the requested variable...\n", stderr);
-                tms_print_errors(TMS_INT_PARSER);
+                int64_t assign_to_var;
+                if (assignment_operator != '\0')
+                {
+                    const tms_var *original_var = tms_get_var_by_name(name);
+
+                    // Variable not yet created, assume zero
+                    if (original_var == NULL)
+                        assign_to_var = 0;
+                    else
+                        // Or initialize it with the value that was in the var before
+                        assign_to_var = original_var->value;
+
+                    switch (assignment_operator)
+                    {
+                    case '+':
+                        assign_to_var += result;
+                        break;
+                    case '-':
+                        assign_to_var -= result;
+                        break;
+                    case '*':
+                        assign_to_var *= result;
+                        break;
+                    case '&':
+                        assign_to_var &= result;
+                        break;
+                    case '|':
+                        assign_to_var |= result;
+                        break;
+                    case '^':
+                        assign_to_var ^= result;
+                        break;
+                    case '/':
+                        if (result == 0)
+                        {
+                            fputs(ERROR_DURING_VAR_ASSIGNMENT DIVISION_BY_ZERO NL, stderr);
+                            fail = true;
+                            break;
+                        }
+                        assign_to_var /= result;
+                        break;
+                    case '%':
+                        if (result == 0)
+                        {
+                            fputs(ERROR_DURING_VAR_ASSIGNMENT MODULO_ZERO NL, stderr);
+                            fail = true;
+                            break;
+                        }
+                        else
+                            assign_to_var = assign_to_var % result;
+                        break;
+
+                    default:
+                        break;
+                    }
+                    assign_to_var &= tms_int_mask;
+                }
+                else
+                    assign_to_var = result;
+
+                if (!fail && tms_set_int_var(name, assign_to_var, false) == 0)
+                {
+                    // Print ans separately after the var if their values don't match
+                    if (assign_to_var != result)
+                    {
+                        printf("ans = ");
+                        print_int_value_multibase(result);
+                    }
+                    printf("%s ", name);
+                    print_int_value_multibase(assign_to_var);
+                }
+                else
+                {
+                    // Or print ans if the value wasn't assigned
+                    printf("ans = ");
+                    print_int_value_multibase(result);
+                    // Failure was in tms_set_var, not in the assignment with operator
+                    if (!fail)
+                    {
+                        fputs(ERROR_DURING_VAR_ASSIGNMENT NL, stderr);
+                        tms_print_errors(TMS_INT_PARSER);
+                    }
+                }
             }
+            else
+                print_int_value_multibase(result);
         }
-
-        if (name != NULL)
-        {
-            free(name);
-            name = NULL;
-        }
-
-        free(expr);
     }
 }
 
