@@ -632,6 +632,7 @@ double get_value(char *prompt)
         return value;
     }
 }
+
 bool valid_mode(char mode)
 {
     char all_modes[] = {"SIFEUG"};
@@ -641,15 +642,27 @@ bool valid_mode(char mode)
             return true;
     return false;
 }
+
 void scientific_mode()
 {
-    char *expr, *shifted_expr, *name = NULL;
+    char *expr = NULL, *shifted_expr, *name = NULL;
+    // Enables += -= and similar operator assignments
+    char assignment_operator;
     double complex result;
     int i;
     puts("Current mode: Scientific");
     while (1)
     {
-        shifted_expr = expr = get_input(NULL, "> ", -1);
+        // By freeing the strings at the beginning of the loop and NULLing, we avoid having free at every break and continue
+        free(expr);
+        free(name);
+        // No need to NULL expr as it is always guaranteed to be set, unlike "name"
+        name = NULL;
+        assignment_operator = '\0';
+
+        expr = get_input(NULL, "> ", -1);
+        tms_remove_whitespace(expr);
+        shifted_expr = expr = realloc(expr, strlen(expr) + 1);
 
         switch (management_input(expr))
         {
@@ -658,18 +671,22 @@ void scientific_mode()
             return;
 
         case NEXT_ITERATION:
-            free(expr);
             continue;
         }
 
         // Search for assignment operator to handle user functions or variables
         i = tms_f_search(expr, "=", 0, false);
+
+        if (i == 0)
+        {
+            fputs(MISSING_VAR_NAME NN, stderr);
+            continue;
+        }
         if (i != -1)
         {
             if (tms_f_search(expr, "=", i + 1, false) != -1)
             {
-                fputs("Using multiple assignment operators is not supported\n\n", stderr);
-                free(expr);
+                fputs(MULTIPLE_ASSIGMENT_ERROR NN, stderr);
                 continue;
             }
             // Set user function (has a name and parenthesis)
@@ -678,25 +695,30 @@ void scientific_mode()
                 int name_len = tms_f_search(expr, "(", 0, false);
                 if (name_len == -1)
                 {
-                    free(expr);
                     return;
                 }
                 name = tms_strndup(expr, name_len);
-                char *argument_names = tms_strndup(expr + name_len + 1, i - name_len - 2);
-                if (tms_set_ufunction(name, argument_names, expr + i + 1) == 0)
+                char *function_args = tms_strndup(expr + name_len + 1, i - name_len - 2);
+                if (tms_set_ufunction(name, function_args, expr + i + 1) == 0)
                     printf("Function set successfully.\n\n");
                 else
                     tms_print_errors(TMS_PARSER);
-                free(name);
-                free(argument_names);
-                free(expr);
                 name = NULL;
                 continue;
             }
             else
             {
                 // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
-                name = tms_strndup(expr, i);
+                // Get operation to do with the assignment
+                if (tms_is_op(expr[i - 1]))
+                {
+                    assignment_operator = expr[i - 1];
+                    name = tms_strndup(expr, i - 1);
+                }
+                else
+                    // Bare assignment without operator
+                    name = tms_strndup(expr, i);
+
                 shifted_expr += i + 1;
             }
         }
@@ -706,20 +728,95 @@ void scientific_mode()
 
         if (!tms_iscnan(result))
         {
-            print_result(result, true);
-            if (name != NULL && tms_set_var(name, result, false) != 0)
+            bool fail = false;
+            // We aren't done yet, a variable must be updated
+            if (name != NULL)
             {
-                fputs("Warning: failed to set result to the requested variable...\n", stderr);
-                tms_print_errors(TMS_PARSER);
-            }
-        }
+                double complex assign_to_var;
+                if (assignment_operator != '\0')
+                {
+                    const tms_var *original_var = tms_get_var_by_name(name);
 
-        if (name != NULL)
-        {
-            free(name);
-            name = NULL;
+                    // Variable not yet created, assume zero
+                    if (original_var == NULL)
+                        assign_to_var = 0;
+                    else
+                        // Or initialize it with the value that was in the var before
+                        assign_to_var = original_var->value;
+
+                    switch (assignment_operator)
+                    {
+                    case '+':
+                        assign_to_var += result;
+                        break;
+                    case '-':
+                        assign_to_var -= result;
+                        break;
+                    case '*':
+                        assign_to_var *= result;
+                        break;
+                    case '/':
+                        if (result == 0)
+                        {
+                            fputs(ERROR_DURING_VAR_ASSIGNMENT DIVISION_BY_ZERO NL, stderr);
+                            fail = true;
+                            break;
+                        }
+                        assign_to_var /= result;
+                        break;
+                    case '%':
+                        if (result == 0)
+                        {
+                            fputs(ERROR_DURING_VAR_ASSIGNMENT MODULO_ZERO NL, stderr);
+                            fail = true;
+                            break;
+                        }
+                        if (cimag(assign_to_var) != 0 || cimag(result) != 0)
+                        {
+                            fputs(ERROR_DURING_VAR_ASSIGNMENT MODULO_COMPLEX_NOT_SUPPORTED NL, stderr);
+                            fail = true;
+                            break;
+                        }
+                        else
+                            assign_to_var = fmod(assign_to_var, result);
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                else
+                    assign_to_var = result;
+
+                if (!fail && tms_set_var(name, assign_to_var, false) == 0)
+                {
+                    // Print ans separately after the var if their values don't match
+                    if (assign_to_var != result)
+                    {
+                        printf("ans = ");
+                        print_result(result, false);
+                    }
+                    printf("%s = ", name);
+                    print_result(assign_to_var, false);
+                    putchar('\n');
+                }
+                else
+                {
+                    // Or print ans if the value wasn't assigned
+                    printf("ans = ");
+                    print_result(result, false);
+                    // Failure was in tms_set_var, not in the assignment with operator
+                    if (!fail)
+                    {
+                        fputs(ERROR_DURING_VAR_ASSIGNMENT NL, stderr);
+                        tms_print_errors(TMS_PARSER);
+                    }
+                    else
+                        putchar('\n');
+                }
+            }
+            else
+                print_result(result, true);
         }
-        free(expr);
     }
 }
 
@@ -745,7 +842,7 @@ void print_int_value_multibase(int64_t value)
             printf("%" PRId64, value);
             break;
         default:
-            fputs("Unexpected mask size.\n\n", stderr);
+            fputs("Unexpected mask size" NN, stderr);
             return;
         }
         printf("\n= ");
@@ -759,7 +856,7 @@ void print_int_value_multibase(int64_t value)
             printf("\n= ");
             tms_print_dot_decimal(value);
         }
-        printf("\n\n");
+        printf(NN);
     }
 }
 
@@ -1151,7 +1248,7 @@ void utility_mode()
                     }
                 }
                 free(factors_list);
-                printf("\n\n");
+                printf(NN);
             }
             else
                 fprintf(stderr, "Invalid function. Supported: factor(int)\n\n");
