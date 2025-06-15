@@ -40,6 +40,8 @@ Where:
 + -     Addition and subtraction.
 ```
 
+Assignment operations `+=` `-=` `*=` `/=` `%=` are also supported.
+
 #### Supported Functions
 
 Provided by `libtmsolve`, check them [here](https://a-h-ismail.gitlab.io/libtmsolve-docs/md_FUNCTIONS.html).
@@ -114,6 +116,8 @@ Where:
 ^       Bitwise XOR.
 |       Bitwise OR.
 ```
+
+Assignment operations `+=` `-=` `*=` `/=` `%=` `^=` `|=` `&=` are also supported.
 
 #### Supported Functions
 
