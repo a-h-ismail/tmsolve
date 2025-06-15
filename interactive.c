@@ -951,7 +951,7 @@ void integer_mode()
                 int64_t assign_to_var;
                 if (assignment_operator != '\0')
                 {
-                    const tms_var *original_var = tms_get_var_by_name(name);
+                    const tms_int_var *original_var = tms_get_int_var_by_name(name);
 
                     // Variable not yet created, assume zero
                     if (original_var == NULL)
@@ -1013,7 +1013,7 @@ void integer_mode()
                     // Print ans separately after the var if their values don't match
                     if (assign_to_var != result)
                     {
-                        printf("ans = ");
+                        printf("ans ");
                         print_int_value_multibase(result);
                     }
                     printf("%s ", name);
@@ -1022,7 +1022,7 @@ void integer_mode()
                 else
                 {
                     // Or print ans if the value wasn't assigned
-                    printf("ans = ");
+                    printf("ans ");
                     print_int_value_multibase(result);
                     // Failure was in tms_set_var, not in the assignment with operator
                     if (!fail)
