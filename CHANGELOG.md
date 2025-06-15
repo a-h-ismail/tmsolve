@@ -2,11 +2,24 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.4.0 - 2025-06-15
+
+Built with `libtmsolve` version 3.0.2
+
+### Added
+
+- Operators `+=` `-=` `*=` `/=` `%=` in Scientific mode
+- Operators `+=` `-=` `*=` `/=` `%=` `^=` `|=` `&=` in Integer mode
+
+### Fixed
+
+- Scientific mode exits if provided with a function assignment that lacks an opening parenthesis
+
 ## 1.3.1 - 2024-10-23
 
 Built with `libtmsolve` version 3.0.1
 
-## Fixed
+### Fixed
 
 - Missing error message when setting a user variable fails.
 
