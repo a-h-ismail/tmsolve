@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2021-2024 Ahmad Ismail
+Copyright (C) 2021-2025 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -8,6 +8,17 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+// Exit with status zero for SIGINT to suppress some Linux terminals like konsole reporting tmsolve crashed
+#ifdef __linux__
+#include <signal.h>
+#include <unistd.h>
+void handle_termination(int signum)
+{
+    if (signum == SIGINT)
+        exit(0);
+}
+#endif
 
 char _mode = 'S';
 #ifdef USE_READLINE
@@ -144,6 +155,14 @@ int main(int argc, char **argv)
 #ifdef _WIN32
     system("color F0");
 #endif
+
+#ifdef __linux__
+    // If started up by the desktop launcher, change SIGINT handling to avoid exit 130
+    char *desktop_integration = getenv("DESKTOP_LAUNCHER");
+    if (desktop_integration != NULL && desktop_integration[0] == '1')
+        signal(SIGINT, handle_termination);
+#endif
+
     // Initialize the library before anything else
     tmsolve_init();
 
