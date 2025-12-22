@@ -47,7 +47,7 @@ char **character_name_completion(const char *text, int start, int end)
         rl_completer_word_break_characters = " +-*/^%(,";
         break;
     case 'I':
-        rl_completer_word_break_characters = " +-*/^%&|(,";
+        rl_completer_word_break_characters = " +-*/^%&|(,<>";
         break;
     default:
         rl_completer_word_break_characters = rl_basic_word_break_characters;
@@ -237,7 +237,7 @@ int _management_input_lazy(char *input)
             case 'S':
                 puts("Calculate a math expression.\n"
                      "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
-                     "Operator priority groups (high to low): () ^ [ * / % ] [ + - ]\n"
+                     "Operator priority groups (high to low): () [ ^ ** ] [ * / // % ] [ + - ]\n"
                      "Supports assignment operators: += -= *= /= %=\n"
                      "Supports user defined variables and functions.\n\n"
                      "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
@@ -252,7 +252,7 @@ int _management_input_lazy(char *input)
                 puts("Calculate a math expression.\n"
                      "Compared to scientific mode, this mode uses integers instead of double precision floats.\n"
                      "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
-                     "Operator priority groups (high to low): () [ * / % ] [ + - ] & ^ |\n"
+                     "Operator priority groups (high to low): () ** [ * / % ] [ + - ] [ << <<< >> >>>] & ^ |\n"
                      "Supports assignment operators: += -= *= /= %= ^= |= &=\n"
                      "Supports user defined variables.\n\n"
                      "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1.\n\n"
