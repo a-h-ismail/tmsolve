@@ -712,11 +712,14 @@ void scientific_mode()
             {
                 // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
                 // Get operation to do with the assignment
-                if (tms_is_op(expr[i - 1]))
-                {
-                    assignment_operator = expr[i - 1];
-                    name = tms_strndup(expr, i - 1);
-                }
+                int j = tms_name_bounds(expr, 0, true);
+                assignment_operator = tms_long_op_to_char(expr + j + 1);
+                if (assignment_operator == '\0' && tms_is_op(expr[j + 1]))
+                    assignment_operator = expr[j + 1];
+
+                // Found either short or long operator
+                if (assignment_operator != '\0')
+                    name = tms_strndup(expr, j + 1);
                 else
                     // Bare assignment without operator
                     name = tms_strndup(expr, i);
@@ -782,7 +785,11 @@ void scientific_mode()
                         else
                             assign_to_var = fmod(assign_to_var, result);
                         break;
-                    default:
+                    case 'd':
+                        assign_to_var = tms_cfloor(assign_to_var / result);
+                        break;
+                    case 'p':
+                        assign_to_var = tms_cpow(assign_to_var, result);
                         break;
                     }
                 }
@@ -930,11 +937,14 @@ void integer_mode()
             {
                 // Shift the expression beyond the '=' in case of var assignment since the parser doesn't support it
                 // Get operation to do with the assignment
-                if (tms_is_int_op(expr[i - 1]))
-                {
-                    assignment_operator = expr[i - 1];
-                    name = tms_strndup(expr, i - 1);
-                }
+                int j = tms_name_bounds(expr, 0, true);
+                assignment_operator = tms_int_long_op_to_char(expr + j + 1);
+                if (assignment_operator == '\0' && tms_is_int_op(expr[j + 1]))
+                    assignment_operator = expr[j + 1];
+
+                // Found either short or long operator
+                if (assignment_operator != '\0')
+                    name = tms_strndup(expr, j + 1);
                 else
                     // Bare assignment without operator
                     name = tms_strndup(expr, i);
@@ -962,6 +972,8 @@ void integer_mode()
                         // Or initialize it with the value that was in the var before
                         assign_to_var = original_var->value;
 
+                    bool modify_error = false;
+                    result = tms_sign_extend(result);
                     switch (assignment_operator)
                     {
                     case '+':
@@ -1001,11 +1013,43 @@ void integer_mode()
                         else
                             assign_to_var = assign_to_var % result;
                         break;
+                    case 'r':
+                        if (_tms_rotate_circular_i(assign_to_var, result, 'r', &assign_to_var) != 0)
+                            modify_error = true;
+                        break;
+                    case 'l':
+                        if (_tms_rotate_circular_i(assign_to_var, result, 'l', &assign_to_var) != 0)
+                            modify_error = true;
+                        break;
+                    case '>':
+                        if (_tms_arithmetic_shift(assign_to_var, result, 'r', &assign_to_var) != 0)
+                            modify_error = true;
+                        break;
+                    case '<':
+                        if (_tms_arithmetic_shift(assign_to_var, result, 'l', &assign_to_var) != 0)
+                            modify_error = true;
+                        break;
+                    case 'p':
+                        result = tms_sign_extend(result);
+                        assign_to_var = tms_sign_extend(assign_to_var);
 
+                        if (result < 0)
+                        {
+                            tms_save_error(TMS_INT_EVALUATOR, "Negative exponent not allowed in integer mode.", EH_FATAL,
+                                           expr, i);
+                            break;
+                        }
+                        int64_t tmp = 1;
+                        for (int64_t i = 0; i < result; ++i)
+                            tmp *= assign_to_var;
+                        assign_to_var = tmp;
+                        break;
                     default:
                         break;
                     }
-                    assign_to_var &= tms_int_mask;
+                    // Defer error return to add an error, configurable by setting the modify_error flag in the switch above
+                    if (modify_error)
+                        tms_modify_last_error(TMS_INT_EVALUATOR, expr, i, NULL);
                 }
                 else
                     assign_to_var = result;
@@ -1030,7 +1074,7 @@ void integer_mode()
                     if (!fail)
                     {
                         fputs(ERROR_DURING_VAR_ASSIGNMENT NL, stderr);
-                        tms_print_errors(TMS_INT_PARSER);
+                        tms_print_errors(TMS_INT_PARSER | TMS_INT_EVALUATOR);
                     }
                 }
             }
