@@ -2,12 +2,11 @@
 Copyright (C) 2023 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "interactive.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int free_fields[9][2];
 void display_board(char **board)
@@ -120,7 +119,8 @@ bool victory_for(char **board, char symbol)
             return true;
     }
     // Diagonal win
-    if (board[1][1] == symbol && ((board[0][0] == symbol && board[2][2] == symbol) || (board[0][2] == symbol && board[2][0] == symbol)))
+    if (board[1][1] == symbol &&
+        ((board[0][0] == symbol && board[2][2] == symbol) || (board[0][2] == symbol && board[2][0] == symbol)))
         return true;
 
     return false;
