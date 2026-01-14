@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2022-2025 Ahmad Ismail
+Copyright (C) 2022-2026 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
@@ -955,7 +955,7 @@ void integer_mode()
         // Not a function
         if (tms_int_solve(shifted_expr, &result) != -1)
         {
-            tms_g_int_ans = result = tms_sign_extend(result);
+            tms_g_int_ans = result;
             bool fail = false;
             // We aren't done yet, a variable must be updated
             if (name != NULL)
@@ -973,7 +973,6 @@ void integer_mode()
                         assign_to_var = original_var->value;
 
                     bool modify_error = false;
-                    result = tms_sign_extend(result);
                     switch (assignment_operator)
                     {
                     case '+':
@@ -1030,8 +1029,6 @@ void integer_mode()
                             modify_error = true;
                         break;
                     case 'p':
-                        result = tms_sign_extend(result);
-                        assign_to_var = tms_sign_extend(assign_to_var);
 
                         if (result < 0)
                         {
