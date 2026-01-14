@@ -1,13 +1,13 @@
 /*
-Copyright (C) 2021-2025 Ahmad Ismail
+Copyright (C) 2021-2026 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
 #include "version.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 // Exit with status zero for SIGINT to suppress some Linux terminals like konsole reporting tmsolve crashed
 #ifdef __linux__
@@ -225,13 +225,15 @@ int main(int argc, char **argv)
                         else
                             print_result(tms_g_ans, false);
                         break;
-                    case 'I':
+                    case 'I': {
                         int64_t result;
                         argv[i] += 2;
                         if (tms_int_solve(argv[i], &result) != 0)
                             puts("nan");
                         else
                             printf("%" PRId32 "\n", (int32_t)result);
+                        break;
+                    }
                     default:
                         fputs("Invalid mode prefix.\n", stderr);
                     }
