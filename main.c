@@ -5,6 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include "interactive.h"
 #include "version.h"
 #include <ctype.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -142,10 +143,10 @@ void print_help()
 {
     puts("usage: tmsolve { [options] | [expression1] [expression2] [...] }\n");
     puts("Available options:\n");
-    puts("  --debug       Enables additional debugging output.");
-    puts("  --benchmark   Runs a simple benchmark for the parser and evaluator (Linux only).");
-    puts("  --version     Prints version information for the CLI and libtmsolve.");
-    puts("  --help        Print this help prompt.\n");
+    puts("  -d, --debug       Enables additional debugging output.");
+    puts("  -b, --benchmark   Runs a simple benchmark for the parser and evaluator (Linux only).");
+    puts("  -v, --version     Prints version information for the CLI and libtmsolve.");
+    puts("  -h, --help        Print this help prompt.\n");
     puts("The program will start by default in the scientific mode if no command line option is specified.");
     puts("Expressions provided as arguments can be prefixed with \"I:\" to use integer mode instead of scientific mode.");
 }
@@ -166,50 +167,62 @@ int main(int argc, char **argv)
     // Initialize the library before anything else
     tmsolve_init();
 
+    static struct option long_options[] = {{"debug", no_argument, NULL, 'd'},
+                                           {"version", no_argument, NULL, 'v'},
+                                           {"benchmark", no_argument, NULL, 'b'},
+                                           {"help", no_argument, NULL, 'h'},
+                                           {NULL, 0, NULL, 0}};
+
     if (argc > 1)
     {
-        if (tms_find_str_in_array("--debug", argv, argc, TMS_NOFUNC) != -1)
+        char ch;
+        while ((ch = getopt_long(argc, argv, "dvbh", long_options, NULL)) != -1)
         {
-            _tms_debug = true;
-        }
-        else if (tms_find_str_in_array("--version", argv, argc, TMS_NOFUNC) != -1)
-        {
-            printf("tmsolve version %s\nlibtmsolve version %s ", TMSOLVE_VER, tms_lib_version);
+            // check to see if a single character or long option came through
+            switch (ch)
+            {
+            case 'd':
+                _tms_debug = true;
+                puts("Debug mode enabled (from command line). You can disable it using the \"undebug\" command." NL);
+                break;
+            case 'v':
+                printf("tmsolve version %s\nlibtmsolve version %s ", TMSOLVE_VER, tms_lib_version);
 #ifdef LOCAL_BUILD
-            printf("(static)\n");
+                printf("(static)\n");
 #else
-            printf("(dynamic)\n");
+                printf("(dynamic)\n");
 #endif
-            exit(0);
-        }
+                exit(0);
 
 #ifdef __linux__
-        else if (tms_find_str_in_array("--benchmark", argv, argc, TMS_NOFUNC) != -1)
-        {
-            char *benchmark_expr[] = {"15.75+3e2-4.8872/2.534e-4",
-                                      "5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4)",
-                                      "sqrt(1/(8.8541878128e-12*(4e-7*pi)))",
-                                      "(((cos(pi/3))))+0.546545",
-                                      "sin(0.7)^2+cos(0.7)^2",
-                                      "rand()+827.837"};
-            for (int i = 0; i < array_length(benchmark_expr); ++i)
-                run_solver_benchmark(benchmark_expr[i]);
-            run_access_benchmark();
-            exit(0);
-        }
+            case 'b': {
+                char *benchmark_expr[] = {"15.75+3e2-4.8872/2.534e-4",
+                                          "5+8+9*8/7.545+57.87^0.56+(5+562/95+7*7^3+(59^2.211)/(7*(pi/3-2))+5*4)",
+                                          "sqrt(1/(8.8541878128e-12*(4e-7*pi)))",
+                                          "(((cos(pi/3))))+0.546545",
+                                          "sin(0.7)^2+cos(0.7)^2",
+                                          "rand()+827.837"};
+                for (int i = 0; i < array_length(benchmark_expr); ++i)
+                    run_solver_benchmark(benchmark_expr[i]);
+                run_access_benchmark();
+                exit(0);
+            }
 #endif
-        else if (tms_find_str_in_array("--help", argv, argc, TMS_NOFUNC) != -1)
-        {
-            print_help();
-            exit(0);
-        }
+            case 'h':
+                print_help();
+                exit(0);
 
-        // Calculate the expressions passed as arguments
-        else
+            // Calculate the expressions passed as arguments
+            case '?':
+                fputs("Try \"tmsolve -h\" for more information." NL, stderr);
+                exit(1);
+            }
+        }
+        if (optind < argc)
         {
             int i;
             double complex result;
-            for (i = 1; i < argc; ++i)
+            for (i = optind; i < argc; ++i)
             {
                 tms_remove_whitespace(argv[i]);
                 if (argv[i][1] == ':')
