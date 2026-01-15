@@ -3,12 +3,24 @@ Copyright (C) 2022-2026 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
+#include <ctype.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-#include <math.h>
-#include <ctype.h>
+
+enum _imode_output_flags
+{
+    DECIMAL = 1,
+    BINARY = 2,
+    OCTAL = 4,
+    HEXADECIMAL = 8,
+    DOTTED = 16
+};
+
+int8_t imode_output_flags = DECIMAL | BINARY | OCTAL | HEXADECIMAL | DOTTED;
 
 #ifdef USE_READLINE
 char *character_name_generator(const char *text, int state)
@@ -112,7 +124,7 @@ char *get_input(char *dest, char *prompt, size_t n)
         }
         else if (length > n)
         {
-            printf("Input is longer than expected (%zu characters).\n\n", n);
+            printf("Input is longer than expected (%zu characters)." NN, n);
             free(tmp);
         }
         else
@@ -149,7 +161,7 @@ void flush_stdin()
         ;
 }
 
-// Function that should be called repetitively to cleanly print an array of chars as groups of 3
+// Function that should be called repetitively to cleanly print an array of chars as groups of 3.
 // When the array is done, provide NULL as argument to reset the internal state of the function
 void print_array_of_chars_helper(char *next)
 {
@@ -197,8 +209,7 @@ int _management_input_lazy(char *input)
                  "* Integer (I)\n"
                  "* Function (F)\n"
                  "* Equation (E)\n"
-                 "* Utility (U)\n\n"
-                 "To switch between modes, add the correct letter after the command \"mode\"\n"
+                 "* Utility (U)" NN "To switch between modes, add the correct letter after the command \"mode\"\n"
                  "Example: mode I\n");
             return NEXT_ITERATION;
         }
@@ -239,9 +250,9 @@ int _management_input_lazy(char *input)
                      "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
                      "Operator priority groups (high to low): () [ ^ ** ] [ * / // % ] [ + - ]\n"
                      "Supports assignment operators: += -= *= /= %=\n"
-                     "Supports user defined variables and functions.\n\n"
+                     "Supports user defined variables and functions." NN
                      "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
-                     "\"f(x)=x^2\" creates a new function that returns the square of its argument.\n\n"
+                     "\"f(x)=x^2\" creates a new function that returns the square of its argument." NN
                      "To view available functions, type \"functions\".\n"
                      "To view currently defined variables, type \"variables\".\n"
                      "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
@@ -254,13 +265,14 @@ int _management_input_lazy(char *input)
                      "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
                      "Operator priority groups (high to low): () ** [ * / % ] [ + - ] [ << <<< >> >>>] & ^ |\n"
                      "Supports assignment operators: += -= *= /= %= ^= |= &=\n"
-                     "Supports user defined variables.\n\n"
-                     "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1.\n\n"
+                     "Supports user defined variables." NN
+                     "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1." NN
                      "To change current variable size, use the \"set\" keyword.\n"
                      "To view available functions, type \"functions\"\n"
                      "To view currently defined variables, type \"variables\"\n"
                      "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
                      "To reset all user variables and functions, type \"reset\".\n"
+                     "To change the bases shown in the answer, use the \"output\" command.\n"
                      "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'F':
@@ -457,22 +469,80 @@ int _management_input_lazy(char *input)
                     size = 64;
                 else
                 {
-                    fputs("Unrecognized option, try w1, w2, w4, w8\n\n", stderr);
+                    fputs("Unrecognized option, try w1, w2, w4, w8" NN, stderr);
                     return NEXT_ITERATION;
                 }
 
                 tms_set_int_mask(size);
-                printf("Word size set to %d bits.\n\n", tms_int_mask_size);
+                printf("Word size set to %d bits." NN, tms_int_mask_size);
             }
             return NEXT_ITERATION;
         }
+        else if (strcmp("output", token) == 0)
+        {
+            token = strtok(NULL, " ");
+            if (token == NULL)
+            {
+                puts("Usage: output +-=[dboxi] with '+' causes the selected modes to be added, '-' causes them to be "
+                     "removed; and '=' causes them to be set." NL);
+                return NEXT_ITERATION;
+            }
+            char mode = token[0];
+            int output_mode_flag, new_flags = 0;
+            for (int i = 1; i < strlen(token); ++i)
+            {
+                // Get the correct mask
+                switch (tolower(token[i]))
+                {
+                case 'd':
+                    output_mode_flag = DECIMAL;
+                    break;
+                case 'b':
+                    output_mode_flag = BINARY;
+                    break;
+                case 'o':
+                    output_mode_flag = OCTAL;
+                    break;
+                case 'x':
+                    output_mode_flag = HEXADECIMAL;
+                    break;
+                case 'i':
+                    output_mode_flag = DOTTED;
+                    break;
+                default:
+                    fprintf(stderr, "Unrecognized output mode '%c', it should be one of the letters \"dboxi\" " NN,
+                            token[i]);
+                    return NEXT_ITERATION;
+                }
+                // Collecting the flags
+                new_flags |= output_mode_flag;
+            }
+            // Update the flags depending on the requested action (+-=)
+            switch (mode)
+            {
+            case '+':
+                imode_output_flags |= new_flags;
+                break;
+            case '-':
+                imode_output_flags &= ~new_flags;
+                break;
+            case '=':
+                imode_output_flags = new_flags;
+                break;
+            default:
+                fprintf(stderr, "Unrecognized operation '%c', it should be one of \"+-=\" " NN, mode);
+                return NEXT_ITERATION;
+            }
+            puts("Output mode updated successfuly" NL);
+            return NEXT_ITERATION;
+        }
+        // Delete a variable or ufunction
         else if (strcmp("del", token) == 0)
         {
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                puts("Usage: del var1|func1 [var2|func2 ...]");
-                putchar('\n');
+                puts("Usage: del var1|func1 [var2|func2 ...]" NL);
                 return NEXT_ITERATION;
             }
             const tms_int_var *target_int_var;
@@ -492,7 +562,7 @@ int _management_input_lazy(char *input)
                     case 0:
                         printf("Variable \"%s\" removed\n", token);
                         break;
-                    // This case should never happen, put here for completeness
+                    // This case should never happen (because we tried to fetch it earlier), put here for completeness
                     case -1:
                         printf("Variable \"%s\" not found\n", token);
                         break;
@@ -508,7 +578,6 @@ int _management_input_lazy(char *input)
                     case 0:
                         printf("Function \"%s\" removed\n", token);
                         break;
-                    // This case should never happen, put here for completeness
                     case -1:
                         printf("Function \"%s\" not found\n", token);
                         break;
@@ -589,19 +658,19 @@ int _management_input_lazy(char *input)
         else if (strcmp("debug", token) == 0)
         {
             _tms_debug = true;
-            puts("Debug output enabled.\n");
+            puts("Debug output enabled." NL);
             return NEXT_ITERATION;
         }
         else if (strcmp("undebug", token) == 0)
         {
             _tms_debug = false;
-            puts("Debug output disabled.\n");
+            puts("Debug output disabled." NL);
             return NEXT_ITERATION;
         }
         else if (strcmp("reset", token) == 0)
         {
             tmsolve_reset();
-            puts("Calculator reset complete\n");
+            puts("Calculator reset complete." NL);
             return NEXT_ITERATION;
         }
     default:
@@ -702,7 +771,7 @@ void scientific_mode()
                 name = tms_strndup(expr, name_len);
                 char *function_args = tms_strndup(expr + name_len + 1, i - name_len - 2);
                 if (tms_set_ufunction(name, function_args, expr + i + 1) == 0)
-                    printf("Function set successfully.\n\n");
+                    puts("Function set successfully." NL);
                 else
                     tms_print_errors(TMS_PARSER);
                 free(function_args);
@@ -835,38 +904,62 @@ void print_int_value_multibase(int64_t value)
         puts("= 0\n");
     else
     {
+        if ((imode_output_flags & DECIMAL) != 0)
+        {
+            printf("= ");
+            switch (tms_int_mask_size)
+            {
+            case 8:
+                printf("%" PRId8, (int8_t)value);
+                break;
+            case 16:
+                printf("%" PRId16, (int16_t)value);
+                break;
+            case 32:
+                printf("%" PRId32, (int32_t)value);
+                break;
+            case 64:
+                printf("%" PRId64, value);
+                break;
+            default:
+                fputs("Unexpected mask size" NN, stderr);
+                return;
+            }
+            putchar('\n');
+        }
         value &= tms_int_mask;
-        printf("= ");
-        switch (tms_int_mask_size)
+        if ((imode_output_flags & HEXADECIMAL) != 0)
         {
-        case 8:
-            printf("%" PRId8, (int8_t)value);
-            break;
-        case 16:
-            printf("%" PRId16, (int16_t)value);
-            break;
-        case 32:
-            printf("%" PRId32, (int32_t)value);
-            break;
-        case 64:
-            printf("%" PRId64, value);
-            break;
-        default:
-            fputs("Unexpected mask size" NN, stderr);
-            return;
+            printf("= ");
+            tms_print_hex(value);
+            // If we have to print octal, just put a space, otherwise use a newline
+            if ((imode_output_flags & OCTAL) != 0)
+                putchar(' ');
+            else
+                putchar('\n');
         }
-        printf("\n= ");
-        tms_print_hex(value);
-        printf(" = ");
-        tms_print_oct(value);
-        printf("\n= ");
-        tms_print_bin(value);
-        if (tms_int_mask_size > 15)
+        if ((imode_output_flags & OCTAL) != 0)
         {
-            printf("\n= ");
-            tms_print_dot_decimal(value);
+            printf("= ");
+            tms_print_oct(value);
+            putchar('\n');
         }
-        printf(NN);
+        if ((imode_output_flags & BINARY) != 0)
+        {
+            printf("= ");
+            tms_print_bin(value);
+            putchar('\n');
+        }
+        if ((imode_output_flags & DOTTED) != 0)
+        {
+            if (tms_int_mask_size > 15)
+            {
+                printf("= ");
+                tms_print_dot_decimal(value);
+                putchar('\n');
+            }
+        }
+        printf(NL);
     }
 }
 
@@ -927,7 +1020,7 @@ void integer_mode()
                 name = tms_strndup(expr, name_len);
                 char *function_args = tms_strndup(expr + name_len + 1, i - name_len - 2);
                 if (tms_set_int_ufunction(name, function_args, expr + i + 1) == 0)
-                    printf("Function set successfully.\n\n");
+                    printf("Function set successfully." NN);
                 else
                     tms_print_errors(TMS_INT_PARSER);
                 free(function_args);
@@ -1194,7 +1287,7 @@ void function_calculator()
                 function = strdup(old_function);
             else
             {
-                fputs("No previous function found.\n\n", stderr);
+                fputs("No previous function found." NN, stderr);
                 continue;
             }
             printf("f(x) = %s\n", function);
@@ -1358,13 +1451,13 @@ void utility_mode()
 
                 if (status < 1)
                 {
-                    fprintf(stderr, "Syntax error.\n\n");
+                    fprintf(stderr, "Syntax error." NN);
                     continue;
                 }
 
                 if (fabs(tmp) > INT32_MAX)
                 {
-                    fprintf(stderr, "Values must be in range [-2147483647;2147483647]\n\n");
+                    fprintf(stderr, "Values must be in range [-2147483647;2147483647]" NN);
                     continue;
                 }
                 else
@@ -1391,10 +1484,10 @@ void utility_mode()
                 printf(NN);
             }
             else
-                fprintf(stderr, "Invalid function. Supported: factor(int)\n\n");
+                fprintf(stderr, "Invalid function. Supported: factor(int)" NN);
         }
         else
-            fprintf(stderr, "Invalid input. Supported: factor(int)\n\n");
+            fprintf(stderr, "Invalid input. Supported: factor(int)" NN);
     }
 }
 
