@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #define NO_ACTION 0
 #define NEXT_ITERATION 1
 #define SWITCH_MODE 2
+#define MULTILINE_OUTPUT_UPDATE 3
 
 #ifdef USE_READLINE
 #include <readline/readline.h>

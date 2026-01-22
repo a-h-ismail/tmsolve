@@ -8,6 +8,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
 #include <stdlib.h>
 #include <unistd.h>
 
+extern bool pref_suppress_output;
+
 int free_fields[9][2];
 void display_board(char **board)
 {
@@ -242,6 +244,8 @@ void computer_move(char **board)
 
 void tic_tac_toe()
 {
+    pref_suppress_output = false;
+
     char **board;
     int i, status, wins = 0, losses = 0, draws = 0;
     bool computer_start = false;
