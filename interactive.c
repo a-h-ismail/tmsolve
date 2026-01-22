@@ -211,7 +211,7 @@ char *get_input(char *dest, char *prompt, size_t n)
                 suppress_output = pref_suppress_output;
 
                 if (!suppress_output)
-                    printf("%s%s\n", prompt, tmp);
+                    printf("%s%s" NL, prompt, tmp);
 
                 // And get the next token
                 next_token = strtok_r(NULL, ";", &state);
@@ -225,7 +225,7 @@ char *get_input(char *dest, char *prompt, size_t n)
                     skip_hist_add = true;
                     tmp = strdup(next_token);
                     if (!suppress_output)
-                        printf("%s%s\n", prompt, tmp);
+                        printf("%s%s" NL, prompt, tmp);
                     next_token = strtok_r(NULL, ";", &state);
                 }
             }
@@ -247,7 +247,7 @@ char *get_input(char *dest, char *prompt, size_t n)
         size_t length = strlen(tmp);
         if (length == 0)
         {
-            puts(NO_INPUT "\n");
+            puts(NO_INPUT NL);
             free(tmp);
         }
         else if (length > n)
@@ -310,7 +310,7 @@ void print_array_of_chars_helper(char *next)
     }
     else
     {
-        puts("\n");
+        puts(NL);
         i = 0;
     }
 }
@@ -333,7 +333,7 @@ int _management_input_lazy(char *input)
         token = strtok(NULL, " ");
         if (token == NULL)
         {
-            tms_puts("Controls if individual expressions and their results are printed when using multi expr input.\n"
+            tms_puts("Controls if intermediary expressions and their results are printed when using multi-expr input." NL
                      "Expects argument \"show\" or \"hide\"." NL);
             return NEXT_ITERATION;
         }
@@ -373,7 +373,7 @@ int _management_input_lazy(char *input)
         {
             if (strlen(token) > 1)
             {
-                tms_puts("Expected a single letter, type \"mode\" for help.\n");
+                tms_puts("Expected a single letter, type \"mode\" for help." NL);
                 return NEXT_ITERATION;
             }
             else
@@ -387,7 +387,7 @@ int _management_input_lazy(char *input)
                 }
                 else
                 {
-                    tms_puts("Invalid mode. Type \"mode\" to see a list of all available modes.\n");
+                    tms_puts("Invalid mode. Type \"mode\" to see a list of all available modes." NL);
                     return NEXT_ITERATION;
                 }
             }
@@ -402,45 +402,50 @@ int _management_input_lazy(char *input)
             switch (_mode)
             {
             case 'S':
-                tms_puts("Calculate a math expression.\n"
-                         "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
-                         "Operator priority groups (high to low): () [ ^ ** ] [ * / // % ] [ + - ]\n"
-                         "Supports assignment operators: += -= *= /= %=\n"
+                tms_puts("Calculate a math expression." NL
+                         "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\"." NL
+                         "Operator associativity: Left to right." NL
+                         "Priority: see below, left to right is high to low, operators in `[]` have the same priority:" NL
+                         "() [ ^ ** ] [ * / // % ] [ + - ]" NL "Supports assignment operators: += -= *= /= %= //= **=" NL
                          "Supports user defined variables and functions." NN
-                         "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1.\n"
+                         "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1." NL
                          "\"f(x)=x^2\" creates a new function that returns the square of its argument." NN
-                         "To view available functions, type \"functions\".\n"
-                         "To view currently defined variables, type \"variables\".\n"
-                         "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
-                         "To reset all user variables and functions, type \"reset\".\n"
+                         "To view available functions, type \"functions\"." NL
+                         "To view currently defined variables, type \"variables\"." NL
+                         "To remove a user defined variable or function, type \"del {var1|func1 ...} \"." NL
+                         "To reset all user variables and functions, type \"reset\"." NL
+                         "To control multi-expr intermediary output, use the multiline command." NL
                          "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'I':
-                tms_puts("Calculate a math expression.\n"
-                         "Compared to scientific mode, this mode uses integers instead of double precision floats.\n"
-                         "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\".\n"
-                         "Operator priority groups (high to low): () ** [ * / % ] [ + - ] [ << <<< >> >>>] & ^ |\n"
-                         "Supports assignment operators: += -= *= /= %= ^= |= &=\n"
+                tms_puts("Calculate a math expression." NL
+                         "Compared to scientific mode, this mode uses integers instead of double precision floats." NL
+                         "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\"." NL
+                         "Operator associativity: Left to right." NL
+                         "Priority: see below, left to right is high to low, operators in `[]` have the same priority:" NL
+                         "() ** [ * / % ] [ + - ] [ << <<< >> >>> ] & ^ |" NL
+                         "Supports assignment operators: += -= *= /= %= ^= |= &= <<= >>= <<<= >>>= **=" NL
                          "Supports user defined variables." NN
                          "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1." NN
-                         "To change current variable size, use the \"set\" keyword.\n"
-                         "To view available functions, type \"functions\"\n"
-                         "To view currently defined variables, type \"variables\"\n"
-                         "To remove a user defined variable or function, type \"del {var1|func1 ...} \".\n"
-                         "To reset all user variables and functions, type \"reset\".\n"
-                         "To change the bases shown in the answer, use the \"output\" command.\n"
+                         "To change current variable size, use the \"set\" keyword." NL
+                         "To view available functions, type \"functions\"" NL
+                         "To view currently defined variables, type \"variables\"" NL
+                         "To remove a user defined variable or function, type \"del {var1|func1 ...} \"." NL
+                         "To reset all user variables and functions, type \"reset\"." NL
+                         "To control multi-expr intermediary output, use the multiline command." NL
+                         "To change the bases shown in the answer, use the \"output\" command." NL
                          "Use \"debug\" and \"undebug\" to enable/disable debugging output.");
                 break;
             case 'F':
-                tms_puts("Function mode calculates a function over a specified interval.\n"
+                tms_puts("Function mode calculates a function over a specified interval." NL
                          "Provide the function and start, end, step to get the results.");
                 break;
             case 'E':
-                tms_puts("Equation mode solves equations up to the third degree.\n"
+                tms_puts("Equation mode solves equations up to the third degree." NL
                          "Enter the degree and follow the on screen instructions.");
                 break;
             case 'U':
-                tms_puts("Utility mode is meant for useful functions that don't fit in any other mode.\n"
+                tms_puts("Utility mode is meant for useful functions that don't fit in any other mode." NL
                          "Currently, only factor() is available.");
                 break;
             case 'G':
@@ -491,7 +496,7 @@ int _management_input_lazy(char *input)
                     for (size_t i = 0; i < count; ++i)
                     {
                         argstring = tms_args_to_string(all_ufunc[i].F->labels);
-                        tms_printf("%s(%s) = %s\n", all_ufunc[i].name, argstring, all_ufunc[i].F->expr);
+                        tms_printf("%s(%s) = %s" NL, all_ufunc[i].name, argstring, all_ufunc[i].F->expr);
                         free(argstring);
                     }
                 }
@@ -532,13 +537,13 @@ int _management_input_lazy(char *input)
         else if (strcmp("debug", token) == 0)
         {
             _tms_debug = true;
-            tms_puts("Debug output enabled.\n");
+            tms_puts("Debug output enabled." NL);
             return NEXT_ITERATION;
         }
         else if (strcmp("undebug", token) == 0)
         {
             _tms_debug = false;
-            tms_puts("Debug output disabled.\n");
+            tms_puts("Debug output disabled." NL);
             return NEXT_ITERATION;
         }
         else if (strcmp("del", token) == 0)
@@ -558,21 +563,21 @@ int _management_input_lazy(char *input)
                 target_var = tms_get_var_by_name(token);
                 target_ufunc = tms_get_ufunc_by_name(token);
                 if (target_var == NULL && target_ufunc == NULL)
-                    tms_printf("No variable or user function named \"%s\"\n", token);
+                    tms_printf("No variable or user function named \"%s\"" NL, token);
                 if (target_var != NULL)
                 {
                     int status = tms_remove_var(token);
                     switch (status)
                     {
                     case 0:
-                        tms_printf("Variable \"%s\" removed\n", token);
+                        tms_printf("Variable \"%s\" removed" NL, token);
                         break;
                     // This case should never happen, put here for completeness
                     case -1:
-                        tms_printf("Variable \"%s\" not found\n", token);
+                        tms_printf("Variable \"%s\" not found" NL, token);
                         break;
                     case 1:
-                        tms_printf("Variable \"%s\" is read-only, it can't be removed\n", token);
+                        tms_printf("Variable \"%s\" is read-only, it can't be removed" NL, token);
                     }
                 }
                 else if (target_ufunc != NULL)
@@ -581,11 +586,11 @@ int _management_input_lazy(char *input)
                     switch (status)
                     {
                     case 0:
-                        tms_printf("Function \"%s\" removed\n", token);
+                        tms_printf("Function \"%s\" removed" NL, token);
                         break;
                     // This case should never happen, put here for completeness
                     case -1:
-                        tms_printf("Function \"%s\" not found\n", token);
+                        tms_printf("Function \"%s\" not found" NL, token);
                         break;
                     }
                 }
@@ -597,7 +602,7 @@ int _management_input_lazy(char *input)
         else if (strcmp("reset", token) == 0)
         {
             tmsolve_reset();
-            tms_puts("Calculator reset complete\n");
+            tms_puts("Calculator reset complete" NL);
             return NEXT_ITERATION;
         }
         break;
@@ -608,9 +613,8 @@ int _management_input_lazy(char *input)
             token = strtok(NULL, " ");
             if (token == NULL)
             {
-                tms_printf("Current word size: %d bits\n", tms_int_mask_size);
-                tms_puts("Use the \"set\" keyword with w1, w2, w4, w8 to set the word size.\n"
-                         "Example: set w8\n");
+                tms_printf("Current word size: %d bits" NL, tms_int_mask_size);
+                tms_puts("Use the \"set\" keyword with w1, w2, w4, w8 to set the word size." NL "Example: set w8" NL);
             }
             else
             {
@@ -709,21 +713,21 @@ int _management_input_lazy(char *input)
                 target_int_var = tms_get_int_var_by_name(token);
                 target_int_ufunc = tms_get_int_ufunc_by_name(token);
                 if (target_int_var == NULL && target_int_ufunc == NULL)
-                    tms_printf("No variable or user function named \"%s\"\n", token);
+                    tms_printf("No variable or user function named \"%s\"" NL, token);
                 if (target_int_var != NULL)
                 {
                     int status = tms_remove_int_var(token);
                     switch (status)
                     {
                     case 0:
-                        tms_printf("Variable \"%s\" removed\n", token);
+                        tms_printf("Variable \"%s\" removed" NL, token);
                         break;
                     // This case should never happen (because we tried to fetch it earlier), put here for completeness
                     case -1:
-                        tms_printf("Variable \"%s\" not found\n", token);
+                        tms_printf("Variable \"%s\" not found" NL, token);
                         break;
                     case 1:
-                        tms_printf("Variable \"%s\" is read-only, it can't be removed\n", token);
+                        tms_printf("Variable \"%s\" is read-only, it can't be removed" NL, token);
                     }
                 }
                 else if (target_int_ufunc != NULL)
@@ -732,10 +736,10 @@ int _management_input_lazy(char *input)
                     switch (status)
                     {
                     case 0:
-                        tms_printf("Function \"%s\" removed\n", token);
+                        tms_printf("Function \"%s\" removed" NL, token);
                         break;
                     case -1:
-                        tms_printf("Function \"%s\" not found\n", token);
+                        tms_printf("Function \"%s\" not found" NL, token);
                         break;
                     }
                 }
@@ -775,7 +779,7 @@ int _management_input_lazy(char *input)
                     for (size_t i = 0; i < count; ++i)
                     {
                         argstring = tms_args_to_string(all_int_ufunc[i].F->labels);
-                        tms_printf("%s(%s) = %s\n", all_int_ufunc[i].name, argstring, all_int_ufunc[i].F->expr);
+                        tms_printf("%s(%s) = %s" NL, all_int_ufunc[i].name, argstring, all_int_ufunc[i].F->expr);
                         free(argstring);
                     }
                 }
@@ -1067,7 +1071,7 @@ void print_int_value_multibase(int64_t value)
         return;
 
     if (value == 0)
-        puts("= 0\n");
+        puts("= 0" NL);
     else
     {
         if ((imode_output_flags & DECIMAL) != 0)
@@ -1390,10 +1394,10 @@ void print_result(double complex result, bool verbose)
             }
         }
     }
-    tms_printf("\n");
+    tms_printf(NL);
     // If verbose it set (interactive), add an extra newline for visibility
     if (verbose)
-        tms_printf("\n");
+        tms_printf(NL);
 }
 
 void equation_mode()
@@ -1475,7 +1479,7 @@ void function_calculator()
                 fputs("No previous function found." NN, stderr);
                 continue;
             }
-            tms_printf("f(x) = %s\n", function);
+            tms_printf("f(x) = %s" NL, function);
         }
 
         M = tms_parse_expr(function, ENABLE_CMPLX | PRINT_ERRORS, tms_get_args("x"));
@@ -1490,7 +1494,7 @@ void function_calculator()
         old_function = strdup(function);
 
         start = get_value("Start: ");
-        tms_printf("%.12g\n", start);
+        tms_printf("%.12g" NL, start);
         // Read end value
         while (1)
         {
@@ -1502,7 +1506,7 @@ void function_calculator()
             }
             else
             {
-                tms_printf("%.12g\n", end);
+                tms_printf("%.12g" NL, end);
                 break;
             }
         }
@@ -1524,7 +1528,7 @@ void function_calculator()
             step = tms_solve_e(expr, 0, NULL);
             if (isnan(step))
             {
-                tms_printf("\n");
+                tms_printf(NL);
                 free(expr);
                 continue;
             }
@@ -1598,7 +1602,7 @@ void function_calculator()
                 break;
             }
         }
-        tms_printf("\n");
+        tms_printf(NL);
         free(function);
         tms_delete_math_expr(M);
     }
@@ -1700,7 +1704,7 @@ void rps()
         playerc = operation[0];
         if (strncmp(operation, "stat", 4) == 0)
         {
-            printf("Wins=%d\nTotal=%d\n", wins, total);
+            printf("Wins=%d\nTotal=%d" NL, wins, total);
             continue;
         }
         ++total;
