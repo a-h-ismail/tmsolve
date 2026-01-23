@@ -8,7 +8,7 @@ Powerful and lightweight command line calculator.
 
 ### Command Line Arguments
 
-Run `tmsolve --help` (or `tmsolve.exe --help` for Windows) to see supported command line arguments.
+Run `tmsolve --help` (or `tmsolve.exe --help` for Windows if not in `PATH`) to see supported command line arguments.
 
 ### Modes
 
@@ -20,27 +20,26 @@ The calculator has the following modes:
 - Equation (E)
 - Utility (U)
 
-To switch between modes, add the correct letter after the command `mode`
+To switch between modes, add the correct letter after the command `mode`.
 
 Example: `mode I` will switch to integer mode.
+
+**Note:** All modes support emulating multi-line input using a semicolon `;`. For example, `a=5;b=10;a+b` would set `a` to 5, `b` to 10 then do the sum and display the result. In any mode, use `multiline show` to show intermediary results and `multiline hide` to show only the final result.
 
 ### Scientific Mode
 
 #### Supported Operators
 
-priority: high to low, groups in `[]` have the same priority:
-
- `() ^ [ * / % ] [ + - ]`
-
-Where:
+- Operator associativity: Left to right.
+- Priority: see next, sorted by highest priority with operators on the same line having the same priority.
 
 ```
-^       Power operator.
-* / %   Multiplication, division, modulo.
-+ -     Addition and subtraction.
+^ **       Power operators.
+* / // %   Multiplication, division, integer division, modulo.
++ -        Addition and subtraction.
 ```
 
-Assignment operations `+=` `-=` `*=` `/=` `%=` are also supported.
+Assignment operations `+=` `-=` `*=` `/=` `%=` `//=` `**=` are also supported.
 
 #### Supported Functions
 
@@ -95,6 +94,15 @@ Function set successfully.
 
 > f(2,3)
 = 10
+
+> 38//5
+= 7
+
+> -38//5
+= -7
+
+> 2**8-2^8
+= 0
 ```
 
 ### Integer Mode
@@ -103,21 +111,20 @@ Uses only integers and supports bitwise operations.
 
 #### Supported Operators
 
-priority: high to low, groups in `[]` have the same priority:
-
- `() [ * / % ] [ + - ] & ^ |`
-
-Where:
+- Operator associativity: Left to right.
+- Priority: see next, sorted by highest priority with operators on the same line having the same priority.
 
 ```
-* / %   Multiplication, division and modulo.
-+ -     Addition and subtraction.
-&       Bitwise AND.
-^       Bitwise XOR.
-|       Bitwise OR.
+**              Power operator
+* / %           Multiplication, division and modulo.
++ -             Addition and subtraction.
+<< >> <<< >>>   Shift left, shift right (arithmetic), rotate left, rotate right
+&               Bitwise AND.
+^               Bitwise XOR.
+|               Bitwise OR.
 ```
 
-Assignment operations `+=` `-=` `*=` `/=` `%=` `^=` `|=` `&=` are also supported.
+Assignment operations `+=` `-=` `*=` `/=` `%=` `^=` `|=` `&=` `<<=` `>>=` `<<<=` `>>>=` `**=` are also supported.
 
 #### Supported Functions
 
@@ -137,13 +144,13 @@ Current mode: Integer
 = 0b 00000000 00000000 00000000 10100100
 = 0.0.0.164
 
-> sr(ans,4)
+> ans >> 4
 = 10
 = 0xA = 0o12
 = 0b 00000000 00000000 00000000 00001010
 = 0.0.0.10
 
-> sl(ans,5)
+> ans << 5
 = 320
 = 0x140 = 0o500
 = 0b 00000000 00000000 00000001 01000000
@@ -152,11 +159,23 @@ Current mode: Integer
 > set w2
 Word size set to 16 bits.
 
-> rr(0b1111 1111,12)
+> 0b1111 1111 >>> 12
 = 4080
 = 0xFF0 = 0o7 760
 = 0b 00001111 11110000
 = 15.240
+
+> 14**3
+= 2744
+= 0xAB8 = 0o5 270
+= 0b 00001010 10111000
+= 10.184
+
+> float(2.73)
+= 1076803666
+= 0x402E B852 = 0o10 013 534 122
+= 0b 01000000 00101110 10111000 01010010
+= 64.46.184.82
 
 > not(0)
 = -1
@@ -256,7 +275,7 @@ x2 = 1
 
 ### Windows
 
-Precompiled binaries are provided in the "Releases" section. You can also use CMake if you want to build from source.
+Precompiled binaries are provided in the "Releases" section. You can also use CMake if you want to build from source. You need MSYS2 to install Mingw packages of `gcc` (NOT Cygwin), `readline`, `winpthread` and `ncurses`.
 
 ### Linux
 
@@ -266,27 +285,24 @@ Install required packages:
 
 #### For Debian/Ubuntu
 
-`sudo apt install gcc libreadline-dev git cmake make`
+`sudo apt install gcc libreadline-dev git cmake`
 
 #### For Fedora
 
-`sudo dnf install gcc readline-devel git cmake make`
+`sudo dnf install gcc readline-devel git cmake`
 
 ---
 
-Clone the project repository, generate the makefile and build using make:
+Clone the project repository, configure, build and install the project:
 
 ```
-git clone --depth 1 https://gitlab.com/a-h-ismail/tmsolve
-cd tmsolve
-git submodule init libtmsolve
-git submodule update
+git clone --depth 1 --branch v1.5.0 https://github.com/a-h-ismail/tmsolve.git
+cd tmsolve && git submodule update --init
 
 # Generate the makefile and use it to build the binary
-cmake -DCMAKE_BUILD_TYPE=Release -S. -B./build -G "Unix Makefiles"
-cd ./build
-make
-sudo make install
+cmake -S . -B build; cmake --build build
+# Remove any older version and install the new one
+sudo bash -c 'rm /usr/local/bin/tmsolve; cmake --install build'
 ```
 
 ## License
