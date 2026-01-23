@@ -2,6 +2,19 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.5.0 - 2026-01-23
+
+Built with `libtmsolve` version 3.1.0
+
+## Added
+
+- Multi-expr input using semicolon `;` as separator.
+- Operators `**` `//` `**=` `//=` in Scientific mode.
+- Operators `<<` `>>` `<<<` `>>>` `**` `<<=` `>>=` `<<<=` `>>>=` `**=` in Integer mode.
+- Gracefully handle `SIGINT` on Linux if environment variable `DESKTOP_LAUNCHER=1` is set.
+- Ability to control the numerical bases shown in an integer expression answer using `output` command. 
+- Technical: Enable Windows autocompletion support. 
+
 ## 1.4.0 - 2025-06-15
 
 Built with `libtmsolve` version 3.0.2
