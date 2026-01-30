@@ -17,7 +17,7 @@ bool suppress_output = false;
 // Tells the input getter if it should set "suppress_output" or not
 bool pref_suppress_output = false;
 // Tells if multi expr input is currently active
-bool is_multi_input = false;
+bool _is_multi_input = false;
 
 enum _imode_output_flags
 {
@@ -176,27 +176,30 @@ char *readline(char *prompt)
 */
 char *get_input(char *dest, char *prompt, size_t n)
 {
-    char *tmp = NULL;
+    char *tmp;
     // Avoids having individual tokens in a multi token input from being added independently to history
     bool skip_hist_add = false;
     // Used for transparent tokenizing
     static char *last_input = NULL, *state, *next_token;
     while (1)
     {
+        tmp = NULL;
         // If multi input is active, we get the next expr from strtok_r
-        if (!is_multi_input)
+        if (!_is_multi_input)
             tmp = readline(prompt);
         // Multi expr input separated by ;
-        if ((tmp != NULL && strstr(tmp, ";") != NULL) || is_multi_input)
+        // First condition indicates the first input that initializes strtok_r
+        // Second condition indicates subsequent tokens retrieval
+        if ((tmp != NULL && strstr(tmp, ";") != NULL) || _is_multi_input)
         {
             // First call, we need to initialize strtok_r
-            if (last_input == NULL)
+            if (!_is_multi_input)
             {
+                last_input = tmp;
 #ifdef USE_READLINE
                 // Add ; separated string to history
-                add_history_nodup(tmp);
+                add_history_nodup(last_input);
 #endif
-                last_input = tmp;
                 tmp = strtok_r(last_input, ";", &state);
                 if (tmp == NULL)
                 {
@@ -216,7 +219,7 @@ char *get_input(char *dest, char *prompt, size_t n)
                 // And get the next token
                 next_token = strtok_r(NULL, ";", &state);
                 skip_hist_add = true;
-                is_multi_input = true;
+                _is_multi_input = true;
             }
             else
             {
@@ -237,7 +240,7 @@ char *get_input(char *dest, char *prompt, size_t n)
                 free(last_input);
                 last_input = NULL;
                 suppress_output = false;
-                is_multi_input = false;
+                _is_multi_input = false;
             }
         }
         // Properly handle end of piped input
@@ -322,9 +325,9 @@ int _management_input_lazy(char *input)
 {
     char *token = strtok(input, " ");
 
-    // Not supposed to happen normally
+    // Indicates no tokens at all, do nothing
     if (token == NULL)
-        exit(1);
+        return NEXT_ITERATION;
 
     if (strcmp(token, "exit") == 0)
         exit(0);
@@ -1466,6 +1469,10 @@ void function_calculator()
             continue;
         case MULTILINE_OUTPUT_UPDATE:
             f_pref_suppress_output = pref_suppress_output;
+            continue;
+        default:
+            tms_fputs("Unexpected response from management input, please report this error.", stderr);
+            free(function);
             continue;
         }
 
