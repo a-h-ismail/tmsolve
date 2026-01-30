@@ -3,6 +3,7 @@ Copyright (C) 2022-2026 Ahmad Ismail
 SPDX-License-Identifier: GPL-3.0-or-later
 */
 #include "interactive.h"
+#include "m_errors.h"
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -179,6 +180,7 @@ char *get_input(char *dest, char *prompt, size_t n)
     char *tmp;
     // Avoids having individual tokens in a multi token input from being added independently to history
     bool skip_hist_add = false;
+    static bool suppress_all = false;
     // Used for transparent tokenizing
     static char *last_input = NULL, *state, *next_token;
     while (1)
@@ -186,7 +188,29 @@ char *get_input(char *dest, char *prompt, size_t n)
         tmp = NULL;
         // If multi input is active, we get the next expr from strtok_r
         if (!_is_multi_input)
+        {
             tmp = readline(prompt);
+            // Handling all whitespaces input
+            if (tmp != NULL)
+            {
+                bool only_spaces = true;
+                for (int i = 0; i < strlen(tmp); ++i)
+                {
+                    // If we have at least one non space character, continue without interruption
+                    if (isspace(tmp[i]) == 0)
+                    {
+                        only_spaces = false;
+                        break;
+                    }
+                }
+                if (only_spaces)
+                {
+                    puts(NO_INPUT NL);
+                    free(tmp);
+                    continue;
+                }
+            }
+        }
         // Multi expr input separated by ;
         // First condition indicates the first input that initializes strtok_r
         // Second condition indicates subsequent tokens retrieval
@@ -196,6 +220,11 @@ char *get_input(char *dest, char *prompt, size_t n)
             if (!_is_multi_input)
             {
                 last_input = tmp;
+                // If the string is terminated with a ';', so suppress the final input too
+                // The trick is to send a " " as input to whatever called get_input
+                // Then the management input function will recognize it and silently move to the next iteration
+                if (pref_suppress_output && last_input[strlen(last_input) - 1] == ';')
+                    suppress_all = true;
 #ifdef USE_READLINE
                 // Add ; separated string to history
                 add_history_nodup(last_input);
@@ -237,10 +266,18 @@ char *get_input(char *dest, char *prompt, size_t n)
             // If there is no next token, disable multi line mode
             if (next_token == NULL)
             {
-                free(last_input);
-                last_input = NULL;
-                suppress_output = false;
-                _is_multi_input = false;
+                if (suppress_all)
+                {
+                    next_token = " ";
+                    suppress_all = false;
+                }
+                else
+                {
+                    free(last_input);
+                    last_input = NULL;
+                    suppress_output = false;
+                    _is_multi_input = false;
+                }
             }
         }
         // Properly handle end of piped input
