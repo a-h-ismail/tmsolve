@@ -2,11 +2,22 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.5.1 - 2026-01-31
+
+Built with `libtmsolve` version 3.1.1
+
+### Fixed
+
+- Crash when using autocompletion in integer mode when more than one variable is set (fixed in libtmsolve)
+- Potential crashes in very unlikely edge cases while processing multi-expr input.
+- Premature termination due to all whitespaces expression in multi-expr input.
+- Adding a `;` to the last expr now suppresses its output as expected.
+
 ## 1.5.0 - 2026-01-23
 
 Built with `libtmsolve` version 3.1.0
 
-## Added
+### Added
 
 - Multi-expr input using semicolon `;` as separator.
 - Operators `**` `//` `**=` `//=` in Scientific mode.
