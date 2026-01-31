@@ -24,7 +24,7 @@ To switch between modes, add the correct letter after the command `mode`.
 
 Example: `mode I` will switch to integer mode.
 
-**Note:** All modes support emulating multi-line input using a semicolon `;`. For example, `a=5;b=10;a+b` would set `a` to 5, `b` to 10 then do the sum and display the result. In any mode, use `multiline show` to show intermediary results and `multiline hide` to show only the final result.
+**Note:** All modes support emulating multi-line input using a semicolon `;`. For example, `a=5;b=10;a+b` would set `a` to 5, `b` to 10 then do the sum and display the result. In any mode, use `multiline show` to show intermediary results and `multiline hide` to show only the final result. Using a semicolon suppresses the output of the preceding expression as long as `multiline hide` is set.
 
 ### Scientific Mode
 
@@ -296,7 +296,7 @@ Install required packages:
 Clone the project repository, configure, build and install the project:
 
 ```
-git clone --depth 1 --branch v1.5.0 https://github.com/a-h-ismail/tmsolve.git
+git clone --depth 1 --branch v1.5.1 https://github.com/a-h-ismail/tmsolve.git
 cd tmsolve && git submodule update --init
 
 # Generate the makefile and use it to build the binary
