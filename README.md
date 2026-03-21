@@ -315,7 +315,7 @@ Install required packages:
 Clone the project repository, configure, build and install the project:
 
 ```
-git clone --depth 1 --branch v1.5.1 https://github.com/a-h-ismail/tmsolve.git
+git clone --depth 1 --branch v1.5.2 https://github.com/a-h-ismail/tmsolve.git
 cd tmsolve && git submodule update --init
 
 # Generate the makefile and use it to build the binary
