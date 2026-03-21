@@ -446,7 +446,7 @@ int _management_input_lazy(char *input)
                          "This mode supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\"." NL
                          "Operator associativity: Left to right." NL
                          "Priority: see below, left to right is high to low, operators in `[]` have the same priority:" NL
-                         "() [ ^ ** ] [ * / // % ] [ + - ]" NL "Supports assignment operators: += -= *= /= %= //= **=" NL
+                         "() ! [ ^ ** ] [ * / // % ] [ + - ]" NL "Supports assignment operators: += -= *= /= %= //= **=" NL
                          "Supports user defined variables and functions." NN
                          "Examples:\n\"v1=5*pi\" will assign 5*pi to the variable v1." NL
                          "\"f(x)=x^2\" creates a new function that returns the square of its argument." NN
@@ -463,7 +463,7 @@ int _management_input_lazy(char *input)
                          "Supports hex, oct and bin input using prefixes \"0x\", \"0o\" and \"0b\"." NL
                          "Operator associativity: Left to right." NL
                          "Priority: see below, left to right is high to low, operators in `[]` have the same priority:" NL
-                         "() ** [ * / % ] [ + - ] [ << <<< >> >>> ] & ^ |" NL
+                         "() ! ~ ** [ * / % ] [ + - ] [ << <<< >> >>> ] & ^ |" NL
                          "Supports assignment operators: += -= *= /= %= ^= |= &= <<= >>= <<<= >>>= **=" NL
                          "Supports user defined variables." NN
                          "Example: \"v1=791 & 0xFF\" will assign 791 & 0xFF to the variable v1." NN

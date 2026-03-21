@@ -39,6 +39,8 @@ Example: `mode I` will switch to integer mode.
 + -        Addition and subtraction.
 ```
 
+Operator `!` (factorial) is a postfix operator that expands to `fact()` function call, so it has the highest priority.
+
 Assignment operations `+=` `-=` `*=` `/=` `%=` `//=` `**=` are also supported.
 
 #### Supported Functions
@@ -103,6 +105,9 @@ Function set successfully.
 
 > 2**8-2^8
 = 0
+
+> 7!-6!
+= 4320
 ```
 
 ### Integer Mode
@@ -123,6 +128,8 @@ Uses only integers and supports bitwise operations.
 ^               Bitwise XOR.
 |               Bitwise OR.
 ```
+
+Operator `!` (factorial) is a postfix operator that expands to `fact()` function call, so it has the highest priority. Similarly for operator `~`, which expands to `not()`, and has the second highest priority, lower than `!` due to expansion order.
 
 Assignment operations `+=` `-=` `*=` `/=` `%=` `^=` `|=` `&=` `<<=` `>>=` `<<<=` `>>>=` `**=` are also supported.
 
@@ -183,6 +190,12 @@ Word size set to 16 bits.
 = 0b 11111111 11111111
 = 255.255
 
+> ~0
+= -1
+= 0xFFFF FFFF = 0o37 777 777 777
+= 0b 11111111 11111111 11111111 11111111
+= 255.255.255.255
+
 > set w4
 Word size set to 32 bits.
 
@@ -203,6 +216,12 @@ Word size set to 32 bits.
 = 0xFF = 0o377
 = 0b 00000000 00000000 00000000 11111111
 = 0.0.0.255
+
+> ~mask(8)
+= -256
+= 0xFFFF FF00 = 0o37 777 777 400
+= 0b 11111111 11111111 11111111 00000000
+= 255.255.255.0
 
 > ipv4(194.43.236.139) & mask(12)
 = 3211
