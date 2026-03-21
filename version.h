@@ -1,5 +1,5 @@
 #ifndef CLI_VERSION
 #define CLI_VERSION
 
-#define TMSOLVE_VER "1.5.1"
+#define TMSOLVE_VER "1.5.2"
 #endif
