@@ -2,6 +2,14 @@
 
 Note that most significant changes are in `libtmsolve` changelogs, so check them for most features and bugfixes.
 
+## 1.5.3 - 2026-05-19
+
+Built with `libtmsolve` version 3.2.0
+
+### Fixed
+
+- A regression introduced in version 1.5.1 that broke function mode.
+
 ## 1.5.2 - 2026-03-21
 
 Built with `libtmsolve` version 3.2.0
