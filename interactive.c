@@ -1457,7 +1457,6 @@ void equation_mode()
         {
         case SWITCH_MODE:
             return;
-
         case NEXT_ITERATION:
             continue;
         case MULTILINE_OUTPUT_UPDATE:
@@ -1500,15 +1499,16 @@ void function_calculator()
         case SWITCH_MODE:
             free(function);
             return;
-
         case NEXT_ITERATION:
             free(function);
             continue;
         case MULTILINE_OUTPUT_UPDATE:
             f_pref_suppress_output = pref_suppress_output;
             continue;
+        case NO_ACTION:
+            break;
         default:
-            tms_fputs("Unexpected response from management input, please report this error.", stderr);
+            tms_fputs("Unexpected response from management input, please report this error.\n", stderr);
             free(function);
             continue;
         }
